@@ -3,11 +3,16 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import SignupPage from "./pages/SignupPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <div>Hello world</div>,
+  },
+  {
+    path: "/signup",
+    element: <SignupPage />,
   },
 ]);
 
