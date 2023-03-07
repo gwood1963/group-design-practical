@@ -22,7 +22,7 @@ const UserTokenPage = () => {
           text="Submit"
           onClick={(_) => {
             // TODO compare to database tokens.
-            if (token && token.length == 10 && parseInt(token, 16)) {
+            if (token && token.length === 10 && parseInt(token, 16)) {
               navigate(`/game?token=${token}`);
             } else {
               setError("Not a valid token!");
