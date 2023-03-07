@@ -1,19 +1,14 @@
+import MainWrapper from "../components/ContentWrapper";
 import LinkButton from "../components/LinkButton";
 
 const HomePage = () => {
   return (
-    <main
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-around",
-        alignItems: "center",
-        height: "100%",
-      }}
+    <MainWrapper
+        justifyContent="space-around"
     >
       <LinkButton text="Candidate" target="signup" />
       <LinkButton text="Admin" target="adminRoot" />
-    </main>
+    </MainWrapper>
   );
 };
 

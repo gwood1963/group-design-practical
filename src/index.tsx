@@ -7,6 +7,7 @@ import SignupPage from "./pages/SignupPage";
 import { initializeApp } from "firebase/app";
 import PageWrapper from "./components/PageWrapper";
 import HomePage from "./pages/HomePage";
+import UserTokenPage from "./pages/UserToken";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <SignupPage />,
+  },
+  {
+    path: "/tokeninput",
+    element: <UserTokenPage />,
   },
 ]);
 
