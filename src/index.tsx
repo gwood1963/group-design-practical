@@ -8,6 +8,7 @@ import { initializeApp } from "firebase/app";
 import PageWrapper from "./components/PageWrapper";
 import HomePage from "./pages/HomePage";
 import UserTokenPage from "./pages/UserToken";
+import GamePage from "./pages/GamePage";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: "/tokeninput",
     element: <UserTokenPage />,
+  },
+  {
+    path: "/game",
+    element: <GamePage />,
   },
 ]);
 
