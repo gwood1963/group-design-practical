@@ -6,11 +6,12 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SignupPage from "./pages/SignupPage";
 import { initializeApp } from "firebase/app";
 import PageWrapper from "./components/PageWrapper";
+import HomePage from "./pages/HomePage";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>Hello world</div>,
+    element: <HomePage />,
   },
   {
     path: "/signup",

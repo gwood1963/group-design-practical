@@ -2,6 +2,7 @@ import LinkButton from "../components/LinkButton";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ActionButton from "../components/ActionButton";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const SignupPage = () => {
           height: "100%",
         }}
       >
-        <button
+        <ActionButton
           onClick={(_) => {
             signInWithPopup(auth, provider)
               .then((_) => {
@@ -34,9 +35,8 @@ const SignupPage = () => {
                 setError(`Error ${error.code} - ${error.message}`);
               });
           }}
-        >
-          Sign in with Google
-        </button>
+          text="Sign in with Google"
+        />
         {error !== undefined && <p>error</p>}
       </main>
     </>
