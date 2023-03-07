@@ -34,8 +34,9 @@ const GamePage = () => {
           style={{
             margin: "1rem",
             padding: "0.5rem",
-            color: "#30BEFF",
+            color: "#DEF7FF",
             border: "2px solid #30BEFF",
+            backgroundColor: "#87DBFF",
             borderRadius: "5px",
           }}
         >{`${Math.floor(time / 60)
@@ -73,13 +74,17 @@ const GamePage = () => {
               width: "100%",
               height: "80%",
               marginBottom: "1rem",
-              border: "2px solid #30BEFF",
+              borderRadius: "5px",
+              background:
+                "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
             }}
           ></div>
           <div
             style={{
               width: "100%",
-              border: "2px solid #30BEFF",
+              borderRadius: "5px",
+              background:
+                "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
               height: "20%",
             }}
           ></div>
@@ -88,7 +93,9 @@ const GamePage = () => {
           style={{
             width: "20%",
             margin: "1rem",
-            border: "2px solid #30BEFF",
+            borderRadius: "5px",
+            background:
+              "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
           }}
         ></div>
       </div>
