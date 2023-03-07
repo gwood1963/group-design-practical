@@ -4,6 +4,7 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SignupPage from "./pages/SignupPage";
+import { initializeApp } from "firebase/app";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,18 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBQ4RssbdihD64sAUAcrqNwQs7GUo8dGRk",
+  authDomain: "group-design-b77ce.firebaseapp.com",
+  projectId: "group-design-b77ce",
+  storageBucket: "group-design-b77ce.appspot.com",
+  messagingSenderId: "721578227879",
+  appId: "1:721578227879:web:607cea0b69da14bf098382",
+};
+
+initializeApp(firebaseConfig);
+
 root.render(
   <React.StrictMode>
     <RouterProvider router={router} />
