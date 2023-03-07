@@ -1,10 +1,11 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SignupPage from "./pages/SignupPage";
 import { initializeApp } from "firebase/app";
+import PageWrapper from "./components/PageWrapper";
 
 const router = createBrowserRouter([
   {
@@ -34,7 +35,9 @@ initializeApp(firebaseConfig);
 
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <PageWrapper>
+      <RouterProvider router={router} />
+    </PageWrapper>
   </React.StrictMode>
 );
 
