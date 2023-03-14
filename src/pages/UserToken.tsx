@@ -13,10 +13,19 @@ const UserTokenPage = () => {
       <LinkButton target="/" text="back button" image="/back.svg" />
       <MainWrapper flexDirection="column">
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <label style={{ padding: "0.5rem 2rem" }}>
+          <label style={{ color: "#0089C4", padding: "0.5rem 2rem" }}>
             Enter a puzzle token:
           </label>
-          <input onChange={(e) => setToken(e.target.value)} value={token} />
+          <input
+            style={{
+              border: "2px solid #30BEFF",
+              borderRadius: "100px",
+              padding: "0.5rem",
+            }}
+            placeholder="token"
+            onChange={(e) => setToken(e.target.value)}
+            value={token}
+          />
         </div>
         <ActionButton
           text="Submit"
