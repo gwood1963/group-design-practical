@@ -4,7 +4,7 @@ The purpose of this file is to read in a seed and output a graph
 
 import { Graph } from './Graph.js'
 
-class ReadSeed {
+export class ReadSeed {
     graph;
     n = 0;
 
