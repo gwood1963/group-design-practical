@@ -22,7 +22,7 @@ class Generate {
      * @param {Int} maxCap 
      */
     generate(numNodes, numEdges, numFromS, numIntoT, minCap, maxCap) {
-        var adj = new Array(n)[[]];
+        var adj = new Array(n)[[]]; //row i stores [j, cap]
         adj[0] = this.uniqueIntsArr(numNodes - 2, numFromS); //edges out of s: random nodes indices 2 to n-2, aka noes 1 to n-1
         adj[n - 1] = this.uniqueIntsArr(numNodes - 2, numIntoT); //edges into t: random nodes indices 2 to n-2, aka noes 1 to n-1
 
@@ -34,11 +34,15 @@ class Generate {
         for (var k = 0; k < edges.length; k++) {
             var i = Math.floor(edges[k] / n);
             var j = edges[k] % n;
-            adj[i].push(j);
+            adj[i].push([j, this.nextCap(minCap, maxCap)]);
         }
         this.graph.nodes(n);
         this.graph.adjList(adj);
         this.graph.logInfo();
+    }
+
+    nextCap(min, max) {
+        return Math.floor(Math.random() * (max - min) + min);
     }
 
     /**
