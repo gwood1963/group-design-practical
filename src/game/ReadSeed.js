@@ -72,7 +72,7 @@ export class ReadSeed {
             var c = capacities[k];
 
             adj[i].push([j, c]); //edge from i to j
-            adj[j].push([i, c]); //edge from j to i
+            //adj[j].push([i, c]); //edge from j to i, only needed if the graph is undirected
         }
 
         for (var k = 0; k < n; k++) {
