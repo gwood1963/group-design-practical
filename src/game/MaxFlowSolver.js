@@ -40,37 +40,33 @@ class MaxFlowSolver {
      * @param {Graph} G - the graph
      */
     findPath(G) {
-        //Note: G is directed, and has edge weights (which don't matter much in this case)
-
+        var stack = [];
+        var visited = new Array(n)[false];
+        var A = G.adjList();
+        var pi = new Array(n)[0]; //pi = predecessors
+        var found = false;
+        stack.push(0);
+        //Invariant any node in the stack it is our first time visiting it
+        while (!stack.isEmpty()) {
+            node = stack.pop();
+            visited[node] = true;
+            console.log(`we visited ${node}`)
+            if (node === n - 1) { //if we found t
+                found = true;
+                break;
+            }
+            for (var k = 0; k < A[node].length; k++) {
+                var j = A[node][k][0];
+                if (!visited[j]) {
+                    stack.push(j);
+                    pi[j] = node
+                }
+            }
+        }
+        //If we found t, then pi is [0, x1, ..., xk, t] and return pi
+        //if not, return null
+        return found ? pi : null;
     }
-
-    /*
-
-    DFS(V, E)
-    Input: Graph G = (V, E), directed or undirected
-    Output: Timestamps d[v] and f[v], and predecessor π[v] for each v ∈ V
-    1 for u ∈ V
-    2   colour[u] = white π[u] = NIL
-    3 time = 0
-    4 for u ∈ V
-    5   if colour[u] = white
-    6       DFS-Visit(u)
-
-    DFS-Visit(u)
-    1 time = time + 1 // vertex u has been discovered
-    2 d[u] = time // record discovery time
-    3 colour[u] = grey // mark vertex u visited
-    4 for v ∈ Adj[u] // explore from v and come back once finished
-    5   if colour[v] = white
-    6       π[v] = u
-    7       DFS-Visit(v)
-    8 time = time + 1 // vertex u has been finished
-    9 f[u] = time // record finishing time
-    10 colour[u] = black // mark vertex u finished
-
-    for path from s to t, take predecessors of t until we reach s
-
-    */
 
 
 }
