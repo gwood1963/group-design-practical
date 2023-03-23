@@ -39,6 +39,16 @@ export class Graph {
         return m;
     }
 
+    adjMatrixWithCap() {
+        var m = new Array(n)[new Array(n)[[0, 0]]]; //[0, 0] if no edge, [1, cap] if has edge
+        for (var i = 0; i < this.n; i++) {
+            for (var j = 0; j < A[i].length; j++) {
+                m[i][A[i][j][0]] = [1, A[i][j][1]]; //edge from i to j (A[i][j][0])
+            }
+        }
+        return m;
+    }
+
     set nodes(n) {
         this.n = n;
     }
