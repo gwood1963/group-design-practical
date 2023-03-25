@@ -3,6 +3,12 @@ The purpose of this file is to generate a new random puzzle, given some initial 
 And constraints (such as connectedness) and to export as a graph (Graph.js)
 */
 
+/**
+ * TODO: 
+ * make sure we have all comppnents connected
+ * make sure we dont have both an edge frmo i to j and from j to i
+ */
+
 import { Graph } from './Graph.js'
 
 class Generate {
