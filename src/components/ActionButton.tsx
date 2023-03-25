@@ -12,6 +12,8 @@ const ActionButton = ({ onClick, text }: ActionButtonProps) => {
         padding: "0.5rem",
         margin: "1rem",
         border: "none",
+        cursor: "pointer",
+        fontWeight: "bold",
       }}
       onClick={onClick}
     >
