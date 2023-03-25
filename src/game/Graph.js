@@ -15,6 +15,18 @@ export class Graph {
         this.A = adjacencyList //Adjacency List of elements of the form (j, capacity) in row i
     }
 
+    setCapacitiesZero() {
+        for (var i = 0; i < this.n; i++) {
+            for (var k = 0; k < A[i].length; k++) {
+                A[i][k][1] = 0;
+            }
+        }
+    }
+
+    dim() {
+        return this.n;
+    }
+
     adjList() {
         return this.A;
     }
