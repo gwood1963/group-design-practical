@@ -1,5 +1,5 @@
 import express from "express";
-import getRecentScores from "./database";
+import getRecentScores from "../database";
 
 var router = express.Router();
 
