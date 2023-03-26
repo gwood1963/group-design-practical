@@ -8,9 +8,7 @@ export class ReadSeed {
     graph;
     n = 0;
 
-    constructor(seed) {
-        readSeed(seed);
-    }
+    constructor() {}
 
     readSeed(s) {
         var seed = s + '%' //assuming seed is of format n%i,j,c%...%i,j,c with no ending '%'

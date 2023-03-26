@@ -6,7 +6,9 @@ export class Graph {
     //nodes = [];
     n;
     A = [
-        []
+        [
+            [0, 0]
+        ]
     ]; // list of (j, capacity)'s in row i
 
     constructor(numNodes, adjacencyList) {
@@ -15,10 +17,14 @@ export class Graph {
         this.A = adjacencyList //Adjacency List of elements of the form (j, capacity) in row i
     }
 
+    dummy() {
+        console.log("dummy function");
+    }
+
     setCapacitiesZero() {
         for (var i = 0; i < this.n; i++) {
-            for (var k = 0; k < A[i].length; k++) {
-                A[i][k][1] = 0;
+            for (var k = 0; k < this.A[i].length; k++) {
+                this.A[i][k][1] = 0;
             }
         }
     }
@@ -52,10 +58,10 @@ export class Graph {
     }
 
     adjMatrixWithCap() {
-        var m = new Array(n)[new Array(n)[[0, 0]]]; //[0, 0] if no edge, [1, cap] if has edge
+        var m = new Array(this.n)[new Array(this.n)[[0, 0]]]; //[0, 0] if no edge, [1, cap] if has edge
         for (var i = 0; i < this.n; i++) {
-            for (var j = 0; j < A[i].length; j++) {
-                m[i][A[i][j][0]] = [1, A[i][j][1]]; //edge from i to j (A[i][j][0])
+            for (var j = 0; j < this.A[i].length; j++) {
+                m[i][this.A[i][j][0]] = [1, this.A[i][j][1]]; //edge from i to j (A[i][j][0])
             }
         }
         return m;
@@ -70,8 +76,16 @@ export class Graph {
     }
 
     logInfo() {
-        console.log("Nodes: " + nodes);
-        console.log("Adjacency Matrix: " + A)
+        console.log("Nodes: " + this.n);
+        console.log(this.A);
+        console.log("Adjacency List: ");
+        for (var i = 0; i < this.n; i++) {
+            var row = "";
+            for (var k = 0; k < this.A[i].length; k++) {
+                row += this.A[i] + " ";
+            }
+            console.log(row);
+        }
     }
 
 }

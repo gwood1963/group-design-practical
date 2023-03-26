@@ -5,19 +5,27 @@ The aim of this file is to provide a way to store graphs as an object while runn
 import { Graph } from './Graph.js'
 
 export class MaxFlowSolver {
-    graph;
-    flowGraph;
-    n;
+    graph = new Graph;
+    flowGraph = new Graph;
+    n = 0;
 
-    constructor(g, n) {
-        this.graph = g;
-        this.flowGraph = this.graph;
+
+    constructor(g, n) {}
+
+    /**
+     * 
+     * @param {Graph} g 
+     */
+    setGraph(g) {
+        //g.logInfo(); //debug
+        //var a = g.adjList();
+        var a = g.A;
+        console.log(a); //debug
+        this.graph = new Graph(g.dim(), a);
+        this.graph.logInfo();
+        this.flowGraph = new Graph(g.dim(), a);
+        this.flowGraph.logInfo(); //debug
         this.flowGraph.setCapacitiesZero();
-        this.n = n;
-    }
-
-    set setGraph(g) {
-        this.graph = g;
         this.n = g.dim();
     }
 
@@ -68,10 +76,12 @@ export class MaxFlowSolver {
     }
 
     /**
-     * 
+     * @param { Graph } G - graph
      * @returns max flow of the graph stored in the object
      */
-    maxFlow() {
+    maxFlow(G) {
+        //G.logInfo(); //debug
+        this.setGraph(G);
         var network = this.fordFulkerson();
         var flows = network.adjList();
         var flow = 0;
@@ -175,8 +185,8 @@ export class MaxFlowSolver {
         //returns the residual graph G_f
 
         var flow = G.adjMatrixWithCap();
-        var cap = graph.adjMatrixWithCap();
-        var aug = new Array(n)[new Array(n)[0]];
+        var cap = this.graph.adjMatrixWithCap();
+        var aug = new Array(this.n)[new Array(this.n)[0]];
 
         for (var i = 0; i < this.n; i++) {
             for (var j = 0; j < this.n; j++) {
@@ -198,6 +208,11 @@ export class MaxFlowSolver {
         return new Graph(this.n, A);
     }
 
+    /**
+     * 
+     * @param {Array} M 
+     * @returns 
+     */
     adjMatrixToList(M) {
         var n = M.length;
         var adj = new Array(n)[[]];

@@ -11,7 +11,7 @@ And constraints (such as connectedness) and to export as a graph (Graph.js)
 
 import { Graph } from './Graph.js'
 
-class Generate {
+export class Generate {
     graph;
     constructor() {
         this.graph = new Graph;
