@@ -28,7 +28,7 @@ export class Generate {
      * @param {Int} maxCap 
      */
     generate(numNodes, numEdges, numFromS, numIntoT, minCap, maxCap) {
-        var adj = new Array(n)[[]]; //row i stores [j, cap]
+        var adj = new Array(n).fill([]); //row i stores [j, cap]
         adj[0] = this.uniqueIntsArr(numNodes - 2, numFromS); //edges out of s: random nodes indices 2 to n-2, aka noes 1 to n-1
         adj[n - 1] = this.uniqueIntsArr(numNodes - 2, numIntoT); //edges into t: random nodes indices 2 to n-2, aka noes 1 to n-1
 

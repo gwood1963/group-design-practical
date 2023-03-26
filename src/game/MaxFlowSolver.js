@@ -110,7 +110,7 @@ export class MaxFlowSolver {
         var b = this.calculateBottleneck(G, P);
 
         //new adj matrix
-        var adj = new Array(n)[new Array(n)[0]];
+        var adj = new Array(n).fill(new Array(n).fill(0));
 
         for (var k = 0; k < P.length - 1; k++) {
             var i = P[k];
@@ -137,17 +137,18 @@ export class MaxFlowSolver {
      */
     findPath(G) {
         var stack = [];
-        var visited = new Array(n)[false];
-        var A = G.adjList();
-        var pi = new Array(n)[0]; //pi = predecessors
+        var visited = new Array(this.n).fill(false);
+        //var A = G.adjList();
+        var A = G.A;
+        var pi = new Array(this.n).fill(0); //pi = predecessors
         var found = false;
         stack.push(0);
         //Invariant any node in the stack it is our first time visiting it
-        while (!stack.isEmpty()) {
-            node = stack.pop();
+        while (stack.length > 0) {
+            var node = stack.pop();
             visited[node] = true;
             console.log(`we visited ${node}`)
-            if (node === n - 1) { //if we found t
+            if (node === this.n - 1) { //if we found t
                 found = true;
                 break;
             }
@@ -163,7 +164,7 @@ export class MaxFlowSolver {
         //If we found t, then path is [0, x1, ..., xk, t] and return path
         //if not, return null
         var path = [];
-        var k = n - 1;
+        var k = this.n - 1;
         path.push(k);
         while (k != 0) {
             k = path[k];
@@ -186,7 +187,7 @@ export class MaxFlowSolver {
 
         var flow = G.adjMatrixWithCap();
         var cap = this.graph.adjMatrixWithCap();
-        var aug = new Array(this.n)[new Array(this.n)[0]];
+        var aug = new Array(this.n).fill(new Array(this.n).fill(0));
 
         for (var i = 0; i < this.n; i++) {
             for (var j = 0; j < this.n; j++) {
@@ -215,7 +216,7 @@ export class MaxFlowSolver {
      */
     adjMatrixToList(M) {
         var n = M.length;
-        var adj = new Array(n)[[]];
+        var adj = new Array(n).fill([]);
         for (var i = 0; i < n; i++) {
             for (var j = 0; j < n; j++) {
                 if (M[i][j] > 0) {

@@ -38,7 +38,7 @@ export class Graph {
     }
 
     adjMatrix() {
-        var m = new Array(n)[new Array(n)[0]];
+        var m = new Array(n).fill(new Array(n).fill(0));
         for (var i = 0; i < this.n; i++) {
             for (var j = 0; j < A[i].length; j++) {
                 m[i][A[i][j][0]] = 1; //edge from i to j (A[i][j][0])
@@ -48,7 +48,7 @@ export class Graph {
     }
 
     capMatrix() {
-        var m = new Array(n)[new Array(n)[0]];
+        var m = new Array(n).fill(new Array(n).fill(0));
         for (var i = 0; i < this.n; i++) {
             for (var j = 0; j < A[i].length; j++) {
                 m[i][A[i][j][0]] = A[i][j][1] //capacity of edge from i to j (A[i][j][0])
@@ -58,12 +58,17 @@ export class Graph {
     }
 
     adjMatrixWithCap() {
-        var m = new Array(this.n)[new Array(this.n)[[0, 0]]]; //[0, 0] if no edge, [1, cap] if has edge
+        var m = new Array(this.n).fill(new Array(this.n).fill([0, 0])); //[0, 0] if no edge, [1, cap] if has edge
+        console.log(m);
+        //var m = new Array(this.n)[new Array(this.n)[new Array(2)[0]]]; //[0, 0] if no edge, [1, cap] if has edge
+        console.log(this.A);
         for (var i = 0; i < this.n; i++) {
             for (var j = 0; j < this.A[i].length; j++) {
+                console.log(i + " " + this.A[i][j][0] + " " + this.A[i][j][1]);
                 m[i][this.A[i][j][0]] = [1, this.A[i][j][1]]; //edge from i to j (A[i][j][0])
             }
         }
+        console.log("end operations")
         return m;
     }
 

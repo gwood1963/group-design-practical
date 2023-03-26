@@ -57,6 +57,14 @@ class Test {
     test1() {
         this.graph = graph1;
         this.graph.logInfo();
+
+        console.log("graph edge info");
+        //console.log(this.graph.adjList()); //test.js:62 Uncaught TypeError: this.graph.adjList is not a function
+        console.log(this.graph.A);
+        console.log(this.graph.adjMatrixWithCap());
+        console.log("end graph edge info");
+
+
         console.log("Max flow: " + this.maxFlowSolver.maxFlow(this.graph));
     }
 }

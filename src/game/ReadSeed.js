@@ -62,7 +62,7 @@ export class ReadSeed {
         var e = edges.length;
         assert(n === capacities.length);
 
-        var adj = new Array(n)[[]];
+        var adj = new Array(n).fill([]);
 
         for (var k = 0; k < e; k++) {
             var i = edges[k][0];
