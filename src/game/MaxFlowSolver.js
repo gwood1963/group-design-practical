@@ -63,13 +63,20 @@ export class MaxFlowSolver {
             f ← AUGMENT(f , P)
             Update Gf
          */
-        this.flowGraph = this.graph;
+
+        var temp;
+        temp = this.graph
+
+        this.flowGraph = new Graph(temp.dim(), temp.A);
         this.flowGraph.setCapacitiesZero();
 
-        var res = this.calculateResidual(this.flowGraph);
+
+        temp = this.calculateResidual(this.flowGraph);
+        var res = new Graph(temp.dim(), temp.A);
         var P = this.findPath(res);
         while (P != null) {
-            this.flowGraph = this.augment(this.flowGraph, P)
+            temp = this.augment(this.flowGraph, P);
+            this.flowGraph = new Graph(temp.dim(), temp.A);
             P = this.findPath(res);
         }
         return this.flowGraph;
@@ -107,6 +114,8 @@ export class MaxFlowSolver {
 
         var cap = this.graph.adjMatrixWithCap();
         var flow = G.adjMatrixWithCap();
+        console.log("Flow for augmentation")
+        console.log(flow)
         var b = this.calculateBottleneck(G, P);
 
         //new adj matrix
@@ -139,7 +148,11 @@ export class MaxFlowSolver {
         var stack = [];
         var visited = new Array(this.n).fill(false);
         //var A = G.adjList();
-        var A = G.A;
+        var B = G.A;
+        //for some reason B is an instance of Graph
+        console.log("This is A: ")
+        console.log(B);
+        console.log("End A")
         var pi = new Array(this.n).fill(0); //pi = predecessors
         var found = false;
         stack.push(0);
@@ -189,15 +202,22 @@ export class MaxFlowSolver {
         var cap = this.graph.adjMatrixWithCap();
         var aug = new Array(this.n).fill(new Array(this.n).fill(0));
 
+        console.log("residual flow and caps")
+        console.log(G)
+        console.log(this.graph)
+
         for (var i = 0; i < this.n; i++) {
             for (var j = 0; j < this.n; j++) {
+                /* console.log("flow and cap values")
+                console.log(flow[i][j])
+                console.log(cap[i][j]) */
                 if (cap[i][j][0] === 0) {
                     continue;
                 }
-                if (flow[i][j] < cap[i][j]) {
-                    aug[i][j] = cap[i][j] - flow[i][j];
-                } else if (flow[i][j] === cap[i][j]) {
-                    aug[j][i] = cap[i][j];
+                if (flow[i][j][1] < cap[i][j][1]) {
+                    aug[i][j] = cap[i][j][1] - flow[i][j][1];
+                } else if (flow[i][j][1] === cap[i][j][1]) {
+                    aug[j][i] = cap[i][j][1];
                 } else {
                     console.log("an error has occured, the flow is larger than the capacity at (" + i + ", " + j + ")");
                 }

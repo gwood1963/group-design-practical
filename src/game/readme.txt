@@ -1,6 +1,10 @@
 What I am currently working on is testing the code and making sure what I have currently works.
 
-The main problem right now is in MaxFlowSolver.js, with references.
+The main problem right now is the adjMatrixWithCap function in Graph.js. 
+For some reason (maybe due to referencing the same point in memory? same as second main issue?) the outputted
+matrix is totally wrong. 
+
+The second main problem right now is in MaxFlowSolver.js, with references.
 Basically, supose we have var G = new Graph(..., ...)
 Then we do var H = G
 Then we do for example H.setCapacitiesZero()

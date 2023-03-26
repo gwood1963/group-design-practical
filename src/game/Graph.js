@@ -58,11 +58,15 @@ export class Graph {
     }
 
     adjMatrixWithCap() {
+        //for some reason outputting a matrix with wrong entries
+        //again due to referencing the same point in memory?
         var m = new Array(this.n).fill(new Array(this.n).fill([0, 0])); //[0, 0] if no edge, [1, cap] if has edge
+        console.log("matrix with cap")
         console.log(m);
         //var m = new Array(this.n)[new Array(this.n)[new Array(2)[0]]]; //[0, 0] if no edge, [1, cap] if has edge
         console.log(this.A);
         for (var i = 0; i < this.n; i++) {
+            console.log(this.A[i].length)
             for (var j = 0; j < this.A[i].length; j++) {
                 console.log(i + " " + this.A[i][j][0] + " " + this.A[i][j][1]);
                 m[i][this.A[i][j][0]] = [1, this.A[i][j][1]]; //edge from i to j (A[i][j][0])

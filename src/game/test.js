@@ -49,6 +49,7 @@ var graph1 = new Graph(n1, sampleA1List);
 class Test {
     generate = new Generate;
     graph = new Graph;
+    dummyGraph;
     readSeed = new ReadSeed;
     maxFlowSolver = new MaxFlowSolver;
 
@@ -58,10 +59,31 @@ class Test {
         this.graph = graph1;
         this.graph.logInfo();
 
+        this.dummyGraph = new Graph(5, [
+            [
+                [1, 5],
+                [2, 5]
+            ],
+            [
+                [2, 5],
+                [4, 5]
+            ],
+            [
+                [3, 5]
+            ],
+            [
+                [1, 5],
+                [4, 5]
+            ],
+            []
+        ])
+
+
+
         console.log("graph edge info");
         //console.log(this.graph.adjList()); //test.js:62 Uncaught TypeError: this.graph.adjList is not a function
-        console.log(this.graph.A);
-        console.log(this.graph.adjMatrixWithCap());
+        console.log(this.dummyGraph.A);
+        console.log(this.dummyGraph.adjMatrixWithCap());
         console.log("end graph edge info");
 
 
