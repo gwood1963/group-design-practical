@@ -19,36 +19,76 @@ interface Data {
     university: number;
    }
 */
+interface Data {
+    UserID: number,
+    FirstName: string,
+    Surname: string,
+    Email: string,
+    ProblemID: string,
+    RawScore: number,
+    Percentile: number,
+    Invited: boolean
+}
 
 
 const Database01Page = () => {
-    const data = React.useMemo(() => fakeData, []); /*TO-DO: link to actual data from SQL databse*/
+    const [scores, setScores] = useState([]);
+
+    useEffect(() => {
+        console.log("loading scores");
+        getScores();
+    }, []);
+
+    const data: Data[] = React.useMemo(() => scores, [scores]);
+
+    async function getScores() {
+        const result = await fetch("/api/database");
+        const json = await result.json();
+        console.log(json);
+        setScores(json);
+    }
+
     const columns= React.useMemo(() => [ 
         {
             Header: "Candidate ID",
-            accessor: "id",
-
+            id: "UserID",
+            accessor: (row: Data) => row.UserID
         },
         {
             Header: "First Name",
-            accessor: "first_name",
+            id:"FirstName",
+            accessor: (row: Data) => row.FirstName
         },
         {
             Header: "Last Name",
-            accessor: "last_name",
+            id: "Surname",
+            accessor: (row: Data) => row.Surname
         },
         {
             Header: "Email",
-            accessor: "email",
+            id: "Email",
+            accessor: (row: Data) => row.Email
         },
         {
-            Header: "Gender",
-            accessor: "gender",
+            Header: "Problem ID",
+            id: "ProblemID",
+            accessor: (row:Data) => row.ProblemID
         },
         {
-            Header: "University",
-            accessor: "university",
+            Header: "Raw Score",
+            id: "RawScore",
+            accessor: (row: Data) => row.RawScore
         },
+        {
+            Header: "Percentile",
+            id: "Percentile",
+            accessor: (row: Data) => row.Percentile
+        },
+        {
+            Header: "Invited?",
+            id: "Invited",
+            accessor: (row: Data) => row.Invited
+        }
     ], []);
 
     //@ts-ignore
@@ -64,6 +104,7 @@ const Database01Page = () => {
                 ),
                 //@ts-ignore
                 Cell: ({row})=> (
+                    //@ts-ignore
                     <Checkbox {...row.getToggleRowSelectedProps()}/>
 
                 )
@@ -77,7 +118,8 @@ const Database01Page = () => {
     
     return (
         //console.log(fakeData),
-        console.log(selectedFlatRows), /*logs the rows selected at any given time*/
+        //console.log(selectedFlatRows), /*logs the rows selected at any given time*/
+        console.log(data),
         <>
         
         <div className = "navBar">
