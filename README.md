@@ -14,6 +14,12 @@ The initial brief given was as follows:
 
 To run the project, run the command `npm run start` in the root directory. A full build can be produced with `npm run build`
 
+To run on the express server, run `npm run build` in root directory.
+Then run `npm run dev` in server and navigate to localhost:3001 in your browser.
+The server will recompile and restart when any files in server are changed.
+If your changes only affect the React code, you will need to run `npm run build` in root again to trigger a server restart.
+You will also need to refresh the page in your browser. This must be done at the homepage or it will cause an error.
+
 ## Technologies Used
 
 ### React
