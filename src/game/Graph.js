@@ -27,10 +27,6 @@ export class Graph {
         this.A = A;
     }
 
-    dummy() {
-        console.log("dummy function");
-    }
-
     setCapacitiesZero() {
         for (var i = 0; i < this.n; i++) {
             for (var k = 0; k < this.A[i].length; k++) {
@@ -58,15 +54,15 @@ export class Graph {
     }
 
     getA() {
-        var temp = new Array(this.n).fill([]);
+        /* var temp = new Array(this.n).fill([]);
         for (var i = 0; i < this.n; i++) {
             for (var k = 0; k < this.A[i].length; k++) {
                 temp[i].push(this.A[i][k]);
                 console.log(temp);
             }
         }
-        return temp;
-        //return this.A;
+        return temp; */
+        return this.A;
     }
 
     adjMatrix() {
@@ -92,7 +88,18 @@ export class Graph {
     adjMatrixWithCap() {
         //for some reason outputting a matrix with wrong entries
         //again due to referencing the same point in memory?
-        var m = new Array(this.n).fill(new Array(this.n).fill([0, 0])); //[0, 0] if no edge, [1, cap] if has edge
+        //var m = new Array(this.n).fill(new Array(this.n).fill([0, 0])); //[0, 0] if no edge, [1, cap] if has edge
+
+        //neccessary to do this as the other method fills each row with identical references
+        var m = [];
+        for (var i = 0; i < this.n; i++) {
+            var temp = [];
+            for (var j = 0; j < this.n; j++) {
+                temp.push([0, 0]);
+            }
+            m.push(temp);
+        }
+
         console.log("matrix with cap")
         console.log(m);
         //var m = new Array(this.n)[new Array(this.n)[new Array(2)[0]]]; //[0, 0] if no edge, [1, cap] if has edge
@@ -100,7 +107,7 @@ export class Graph {
         for (var i = 0; i < this.n; i++) {
             console.log(this.A[i].length)
             for (var j = 0; j < this.A[i].length; j++) {
-                console.log(i + " " + this.A[i][j][0] + " " + this.A[i][j][1]);
+                //console.log(i + " " + this.A[i][j][0] + " " + this.A[i][j][1]);
                 m[i][this.A[i][j][0]] = [1, this.A[i][j][1]]; //edge from i to j (A[i][j][0])
             }
         }

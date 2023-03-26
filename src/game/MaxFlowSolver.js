@@ -69,21 +69,21 @@ export class MaxFlowSolver {
         var temp;
         temp = this.graph
 
-        console.log(temp.A);
+        //console.log(temp.A);
 
         this.flowGraph.setParams(temp.dim(), temp.A);
         this.flowGraph.setCapacitiesZero();
 
-        console.log("flow graph: ");
-        console.log(this.flowGraph);
+        //console.log("flow graph: ");
+        //console.log(this.flowGraph);
 
 
         temp = this.calculateResidual(this.flowGraph);
         //var res = new Graph(temp.dim(), temp.A);
         this.residual.setParams(temp.dim(), temp.A);
 
-        console.log("residual graph: ");
-        console.log(this.residual);
+        //console.log("residual graph: ");
+        //console.log(this.residual);
 
         var P = this.findPath(this.residual);
         while (P != null) {
@@ -95,6 +95,19 @@ export class MaxFlowSolver {
     }
 
     /**
+     * 
+     * @param {Graph} G - graph of flows
+     */
+    flow(G) {
+        var flows = network.getA();
+        var flow = 0;
+        for (var k = 0; k < flows[0].length; k++) {
+            flow += flows[0][k][1];
+        }
+        return flow;
+    }
+
+    /**
      * @param { Graph } G - graph
      * @returns max flow of the graph stored in the object
      */
@@ -102,12 +115,7 @@ export class MaxFlowSolver {
         //G.logInfo(); //debug
         this.setGraph(G);
         var network = this.fordFulkerson();
-        var flows = network.adjList();
-        var flow = 0;
-        for (var k = 0; k < flows[0].length; k++) {
-            flow += flows[0][k][1];
-        }
-        return flow;
+        return this.flow(network);
     }
 
     /**
@@ -126,8 +134,8 @@ export class MaxFlowSolver {
 
         var cap = this.graph.adjMatrixWithCap();
         var flow = G.adjMatrixWithCap();
-        console.log("Flow for augmentation")
-        console.log(flow)
+        //console.log("Flow for augmentation")
+        //console.log(flow)
         var b = this.calculateBottleneck(G, P);
 
         //new adj matrix
@@ -162,9 +170,9 @@ export class MaxFlowSolver {
         var A = G.getA();
         //var B = G.A;
         //for some reason B is an instance of Graph
-        console.log("This is A: ")
+        /* console.log("This is A: ")
         console.log(A);
-        console.log("End A")
+        console.log("End A") */
         var pi = new Array(this.n).fill(0); //pi = predecessors
         var found = false;
         stack.push(0);
@@ -214,9 +222,9 @@ export class MaxFlowSolver {
         var cap = this.graph.adjMatrixWithCap();
         var aug = new Array(this.n).fill(new Array(this.n).fill(0));
 
-        console.log("residual flow and caps")
+        /* console.log("residual flow and caps")
         console.log(G)
-        console.log(this.graph)
+        console.log(this.graph) */
 
         for (var i = 0; i < this.n; i++) {
             for (var j = 0; j < this.n; j++) {

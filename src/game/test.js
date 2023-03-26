@@ -87,7 +87,7 @@ class Test {
         console.log("end graph edge info");
 
 
-        console.log("Max flow: " + this.maxFlowSolver.maxFlow(this.graph));
+        //console.log("Max flow: " + this.maxFlowSolver.maxFlow(this.graph));
     }
 }
 
