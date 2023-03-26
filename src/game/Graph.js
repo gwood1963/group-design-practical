@@ -11,10 +11,20 @@ export class Graph {
         ]
     ]; // list of (j, capacity)'s in row i
 
+    /**
+     * 
+     * @param {Int} numNodes 
+     * @param {[[[Int]]]} adjacencyList 
+     */
     constructor(numNodes, adjacencyList) {
         //this.nodes = nodes //maybe not needed, instead store numNodes?
         this.n = numNodes
         this.A = adjacencyList //Adjacency List of elements of the form (j, capacity) in row i
+    }
+
+    setParams(n, A) {
+        this.n = n;
+        this.A = A;
     }
 
     dummy() {
@@ -34,7 +44,29 @@ export class Graph {
     }
 
     adjList() {
+        //Uncaught TypeError: G.adjList is not a function
+        //does not show up with getA()... weird.
+        /* var temp = new Array(this.n).fill([]);
+        for (var i = 0; i < this.n; i++) {
+            for (var k = 0; k < this.A[i].length; k++) {
+                temp[i].push(this.A[i][k]);
+                console.log(temp);
+            }
+        }
+        return temp; */
         return this.A;
+    }
+
+    getA() {
+        var temp = new Array(this.n).fill([]);
+        for (var i = 0; i < this.n; i++) {
+            for (var k = 0; k < this.A[i].length; k++) {
+                temp[i].push(this.A[i][k]);
+                console.log(temp);
+            }
+        }
+        return temp;
+        //return this.A;
     }
 
     adjMatrix() {

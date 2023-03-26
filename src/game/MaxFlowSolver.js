@@ -7,6 +7,7 @@ import { Graph } from './Graph.js'
 export class MaxFlowSolver {
     graph = new Graph;
     flowGraph = new Graph;
+    residual = new Graph;
     n = 0;
 
 
@@ -64,20 +65,31 @@ export class MaxFlowSolver {
             Update Gf
          */
 
+        //not sure if temp is needed (memory stuffs), I'll use it for now and remove later if it's unnecessary. 
         var temp;
         temp = this.graph
 
-        this.flowGraph = new Graph(temp.dim(), temp.A);
+        console.log(temp.A);
+
+        this.flowGraph.setParams(temp.dim(), temp.A);
         this.flowGraph.setCapacitiesZero();
+
+        console.log("flow graph: ");
+        console.log(this.flowGraph);
 
 
         temp = this.calculateResidual(this.flowGraph);
-        var res = new Graph(temp.dim(), temp.A);
-        var P = this.findPath(res);
+        //var res = new Graph(temp.dim(), temp.A);
+        this.residual.setParams(temp.dim(), temp.A);
+
+        console.log("residual graph: ");
+        console.log(this.residual);
+
+        var P = this.findPath(this.residual);
         while (P != null) {
             temp = this.augment(this.flowGraph, P);
             this.flowGraph = new Graph(temp.dim(), temp.A);
-            P = this.findPath(res);
+            P = this.findPath(this.residual);
         }
         return this.flowGraph;
     }
@@ -147,11 +159,11 @@ export class MaxFlowSolver {
     findPath(G) {
         var stack = [];
         var visited = new Array(this.n).fill(false);
-        //var A = G.adjList();
-        var B = G.A;
+        var A = G.getA();
+        //var B = G.A;
         //for some reason B is an instance of Graph
         console.log("This is A: ")
-        console.log(B);
+        console.log(A);
         console.log("End A")
         var pi = new Array(this.n).fill(0); //pi = predecessors
         var found = false;
@@ -226,6 +238,7 @@ export class MaxFlowSolver {
 
         //convert new adjacency matrix to adj list
         var A = this.adjMatrixToList(aug);
+        console.log(A);
         return new Graph(this.n, A);
     }
 
@@ -245,8 +258,8 @@ export class MaxFlowSolver {
             }
         }
 
-        var res = new Graph(n, adj);
-        return res;
+        //var res = new Graph(n, adj);
+        return adj;
     }
 
     /**
