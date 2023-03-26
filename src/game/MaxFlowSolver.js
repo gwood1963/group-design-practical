@@ -4,7 +4,7 @@ The aim of this file is to provide a way to store graphs as an object while runn
 
 import { Graph } from './Graph.js'
 
-class MaxFlowSolver {
+export class MaxFlowSolver {
     graph;
     flowGraph;
     n;
