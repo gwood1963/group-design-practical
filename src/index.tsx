@@ -9,6 +9,8 @@ import PageWrapper from "./components/PageWrapper";
 import HomePage from "./pages/HomePage";
 import UserTokenPage from "./pages/UserToken";
 import GamePage from "./pages/GamePage";
+import Database01Page from "./pages/Database01Page";
+
 
 const router = createBrowserRouter([
   {
@@ -26,6 +28,10 @@ const router = createBrowserRouter([
   {
     path: "/game",
     element: <GamePage />,
+  },
+  {
+    path: "/database",
+    element: <Database01Page />,
   },
 ]);
 
