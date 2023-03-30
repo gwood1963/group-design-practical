@@ -12,3 +12,7 @@ Then we do for example H.setCapacitiesZero()
 That will have the same effect as G.setCapacitiesZero() since they point to the same section of memery
 
 it's annoying, but I need to make sure to make completely new stuffs to prevent this. 
+
+///////////////////////////////////// UPDATED 3/30 ////////////////////////////////////
+
+Current error is in MaxFlowSolver.js lines 239 with calculating path, it's infinitely adding 0 currently

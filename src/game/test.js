@@ -57,7 +57,7 @@ class Test {
 
     test1() {
         this.graph = graph1;
-        this.graph.logInfo();
+        //this.graph.logInfo();
 
         this.dummyGraph = new Graph(5, [
             [
@@ -86,8 +86,11 @@ class Test {
         console.log(this.dummyGraph.adjMatrixWithCap());
         console.log("end graph edge info");
 
+        console.log(this.graph.getA());
+        //console.log(this.graph.adjList());
 
-        //console.log("Max flow: " + this.maxFlowSolver.maxFlow(this.graph));
+
+        console.log("Max flow: " + this.maxFlowSolver.maxFlow(this.graph));
     }
 }
 
