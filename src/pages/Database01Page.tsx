@@ -4,6 +4,7 @@ import { useTable, useRowSelect } from "react-table";
 import MainWrapper from "../components/ContentWrapper";
 import LinkButton from "../components/LinkButton";
 import ActionButton from "../components/ActionButton";
+import ImageActionButton from "../components/ImageActionButton";
 import Checkbox from "../components/Checkbox";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -124,6 +125,7 @@ const Database01Page = () => {
         
         <div className = "navBar">
             <LinkButton target="/" text="back button" image="/back.svg" />
+            <ImageActionButton text = "refresh" onClick = {() => {getScores()}} image="/refresh.svg" />
 
             <div className = "popup" onClick = {(_)=> {
                 var popup = document.getElementById("InvitePopup")!;

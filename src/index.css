@@ -20,19 +20,22 @@ code {
   background: linear-gradient(45deg, #49a09d, #5f2c82);
   position: relative;
   overflow-y: scroll;
-  max-height: 650px;
+  height: 100%;
+
   
   
 }
 
 .databaseContainer {
   position: absolute;
-  top: 55%;
+  top: 50%;
   left: 50%;
   background-color: rgb(13, 4, 62);
   -webkit-transform: translate(-50%, 50%);
   transform: translate(-50%, -50%);
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+  width: 1400px;
+  height: 650px;
 }
 
 .databaseContainer h1 {
@@ -43,8 +46,9 @@ code {
 
 
 table {
-  width: 1400px;
-  height: 1000px;
+  width: 100%;
+  height: min-content;
+  max-height: 650px;
   border-collapse: collapse;
   overflow: hidden;
   
@@ -53,7 +57,7 @@ table {
 th,
 td {
   padding: 10px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0);
   color: #fff;
 }
 th {
@@ -63,10 +67,14 @@ thead th {
   background-color: #55608f;
 }
 tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 tbody td {
   position: relative;
+}
+
+tbody tr {
+  height: 20px;
 }
 tbody td:hover:before {
   content: "";
@@ -75,7 +83,7 @@ tbody td:hover:before {
   right: 0;
   top: -9999px;
   bottom: -9999px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0);
   z-index: -1;
 }
 
