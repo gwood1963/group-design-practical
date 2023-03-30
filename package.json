@@ -20,7 +20,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && node copy.ts",
     "test": "react-scripts test --passWithNoTests",
     "eject": "react-scripts eject"
   },
@@ -46,7 +46,8 @@
     "@types/firebase": "^3.2.1",
     "@types/react": "^18.0.28",
     "@types/react-router-dom": "^5.3.3",
-    "@types/react-table": "^7.7.14",
-    "csstype": "^3.1.1"
-  }
+    "csstype": "^3.1.1",
+    "@types/react-table": "^7.7.14"
+  },
+  "proxy": "http://localhost:3000"
 }
