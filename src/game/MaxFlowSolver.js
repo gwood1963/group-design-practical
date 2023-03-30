@@ -10,6 +10,7 @@ export class MaxFlowSolver {
     residual = new Graph;
     n = 0;
     iter = 0;
+    maxiters = 10;
 
 
     constructor(g, n) {}
@@ -89,13 +90,14 @@ export class MaxFlowSolver {
         //console.log("residual: " + this.residual.dim())
         console.log("residual: " + this.residual)
         var P = this.findPath(this.residual);
-        while (P != null) {
+        while (P != null && this.iter < 10) {
             //temp = this.augment(this.flowGraph, P);
             this.flowGraph.duplicate(this.augment(this.flowGraph, P));
             P = this.findPath(this.residual);
             console.log("Path: " + P);
             this.iter++;
             console.log("iter" + this.iter);
+            console.log("current flow: " + this.flow(this.flowGraph))
         }
 
         return this.flowGraph;
@@ -171,7 +173,13 @@ export class MaxFlowSolver {
         }
 
         var A = this.adjMatrixToList(adj);
-        return new Graph(this.n, A);
+        var result = new Graph(this.n, A);
+        console.log("Augmented graph: " + result);
+        console.log("Augmented graph: " + result.dim());
+        console.log("Augmented graph: " + result.getA());
+        console.log("Augmented graph: " + adj);
+        console.log("b: " + b);
+        return result;
     }
 
     /**
@@ -206,20 +214,21 @@ export class MaxFlowSolver {
         var found = false;
         stack.push(0);
         //Invariant any node in the stack it is our first time visiting it
+        console.log("Iter: " + this.iter);
         while (stack.length > 0 && !found) {
-            console.log("Iter: " + this.iter);
+
             var node = stack.pop();
             visited[node] = true;
-            console.log("visited: " + visited);
-            console.log("found: " + found);
-            console.log(`we visited ${node}`)
+            //console.log("visited: " + visited);
+            //console.log("found: " + found);
+            //console.log(`we visited ${node}`)
             if (node == t) { //if we found t
                 console.log("found");
                 found = true;
                 break;
             }
             console.log("succs: " + A[node]);
-            for (var k = 0; k < A[node].length; k++) {
+            for (var k = A[node].length - 1; k >= 0; k--) {
                 var j = A[node][k][0];
                 if (!visited[j]) {
                     stack.push(j);
@@ -234,7 +243,7 @@ export class MaxFlowSolver {
         //If we found t, then path is [0, x1, ..., xk, t] and return path
         //if not, return null
         var path = [];
-        var k = this.n - 1;
+        var k = new Number(this.n - 1);
         path.push(k);
         while (!(k == 0)) {
             k = pi[k];
@@ -249,6 +258,7 @@ export class MaxFlowSolver {
         console.log("Path: " + ret);
 
         return ret;
+        return null;
     }
 
     /**

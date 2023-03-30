@@ -16,3 +16,6 @@ it's annoying, but I need to make sure to make completely new stuffs to prevent 
 ///////////////////////////////////// UPDATED 3/30 ////////////////////////////////////
 
 Current error is in MaxFlowSolver.js lines 239 with calculating path, it's infinitely adding 0 currently
+^done
+
+current error is with calculating the augmented graph
