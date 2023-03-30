@@ -11,3 +11,141 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+
+
+.database {
+  background: -webkit-linear-gradient(45deg, #49a09d, #5f2c82);
+  background: linear-gradient(45deg, #49a09d, #5f2c82);
+  position: relative;
+  overflow-y: scroll;
+  max-height: 650px;
+  
+  
+}
+
+.databaseContainer {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  background-color: rgb(13, 4, 62);
+  -webkit-transform: translate(-50%, 50%);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+}
+
+.databaseContainer h1 {
+  color: white;
+  padding: 10px;
+  
+}
+
+
+table {
+  width: 1400px;
+  height: 1000px;
+  border-collapse: collapse;
+  overflow: hidden;
+  
+}
+
+th,
+td {
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+th {
+  text-align: left;
+}
+thead th {
+  background-color: #55608f;
+}
+tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+tbody td {
+  position: relative;
+}
+tbody td:hover:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -9999px;
+  bottom: -9999px;
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: -1;
+}
+
+.navBar {
+  
+  padding: 5px;
+  background-color: #061536;
+  width: 100%;
+  display: flex;
+  justify-content: left;
+}
+
+
+.popup {
+  position: relative;
+  top: 25%;
+  display: inline-block;
+  cursor: pointer;
+  background-color: #30beff;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: none;
+  font-weight: bold;
+  font-size: 14px;
+  height: 19px;
+
+}
+
+.popup .popuptext {
+  visibility: hidden;
+  width: 160px;
+  background-color: rgb(30, 156, 51) ;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  top: 125%;
+  left: 50%;
+  margin-left: -80px;
+}
+
+.popup .popuptext::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left:50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style:solid;
+  border-color:  transparent transparent rgb(30, 156, 51) transparent;
+}
+
+.popup .show {
+  visibility: visible;
+  -webkit-animation: fadeIn 0.5s;
+  animation: fadeIn 0.5s;
+}
+
+@-webkit-keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes fadeIn{
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+
+
