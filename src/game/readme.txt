@@ -1,13 +1,11 @@
-The main problem to be aware of is with references.
-Basically, supose we have var G = new Graph(..., ...)
-Then we do var H = G
-Then we do for example H.setCapacitiesZero()
 
-That will have the same effect as G.setCapacitiesZero() since they point to the same section of memery
-
-it's annoying, but I need to be very careful to prevent this
+To run test.js, use live server extension for VSCode, and run main.html using Live Server
 
 ///////////////////////////////////// UPDATED 3/31 ////////////////////////////////////
 
-Max flow seems to work now, working on random generation 
-now and more verification that max flow works
+Max flow and random generation work as desired, seed reading is not complete yet
+
+We will need to discuss seed format. 
+ - possibly use seed in database, for example: 
+ for user or admin, input "Microsoft1", on database side "Microsoft1" corresponds to a particular puzzle
+ We don't need to have the seed itself store the info, but in database it should.

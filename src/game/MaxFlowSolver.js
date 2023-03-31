@@ -257,6 +257,9 @@ export class MaxFlowSolver {
         while (stack.length > 0 && !found) {
 
             var node = stack.pop();
+            if (visited[node]) {
+                continue;
+            }
             visited[node] = true;
             //console.log("visited: " + visited);
             //console.log("found: " + found);
