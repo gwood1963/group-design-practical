@@ -20,7 +20,7 @@ var sampleA1Mat = [
 var sampleA1List = [
     [
         [1, 5],
-        [2, 5]
+        [2, 3]
     ],
     [
         [2, 5],

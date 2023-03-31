@@ -84,20 +84,31 @@ export class MaxFlowSolver {
         //console.log("residual: " + this.residual.getA())
         this.residual.duplicate(this.calculateResidual(this.flowGraph));
 
-        //console.log("residual graph: ");
-        //console.log(this.residual);
+        console.log("residual graph: ");
+        console.log(this.residual);
 
         //console.log("residual: " + this.residual.dim())
-        console.log("residual: " + this.residual)
+        //console.log("residual: " + this.residual)
         var P = this.findPath(this.residual);
         while (P != null && this.iter < 10) {
-            //temp = this.augment(this.flowGraph, P);
-            this.flowGraph.duplicate(this.augment(this.flowGraph, P));
+            var temp = this.augment(this.flowGraph, this.residual, P);
+            //this.flowGraph.duplicate(this.augment(this.flowGraph, P));
+            this.flowGraph.duplicate(temp);
+            this.residual.duplicate(this.calculateResidual(this.flowGraph));
             P = this.findPath(this.residual);
-            console.log("Path: " + P);
+
+            //console.log("Path: " + P);
             this.iter++;
             console.log("iter" + this.iter);
             console.log("current flow: " + this.flow(this.flowGraph))
+            for (var i = 0; i < this.n; i++) {
+                console.log("new flow[" + i + "]: " + this.flowGraph.getA()[i])
+            }
+            for (var i = 0; i < this.n; i++) {
+                console.log("new residual[" + i + "]: " + this.residual.getA()[i])
+            }
+            //console.log("new flow: " + this.flowGraph.getA()[1])
+            //console.log("new residual: " + this.residual.getA()[1])
         }
 
         return this.flowGraph;
@@ -132,9 +143,10 @@ export class MaxFlowSolver {
     /**
      * 
      * @param {Graph} G - flow graph
+     * @param {Graph} Res - residual graph
      * @param {Number[]} P - path
      */
-    augment(G, P) {
+    augment(G, Res, P) {
         /**
         AUGMENT(f , P): construct flow f′ on G
         For each e ∈ E:
@@ -146,8 +158,9 @@ export class MaxFlowSolver {
         var cap = this.graph.adjMatrixWithCap();
         var flow = G.adjMatrixWithCap();
         //console.log("Flow for augmentation")
-        //console.log(flow)
-        var b = this.calculateBottleneck(G, P);
+        //console.log("flow[0][1]: " + flow[0][1])
+        //console.log("cap[0][1]: " + cap[0][1])
+        var b = this.calculateBottleneck(Res, P);
 
         //new adj matrix
         //var adj = new Array(n).fill(new Array(n).fill(0));
@@ -155,30 +168,42 @@ export class MaxFlowSolver {
         for (var i = 0; i < this.n; i++) {
             var temp = [];
             for (var j = 0; j < this.n; j++) {
-                temp.push(0);
+                temp.push(flow[i][j][1]);
             }
             adj.push(temp);
         }
 
-        for (var k = 0; k < P.length - 1; k++) {
+        //console.log("P: " + P)
+        //console.log("path length: " + new Number(P.length - 1))
+
+        for (var k = 0; k < new Number(P.length - 1); k++) {
             var i = P[k];
             var j = P[k + 1];
-            if (cap[i][j][0] === 1) { //if e ∈ P set f′(e) = f(e) + bP
+            console.log("adj value: " + adj[i][j])
+            console.log("flow value: " + flow[i][j][1])
+            console.log("bottleneck: " + b)
+            if (cap[i][j][0] == 1) { //if e ∈ P set f′(e) = f(e) + bP
                 adj[i][j] = flow[i][j][1] + b;
-            } else if (cap[j][i][0] === 1) { //if rev(e) ∈ P set f′(e) = f(e) − bP
+                //console.log("one")
+                //console.log("new value: " + adj[i][j])
+            } else if (cap[j][i][0] == 1) { //if rev(e) ∈ P set f′(e) = f(e) − bP
                 adj[i][j] = flow[i][j][1] - b;
+                console.log("two")
             } else {
                 adj[i][j] = flow[i][j];
+                //console.log("three")
             }
         }
 
+        //console.log("adj: " + adj)
+
         var A = this.adjMatrixToList(adj);
         var result = new Graph(this.n, A);
-        console.log("Augmented graph: " + result);
+        /* console.log("Augmented graph: " + result);
         console.log("Augmented graph: " + result.dim());
         console.log("Augmented graph: " + result.getA());
         console.log("Augmented graph: " + adj);
-        console.log("b: " + b);
+        console.log("b: " + b); */
         return result;
     }
 
@@ -197,16 +222,16 @@ export class MaxFlowSolver {
             visited.push(false);
         }
         var A = G.getA();
-        console.log("G: " + G)
-        console.log("A: " + A);
+        //console.log("G: " + G)
+        //console.log("A: " + A);
         var t = this.n - 1;
-        console.log("t: " + t)
-            //var B = G.A;
-            //for some reason B is an instance of Graph
-            /* console.log("This is A: ")
-            console.log(A);
-            console.log("End A") */
-            //var pi = new Array(this.n).fill(0); //pi = predecessors
+        //console.log("t: " + t)
+        //var B = G.A;
+        //for some reason B is an instance of Graph
+        /* console.log("This is A: ")
+        console.log(A);
+        console.log("End A") */
+        //var pi = new Array(this.n).fill(0); //pi = predecessors
         var pi = [];
         for (var a = 0; a < this.n; a++) {
             pi.push(0);
@@ -214,7 +239,7 @@ export class MaxFlowSolver {
         var found = false;
         stack.push(0);
         //Invariant any node in the stack it is our first time visiting it
-        console.log("Iter: " + this.iter);
+        //console.log("Iter: " + this.iter);
         while (stack.length > 0 && !found) {
 
             var node = stack.pop();
@@ -223,22 +248,22 @@ export class MaxFlowSolver {
             //console.log("found: " + found);
             //console.log(`we visited ${node}`)
             if (node == t) { //if we found t
-                console.log("found");
+                //console.log("found");
                 found = true;
                 break;
             }
-            console.log("succs: " + A[node]);
+            //console.log("succs: " + A[node]);
             for (var k = A[node].length - 1; k >= 0; k--) {
                 var j = A[node][k][0];
                 if (!visited[j]) {
                     stack.push(j);
                     pi[j] = node
-                    console.log("pi: " + pi)
+                        //console.log("pi: " + pi)
                 }
             }
         }
-        console.log("outside while")
-        console.log("pi: " + pi)
+        //console.log("outside while")
+        //console.log("pi: " + pi)
 
         //If we found t, then path is [0, x1, ..., xk, t] and return path
         //if not, return null
@@ -263,7 +288,7 @@ export class MaxFlowSolver {
 
     /**
      * Calculate residual graph of G wrt graph
-     * @param {Graph} G 
+     * @param {Graph} G - flow graph
      */
     calculateResidual(G) {
         //if f(e) < c(e) then new edge weight is c-f
@@ -292,15 +317,19 @@ export class MaxFlowSolver {
                 /* console.log("flow and cap values")
                 console.log(flow[i][j])
                 console.log(cap[i][j]) */
-                if (cap[i][j][0] === 0) {
+                if (cap[i][j][0] == 0) {
                     continue;
                 }
                 if (flow[i][j][1] < cap[i][j][1]) {
                     aug[i][j] = cap[i][j][1] - flow[i][j][1];
-                } else if (flow[i][j][1] === cap[i][j][1]) {
-                    aug[j][i] = cap[i][j][1];
-                } else {
+                    //console.log("flow < cap")
+                } else if (flow[i][j][1] > cap[i][j][1]) {
                     console.log("an error has occured, the flow is larger than the capacity at (" + i + ", " + j + ")");
+                    console.log("flow val: " + flow[i][j][1])
+                    console.log("cap val: " + cap[i][j][1])
+                } else {
+                    aug[j][i] = cap[i][j][1];
+                    //console.log("flow = cap")
                 }
             }
         }
@@ -337,17 +366,28 @@ export class MaxFlowSolver {
     /**
      * Calculates the bottleneck in graph G along path P
      * Every edge along the path exists
-     * @param {Graph} G - Graph
+     * @param {Graph} G - Flow Graph
      * @param {Number[]} p - Path
      */
     calculateBottleneck(G, p) {
-        var cap = G.adjMatrixWithCap();
-        var b = 1 >> 30;
+        //var cap = this.graph.adjMatrixWithCap();
+        var flow = G.adjMatrixWithCap();
+        //console.log(cap)
+        //console.log(flow)
+        var b = 1 << 30;
+        //console.log("bottleneck initial value: " + b)
+        //console.log(this.graph)
+        //console.log(G)
         for (var k = 0; k < p.length - 1; k++) {
             var i = p[k];
             var j = p[k + 1];
-            b = Math.min(b, cap[i][j][1]);
+            //var available = cap[i][j][1] - flow[i][j][1];
+            //console.log(cap[i][j][1])
+            console.log(flow[i][j][1])
+            b = Math.min(b, flow[i][j][1]);
+            console.log("bottleneck new value: " + b)
         }
+        console.log("bottleneck final value: " + b)
         return b;
     }
 
