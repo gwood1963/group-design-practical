@@ -123,34 +123,38 @@ const Database01Page = () => {
         console.log(data),
         <>
         
-        <div className = "navBar">
-            <LinkButton target="/" text="back button" image="/back.svg" />
-            <ImageActionButton text = "refresh" onClick = {() => {getScores()}} image="/refresh.svg" />
-
-            <div className = "popup" onClick = {(_)=> {
-                var popup = document.getElementById("InvitePopup")!;
-                var numSelected = selectedFlatRows.length;
-                if (numSelected > 0) {popup.innerHTML = numSelected + " selected candidates invited";} else {popup.innerHTML = "None selected"}
-            popup?.classList.toggle("show");
-                setTimeout(() => {popup?.classList.toggle("show");}, 3000);
-
-                }}
-            > 
-            Invite Selected
-            <span className = "popuptext" id = "InvitePopup"> None selected!</span>
-            </div>
-            <ActionButton
-            text="Log out"
-            onClick={() => {
-                auth.signOut();
-                navigate("/");
-            }}
-            />
-        </div>
+        
         
         
 
         <MainWrapper flexDirection = "column">
+            <div className = "navBar">
+                <LinkButton target="/adminlogin" text="back button" image="/back.svg" backcolor = "rgba(0,0,0,0)"/>
+                <ImageActionButton text = "refresh" onClick = {() => {getScores()}} image="/refresh.svg" backcolor = "rgba(0,0,0,0)"/>
+
+                <div className = "popup" onClick = {(_)=> {
+                    var popup = document.getElementById("InvitePopup")!;
+                    var numSelected = selectedFlatRows.length;
+                    if (numSelected > 0) {popup.innerHTML = numSelected + " selected candidates invited";} else {popup.innerHTML = "None selected"}
+                popup?.classList.toggle("show");
+                    setTimeout(() => {popup?.classList.toggle("show");}, 3000);
+
+                    }}
+                > 
+                Invite Selected
+                <span className = "popuptext" id = "InvitePopup"> None selected!</span>
+                </div>
+                <div style = {{position: "absolute", right: "5px"}}>
+                    <ActionButton
+                    text="Log out"
+                    onClick={() => {
+                        auth.signOut();
+                        navigate("/adminlogin");
+                    }}
+                    backcolor = "rgba(0,0,0,0)"
+                    />
+                </div>
+            </div>
             <body id = "databasePage">
                 <div className = "databaseContainer">
                     <h1> Candidates </h1>

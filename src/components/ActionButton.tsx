@@ -1,13 +1,14 @@
 interface ActionButtonProps {
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
   text: string;
+  backcolor?: string;
 }
-const ActionButton = ({ onClick, text }: ActionButtonProps) => {
+const ActionButton = ({ onClick, text, backcolor }: ActionButtonProps) => {
   return (
     <button
       style={{
         color: "white",
-        backgroundColor: "#30beff",
+        backgroundColor: backcolor ? backcolor : "#00A2ED",
         borderRadius: "5px",
         padding: "0.5rem",
         margin: "1rem",

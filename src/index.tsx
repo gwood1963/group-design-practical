@@ -10,6 +10,7 @@ import HomePage from "./pages/HomePage";
 import UserTokenPage from "./pages/UserToken";
 import GamePage from "./pages/GamePage";
 import Database01Page from "./pages/Database01Page";
+import AdminLogIn from "./pages/AdminLogIn";
 
 
 const router = createBrowserRouter([
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
     path: "/database",
     element: <Database01Page />,
   },
+  {
+    path: "/adminlogin",
+    element: <AdminLogIn />,
+  }
 ]);
 
 const root = ReactDOM.createRoot(
