@@ -88,18 +88,17 @@ const Database01Page = () => {
         {
             Header: "Invited?",
             id: "Invited",
-            accessor: (row: Data) => row.Invited
+            accessor: (row: Data) => row.Invited ? 'yes' : 'no'
         }
     ], []);
 
-    //@ts-ignore
-    const {getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, selectedFlatRows} = useTable({columns, data}, useRowSelect, (hooks) => {hooks.visibleColumns.push((columns)=> {
+    const instance = useTable({columns, data}, useRowSelect, (hooks) => {hooks.visibleColumns.push((columns)=> {
         return [
             /*T23 - checkboxes being added to the rows */
             {
                 id: 'selection',
-                //@ts-ignore
                 Header: ({ getToggleAllRowsSelectedProps}) => (
+                    //@ts-ignore
                     <Checkbox {...getToggleAllRowsSelectedProps()}/>
 
                 ),
@@ -112,7 +111,8 @@ const Database01Page = () => {
             },
             ...columns
         ]
-    })});
+    })})
+    const {getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, selectedFlatRows} = instance;
     const navigate = useNavigate();
     const auth = getAuth();
 
@@ -125,17 +125,24 @@ const Database01Page = () => {
         
         <div className = "navBar">
             <LinkButton target="/" text="back button" image="/back.svg" />
-            <ImageActionButton text = "refresh" onClick = {() => {getScores()}} image="/refresh.svg" />
+            <ImageActionButton text = "refresh" onClick = {() => getScores()} image="/refresh.svg" />
 
             <div className = "popup" onClick = {(_)=> {
                 var popup = document.getElementById("InvitePopup")!;
                 var numSelected = selectedFlatRows.length;
                 if (numSelected > 0) {popup.innerHTML = numSelected + " selected candidates invited";} else {popup.innerHTML = "None selected"}
-            popup?.classList.toggle("show");
+                popup?.classList.toggle("show");
                 setTimeout(() => {popup?.classList.toggle("show");}, 3000);
-
-                }}
-            > 
+                const ids = selectedFlatRows.map((row) => row.original.UserID)
+                fetch("/api/invite", {
+                    method: "PUT",
+                    body: JSON.stringify(ids),
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }}> 
             Invite Selected
             <span className = "popuptext" id = "InvitePopup"> None selected!</span>
             </div>

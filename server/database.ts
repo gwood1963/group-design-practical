@@ -1,4 +1,4 @@
-import {connect, IRecordSet} from "mssql"
+import {connect, IRecordSet, Int} from "mssql"
 import { json } from "stream/consumers";
 
 const connection = "Driver={ODBC Driver 18 for SQL Server};Server=tcp:recruitment-server.database.windows.net,1433;Database=recruitment-db;Uid=CloudSAe040e98e;Pwd=FMR93qpa;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;";
@@ -14,7 +14,7 @@ interface Data {
     Invited: boolean
 }
 
-const getRecentScores = async () => {
+export const getRecentScores = async () => {
     // Returns an IRecordSet containing each user's name, email, and the details of their most recent attempt at a problem
     // Data can then be extracted by e.g. resultSet[0].UserID
     var poolConnection = await connect(connection);
@@ -31,4 +31,11 @@ const getRecentScores = async () => {
     return resultSet;
 }
 
-export default getRecentScores;
+export const invite = async (ids: Array<number>) => {
+    var poolConnection = await connect(connection);
+    ids.forEach(async id => {
+        await poolConnection.request()
+            .input('id', Int, id)
+            .query(`update [dbo].[Users] set Invited = 1 where UserID = @id`)
+    });
+}
