@@ -10,7 +10,7 @@ export class MaxFlowSolver {
     residual = new Graph;
     n = 0;
     iter = 0;
-    maxiters = 10;
+    maxiters = 100;
 
 
     constructor(g, n) {}
@@ -90,7 +90,7 @@ export class MaxFlowSolver {
         //console.log("residual: " + this.residual.dim())
         //console.log("residual: " + this.residual)
         var P = this.findPath(this.residual);
-        while (P != null && this.iter < 10) {
+        while (P != null && this.iter < this.maxiters) {
             var temp = this.augment(this.flowGraph, this.residual, P);
             //this.flowGraph.duplicate(this.augment(this.flowGraph, P));
             this.flowGraph.duplicate(temp);
@@ -157,6 +157,15 @@ export class MaxFlowSolver {
 
         var cap = this.graph.adjMatrixWithCap();
         var flow = G.adjMatrixWithCap();
+
+        /* for (var i = 0; i < this.n; i++) {
+            console.log("current flow[" + i + "]: " + flow[i])
+        }
+        for (var i = 0; i < this.n; i++) {
+            console.log("capacity[" + i + "]: " + cap[i])
+        }
+        console.log("Path: " + P) */
+
         //console.log("Flow for augmentation")
         //console.log("flow[0][1]: " + flow[0][1])
         //console.log("cap[0][1]: " + cap[0][1])
@@ -179,23 +188,28 @@ export class MaxFlowSolver {
         for (var k = 0; k < new Number(P.length - 1); k++) {
             var i = P[k];
             var j = P[k + 1];
-            console.log("adj value: " + adj[i][j])
-            console.log("flow value: " + flow[i][j][1])
-            console.log("bottleneck: " + b)
+            //console.log("adj value: " + adj[i][j])
+            //console.log("flow value: " + flow[i][j][1])
+            //console.log("bottleneck: " + b)
             if (cap[i][j][0] == 1) { //if e ∈ P set f′(e) = f(e) + bP
                 adj[i][j] = flow[i][j][1] + b;
                 //console.log("one")
                 //console.log("new value: " + adj[i][j])
             } else if (cap[j][i][0] == 1) { //if rev(e) ∈ P set f′(e) = f(e) − bP
-                adj[i][j] = flow[i][j][1] - b;
-                console.log("two")
+                adj[j][i] = flow[j][i][1] - b;
+                //adj[i][j] = cap[j][i][1] - b;
+                /* console.log("two")
+                console.log(flow[i][j][1])
+                console.log(b)
+                console.log(adj[i][j]) */
             } else {
                 adj[i][j] = flow[i][j];
                 //console.log("three")
             }
         }
 
-        //console.log("adj: " + adj)
+        /* console.log("adj: ")
+        console.log(adj) */
 
         var A = this.adjMatrixToList(adj);
         var result = new Graph(this.n, A);
@@ -283,7 +297,7 @@ export class MaxFlowSolver {
         console.log("Path: " + ret);
 
         return ret;
-        return null;
+        //return null;
     }
 
     /**
@@ -383,11 +397,11 @@ export class MaxFlowSolver {
             var j = p[k + 1];
             //var available = cap[i][j][1] - flow[i][j][1];
             //console.log(cap[i][j][1])
-            console.log(flow[i][j][1])
+            //console.log(flow[i][j][1])
             b = Math.min(b, flow[i][j][1]);
-            console.log("bottleneck new value: " + b)
+            //console.log("bottleneck new value: " + b)
         }
-        console.log("bottleneck final value: " + b)
+        //console.log("bottleneck final value: " + b)
         return b;
     }
 

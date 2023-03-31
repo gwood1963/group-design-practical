@@ -92,13 +92,61 @@ class Test {
 
         console.log("Max flow: " + this.maxFlowSolver.maxFlow(this.graph));
     }
+
+    test2() {
+        this.graph = graph1;
+        //this.graph.logInfo();
+
+        this.dummyGraph = new Graph(6, [
+            [
+                [1, 10],
+                [2, 10]
+            ],
+            [
+                [2, 2],
+                [3, 4],
+                [4, 8]
+            ],
+            [
+                [4, 9]
+            ],
+            [
+                [5, 10]
+            ],
+            [
+                [3, 6],
+                [5, 10]
+            ],
+            []
+        ])
+
+
+
+        console.log("graph edge info");
+        //console.log(this.graph.adjList()); //test.js:62 Uncaught TypeError: this.graph.adjList is not a function
+        console.log(this.dummyGraph.A);
+        console.log(this.dummyGraph.adjMatrixWithCap());
+        console.log("end graph edge info");
+
+        console.log(this.graph.getA());
+        //console.log(this.graph.adjList());
+
+
+        console.log("Max flow: " + this.maxFlowSolver.maxFlow(this.dummyGraph));
+    }
 }
 
 
-function runTest() {
+function runTest1() {
     var tester = new Test;
 
     tester.test1();
+};
+
+function runTest2() {
+    var tester = new Test;
+
+    tester.test2();
 };
 
 function log3() {
@@ -106,4 +154,6 @@ function log3() {
 };
 
 console.log("hi");
-runTest();
+runTest1();
+console.log("______________________________________________________")
+runTest2();
