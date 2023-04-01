@@ -34,7 +34,9 @@ const SignupPage = () => {
         }}>
           
           <div className = "textbox" style = {{position: "relative", top: "30px", left: "30px", fontSize: "50px",}} >Sign up or log in</div>
-          <div style = {{padding: "30px", fontSize: "14px", position: "relative", top: "40px", left: "10px"}}>
+          <div style = {{padding: "30px", fontSize: "18px", position: "relative", top: "40px", left: "10px"}}>
+            Please sign in or create an account to play. Your email will only be used to contact you for information and invitiations related to a career here at Microsoft. <br></br>
+            <br></br>
             <Checkbox/>  {/*TO DO:  implemenet features that sign up is only permitted once box checked*/ }
             I consent to my data being used in accordance with the Data Policy.
           </div>
@@ -43,7 +45,7 @@ const SignupPage = () => {
               onClick={(_) => {
                 signInWithPopup(auth, provider)
                   .then((_) => {
-                    navigate("/tokeninput");
+                    navigate("/game");
                   })
                   .catch((error) => {
                     setError(`Error ${error.code} - ${error.message}`);

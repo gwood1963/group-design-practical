@@ -13,6 +13,23 @@ code {
 }
 
 
+/*NAVIGATION BAR STYLING*/
+.navBar {
+
+  flex-direction: row;
+  align-items: center;
+  padding: 2px;
+  background-color: rgb(5, 16, 46);
+  width: 100%;
+  display: flex;
+  justify-content: left;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 0px;
+}
+
+
+
 /*WELCOME PAGE STYLING WITH ANIMATION*/
 .welcome {
   flex-direction: column;
@@ -21,24 +38,13 @@ code {
   display: flex;
 }
 
+/*STYLING FOR A DIV THAT JUST DISPLAYS SOME TEXT*/
+
 .textbox {
   padding: 10px;
   color: Black;
   font-size: 24px;
   justify-content: center;
-}
-
-/*NAVIGATION BAR STYLING*/
-.navBar {
-  
-  padding: 5px;
-  background-color: rgb(5, 16, 46);
-  width: 100%;
-  display: flex;
-  justify-content: left;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
-  position: absolute;
-  top: 0px;
 }
 
 
