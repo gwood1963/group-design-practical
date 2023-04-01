@@ -19,6 +19,6 @@ Idea:
  - minimize crossing Number
  - Have the area/aspect ratio appropriate (use a function that takes params width and length)
  - minimize total length of edges
- - consider angular resolution.... preferably not have very sharp or flat angles
+ - consider angular resolution maaybe.... preferably not have very sharp or flat angles
  - maybe use a force based system (each node repels from other nodes and the boundaries, but attract to connected nodes)
  
