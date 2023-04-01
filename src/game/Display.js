@@ -13,6 +13,8 @@ Idea:
 
 var wallRepelFactor = 1; //how "repelly" do we want the walls, can be changes later
 var forceScaling = 100; //maybe not used since it'll depend on size of canvas, it's essentially G, the gravitational constant
+var deltaT = 1; //Change in "time" between iterations, needed for calculating new pos based on force and prev pos
+var maxIters = 10;
 
 /**
  * Find optimal positions for the nodes to be displayed to minimize edge
@@ -26,21 +28,42 @@ var forceScaling = 100; //maybe not used since it'll depend on size of canvas, i
  * @returns {Number[][]} - Array of (x, y)'s: result[k][x][y] means node k is at (x, y)
  */
 function getPositions(n, A, w, h) {
+    var coords = generateInitialCoords(n, w, h);
+    var newCoords = getNextCoords(n, A, coords, w, h);
+    var loss = loss(n, coords, newCoords, w, h);
 
+    var iters = 0;
+    while (loss > 0.05 && iters < maxIters) {
+        coords = newCoords;
+        newCoords = getNextCoords(n, A, coords, w, h);
+        loss = loss(n, coords, newCoords, w, h);
+    }
+
+    return coords; //or newCoords, both work
 }
 
 /**
- * 
- * @param {Int} n 
- * @param {Number[][]} A - Adj list without capacities
- * @param {Number[][]} coords 
+ * simple loss function... calculates loss based on the change since last iteration
+ * @param {Int} n
+ * @param {Number[][]} oldCoords - old coordinates
+ * @param {Number[][]} newCoords - new coordinates
  * @param {Int} w 
  * @param {Int} h 
  * 
- * @returns {Number} A loss value that takes into account factors such as edge crossing and total edge lengths
+ * @returns {Number} A loss value equal to a function of the max change in position (relative to w and h) for any node (currently f(x) = x is that function)
  */
-function loss(n, A, coords, w, h) {
+function loss(n, oldCoords, newCoords, w, h) {
+    var maxChange = 0;
+    for (i = 0; i < n; i++) {
+        var changeX = (newCoords[i][0] - oldCoords[i][0]) / w;
+        var changeY = (newCoords[i][1] - oldCoords[i][1]) / h;
 
+        var dist = Math.sqrt(changeX * changeX + changeY * changeY);
+
+        maxChange = Math.max(maxChange, dist);
+    }
+
+    return maxChange;
 }
 
 /**
@@ -54,7 +77,15 @@ function loss(n, A, coords, w, h) {
  * @returns {Number[][]} The next set of coords using a physics model
  */
 function getNextCoords(n, A, coords, w, h) {
+    //evaluate force for all of them, then using deltaT find new coords
+    var newCoords = [];
 
+    for (var i = 0; i < n; i++) {
+        var force = forceOnNode(i, n, A, coords, w, h);
+        newCoords.push([coords[i][0] + (deltaT * force[0]), coords[i][1] + (deltaT * force[1])]);
+    }
+
+    return newCoords;
 }
 
 /**
@@ -66,8 +97,20 @@ function getNextCoords(n, A, coords, w, h) {
  * @returns {Number[][]} Array of coordinates
  */
 function generateInitialCoords(n, w, h) {
-    //Idea: simple generate them in a circle
+    //Idea: simple generate them in an ellipse that takes up half the canvas
+    var centerX = w / 2;
+    var centerY = h / 2;
+    var coords = [];
+    for (var i = 0; i < n; i++) {
+        var x = Math.sin(i * 2 * Math.PI / n + Math.PI); //the plus 180 degrees is to make sure s is on left and t is on right
+        var y = Math.cos(i * 2 * Math.PI / n + Math.PI);
+        x *= (w / 4); //scaling to canvas so that major and minor axes are half of the total width and heights
+        y *= (h / 4);
 
+        coords.push([centerX + x, centerY + y]); //add coordinate to the list
+    }
+
+    return coords;
 }
 
 /**
