@@ -24,25 +24,19 @@ const GamePage = () => {
 
   return (
     <MainWrapper flexDirection="column">
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-          height: "10%",
-        }}
+      <div className = "navBar"
       >
         <div
           id="Timer"
           style={{
             margin: "1rem",
             padding: "0.5rem",
-            color: "#DEF7FF",
-            border: "2px solid #30BEFF",
-            backgroundColor: "#87DBFF",
+            color: "white",
+            border: "2px solid rgba(118, 50, 50, 1)",
+            backgroundColor: "rgba(170, 70, 70, 1)",
             borderRadius: "5px",
+            fontWeight: "bold",
+            fontSize: "14px",
           }}
         >Time Remaining: {`${Math.floor(time / 60)
           .toString()
@@ -50,8 +44,9 @@ const GamePage = () => {
 				`}</div>
         <div style={{ flexGrow: 1 }}></div>
         <ActionButton 
-          text="Submit and move on" 
+          text="Submit and Move On" 
           onClick={() => {}} 
+          backcolor = "rgba(80, 180, 80, 1)"
         />
         <ActionButton
           text="Log out"
@@ -59,6 +54,7 @@ const GamePage = () => {
             auth.signOut();
             navigate("/signup");
           }}
+          backcolor= "rgba(0,0,0,0)"
         />
       </div>
       <div
@@ -67,6 +63,8 @@ const GamePage = () => {
           flexDirection: "row",
           height: "90%",
           width: "100%",
+          position: "relative",
+          top: "3%"
         }}
       >
         <div

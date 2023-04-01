@@ -13,8 +13,43 @@ code {
 }
 
 
+/*NAVIGATION BAR STYLING*/
+.navBar {
+
+  flex-direction: row;
+  align-items: center;
+  padding: 2px;
+  background-color: rgb(5, 16, 46);
+  width: 100%;
+  display: flex;
+  justify-content: left;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 0px;
+}
 
 
+
+/*WELCOME PAGE STYLING WITH ANIMATION*/
+.welcome {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+/*STYLING FOR A DIV THAT JUST DISPLAYS SOME TEXT*/
+
+.textbox {
+  padding: 10px;
+  color: Black;
+  font-size: 24px;
+  justify-content: center;
+}
+
+
+/*DATABASE PAGE STYLING*/
+/*class for the div in which the table is held*/
 .database {
   background: -webkit-linear-gradient(45deg, #49a09d, #5f2c82);
   background: linear-gradient(45deg, #49a09d, #5f2c82);
@@ -26,11 +61,12 @@ code {
   
 }
 
+/*The container which holds the table, including the Candidates title*/
 .databaseContainer {
   position: absolute;
   top: 50%;
   left: 50%;
-  background-color: rgb(13, 4, 62);
+  background-color: rgba(5, 16, 46, 1);
   -webkit-transform: translate(-50%, 50%);
   transform: translate(-50%, -50%);
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
@@ -87,22 +123,17 @@ tbody td:hover:before {
   z-index: -1;
 }
 
-.navBar {
-  
-  padding: 5px;
-  background-color: #061536;
-  width: 100%;
-  display: flex;
-  justify-content: left;
-}
 
 
+
+
+/*Styling for a popup*/
 .popup {
   position: relative;
   top: 25%;
   display: inline-block;
   cursor: pointer;
-  background-color: #30beff;
+  background-color: "rgba(5, 16, 46, 0)";
   color: white;
   padding: 0.5rem;
   border-radius: 5px;
@@ -110,13 +141,14 @@ tbody td:hover:before {
   font-weight: bold;
   font-size: 14px;
   height: 19px;
+  margin: 1rem;
 
 }
 
 .popup .popuptext {
   visibility: hidden;
   width: 160px;
-  background-color: rgb(30, 156, 51) ;
+  background-color: rgba(69, 151, 83, 0.9) ;
   color: #fff;
   text-align: center;
   border-radius: 6px;
@@ -152,7 +184,7 @@ tbody td:hover:before {
 
 @keyframes fadeIn{
   from {opacity: 0;}
-  to {opacity: 1;}
+  to {visibility: visible; opacity: 1;}
 }
 
 

@@ -4,15 +4,16 @@ export interface LinkButtonProps {
   text: string;
   image?: string;
   target: string;
+  backcolor?: string;
 }
 
-const LinkButton = ({ text, image, target }: LinkButtonProps) => {
+const LinkButton = ({ text, image, target, backcolor }: LinkButtonProps) => {
   return (
     <Link
       to={target}
       style={{
         color: "white",
-        backgroundColor: "#30beff",
+        backgroundColor: backcolor ? backcolor : "#00A2ED",  /*You can optionally specify a background colour different from default (transparent) with paramter backcolor*/
         textDecoration: "none",
         borderRadius: "5px",
         padding: "0.5rem",

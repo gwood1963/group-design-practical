@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
+import Checkbox from "../components/Checkbox";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -16,21 +17,47 @@ const SignupPage = () => {
 
   return (
     <>
-      <LinkButton target="/" text="back button" image="/back.svg" />
+      <div className = "navBar">
+        <LinkButton target="/" text="back button" image="/back.svg" backcolor = "rgba(0,0,0,0)"/>
+        <ActionButton onClick= {() => {}} text = "Data Policy" backcolor = "rgba(0,0,0,0)" /> {/** Code to display data policy */}
+      </div>
       <MainWrapper justifyContent="space-around">
-        <ActionButton
-          onClick={(_) => {
-            signInWithPopup(auth, provider)
-              .then((_) => {
-                navigate("/tokeninput");
-              })
-              .catch((error) => {
-                setError(`Error ${error.code} - ${error.message}`);
-              });
-          }}
-          text="Sign in with Google"
-        />
-        {error !== undefined && <p>error</p>}
+        <div style = {{
+          background: "white",
+          boxShadow: "0 0 50px rgba(0, 0, 0, 0.2)",
+          width: "50%",
+          height: "60%",
+          justifyContent: "left",
+          flexDirection: "column",
+          display: "flex",
+
+        }}>
+          
+          <div className = "textbox" style = {{position: "relative", top: "30px", left: "30px", fontSize: "50px",}} >Sign up or log in</div>
+          <div style = {{padding: "30px", fontSize: "18px", position: "relative", top: "40px", left: "10px"}}>
+            Please sign in or create an account to play. Your email will only be used to contact you for information and invitiations related to a career here at Microsoft. <br></br>
+            <br></br>
+            <Checkbox/>  {/*TO DO:  implemenet features that sign up is only permitted once box checked*/ }
+            I consent to my data being used in accordance with the Data Policy.
+          </div>
+          <div style = {{padding: "25px", fontSize: "14px", position: "relative", top: "20px"}}>
+            <ActionButton
+              onClick={(_) => {
+                signInWithPopup(auth, provider)
+                  .then((_) => {
+                    navigate("/game");
+                  })
+                  .catch((error) => {
+                    setError(`Error ${error.code} - ${error.message}`);
+                  });
+              }}
+              text="Sign in with Google"
+            />
+          </div>
+          
+          
+          {error !== undefined && <p>error</p>}
+        </div>
       </MainWrapper>
     </>
   );
