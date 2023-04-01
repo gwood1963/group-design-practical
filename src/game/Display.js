@@ -37,6 +37,7 @@ function getPositions(n, A, w, h) {
         coords = newCoords;
         newCoords = getNextCoords(n, A, coords, w, h);
         loss = loss(n, coords, newCoords, w, h);
+        iters++;
     }
 
     return coords; //or newCoords, both work
