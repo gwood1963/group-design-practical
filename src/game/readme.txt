@@ -1,7 +1,7 @@
 
 To run test.js, use live server extension for VSCode, and run main.html using Live Server
 
-///////////////////////////////////// UPDATED 3/31 ////////////////////////////////////
+///////////////////////////////////// UPDATED 2/3 ////////////////////////////////////
 
 Max flow and random generation work as desired, seed reading is not complete yet
 
@@ -14,6 +14,11 @@ We will need to discuss seed format.
 1/4/23
 
 I (David) will work on determining the positions of nodes for display. 
+
+The current system treats all nodes as positive particles, with edges acting as springs. 
+So we have an attraction force (spring constant) and a repulsion force (culomb's)
+
+I will research angular resolution and preventing graphs that are too sharp next
 
 Idea: 
  - minimize crossing Number

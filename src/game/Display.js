@@ -13,10 +13,11 @@ Idea:
 export class Display {
     wallRepelFactor = 1; //how "repelly" do we want the walls, can be changes later
     forceScaling = 1; //maybe not used since it'll depend on size of canvas, it's essentially G, the gravitational constant
-    deltaT = 0.1; //Change in "time" between iterations, needed for calculating new pos based on force and prev pos
-    maxIters = 10;
-    attraction = 50; // / 100;
-    repulsion = 10; // / 100;
+    deltaT = 0.5; //Change in "time" between iterations, needed for calculating new pos based on force and prev pos
+    maxIters = 20;
+    attraction = 0.0002; // / 100;
+    repulsion = 18; // / 100;
+    //dampening = 1;
 
     /**
      * Find optimal positions for the nodes to be displayed to minimize edge
@@ -30,16 +31,21 @@ export class Display {
      * @returns {Number[][]} - Array of (x, y)'s: result[k][x][y] means node k is at (x, y)
      */
     getPositions(n, A, w, h) {
+        var velocities = [];
+        for (var i = 0; i < n; i++) {
+            velocities.push([0, 0]);
+        }
+        console.log(velocities)
         var coords = this.generateInitialCoords(n, w, h);
         this.consoleDisplay(n, A, coords, w, h);
-        var newCoords = this.getNextCoords(n, A, coords, w, h);
+        var newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
         this.consoleDisplay(n, A, newCoords, w, h);
         var loss = this.loss(n, coords, newCoords, w, h);
 
         var iters = 0;
-        while (loss > 0.01 && iters < this.maxIters) {
+        while (loss > 0.001 && iters < this.maxIters) {
             coords = newCoords;
-            newCoords = this.getNextCoords(n, A, coords, w, h);
+            newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
             loss = this.loss(n, coords, newCoords, w, h);
             console.log("iter: " + iters)
             this.consoleDisplay(n, A, coords, w, h);
@@ -78,21 +84,35 @@ export class Display {
      * @param {Int} n 
      * @param {Number[][]} A - Adj list without capacities
      * @param {Number[][]} coords 
+     * @param {Number[][]} v - Velocities
      * @param {Int} w 
      * @param {Int} h 
      * 
      * @returns {Number[][]} The next set of coords using a physics model
      */
-    getNextCoords(n, A, coords, w, h) {
+    getNextCoords(n, A, coords, v, w, h) {
         //evaluate force for all of them, then using deltaT find new coords
         var newCoords = [];
 
+        console.log("velocities")
+        console.log(v)
+
         for (var i = 0; i < n; i++) {
-            var force = this.forceOnNode(i, n, A, coords, w, h);
+            var force = this.forceOnNode(i, n, A, coords, w, h); //assumed to be equal to acceleration
+            var distanceX = v[i][0] * this.deltaT + 0.5 * force[0] * this.deltaT * this.deltaT;
+            var distanceY = v[i][1] * this.deltaT + 0.5 * force[1] * this.deltaT * this.deltaT;
+            v[i][0] += force[0] * this.deltaT;
+            v[i][1] += force[1] * this.deltaT;
+
+            /* v[i][0] *= this.dampening;
+            v[i][1] *= this.dampening; */
             //console.log(force)
-            newCoords.push([coords[i][0] + (this.deltaT * force[0]), coords[i][1] + (this.deltaT * force[1])]);
+            newCoords.push([coords[i][0] + distanceX, coords[i][1] + distanceY]);
         }
 
+        console.log("new velocities")
+        console.log(v)
+        console.log("new coords")
         console.log(newCoords)
 
         return newCoords;
@@ -154,6 +174,7 @@ export class Display {
         //Take the coords for all of those, and use that to calculate the force 
         //calculate mean force harmonically
         //treat the walls as equivalent to a node seperately
+        //edges are like springs
 
         //console.log(coords)
 
@@ -178,7 +199,7 @@ export class Display {
             var x = adjPos[i][0]
             var y = adjPos[i][1]
             var dist = this.dist(x, y);
-            var magnitude = diagonal * this.attraction / (dist * dist)
+            var magnitude = diagonal * this.attraction * dist // / (dist * dist)
             var forceX = magnitude * x / dist;
             var forceY = magnitude * y / dist;
             adjForce[0] += forceX;
