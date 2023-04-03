@@ -53,7 +53,7 @@ export class Generate {
 
         //Here we generate the edges between nodes that are not s or t
         var n = numNodes
-        var edges = this.uniqueIntsArrRange(0, n * n - 4 * n + 4, numEdges)
+        var edges = this.uniqueIntsArrRange(0, n * n - 4 * n + 3, numEdges)
 
         //We need to convert values in edges to adj, by using k => (k/n, k%n)
         for (var k = 0; k < edges.length; k++) {

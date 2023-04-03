@@ -84,8 +84,8 @@ export class MaxFlowSolver {
         //console.log("residual: " + this.residual.getA())
         this.residual.duplicate(this.calculateResidual(this.flowGraph));
 
-        console.log("residual graph: ");
-        console.log(this.residual);
+        //console.log("residual graph: ");
+        //console.log(this.residual);
 
         //console.log("residual: " + this.residual.dim())
         //console.log("residual: " + this.residual)
@@ -99,14 +99,14 @@ export class MaxFlowSolver {
 
             //console.log("Path: " + P);
             this.iter++;
-            console.log("iter" + this.iter);
-            console.log("current flow: " + this.flow(this.flowGraph))
-            for (var i = 0; i < this.n; i++) {
-                console.log("new flow[" + i + "]: " + this.flowGraph.getA()[i])
-            }
-            for (var i = 0; i < this.n; i++) {
-                console.log("new residual[" + i + "]: " + this.residual.getA()[i])
-            }
+            //console.log("iter" + this.iter);
+            //console.log("current flow: " + this.flow(this.flowGraph))
+            //for (var i = 0; i < this.n; i++) {
+            //console.log("new flow[" + i + "]: " + this.flowGraph.getA()[i])
+            //}
+            //for (var i = 0; i < this.n; i++) {
+            //console.log("new residual[" + i + "]: " + this.residual.getA()[i])
+            //}
             //console.log("new flow: " + this.flowGraph.getA()[1])
             //console.log("new residual: " + this.residual.getA()[1])
         }
@@ -297,7 +297,7 @@ export class MaxFlowSolver {
 
         var ret = found ? path : null;
 
-        console.log("Path: " + ret);
+        //console.log("Path: " + ret);
 
         return ret;
         //return null;
@@ -353,7 +353,7 @@ export class MaxFlowSolver {
 
         //convert new adjacency matrix to adj list
         var A = this.adjMatrixToList(aug);
-        console.log(A);
+        //console.log(A);
         return new Graph(this.n, A);
     }
 

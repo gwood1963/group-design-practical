@@ -60,7 +60,7 @@ export class Graph {
         return this.n;
     }
 
-    adjList() {
+    /* adjList() {
         //Uncaught TypeError: G.adjList is not a function
         //does not show up with getA()... weird.
         /* var temp = new Array(this.n).fill([]);
@@ -70,9 +70,9 @@ export class Graph {
                 console.log(temp);
             }
         }
-        return temp; */
+        return temp; 
         return this.A;
-    }
+    } */
 
     getA() {
         /* var temp = new Array(this.n).fill([]);
@@ -84,6 +84,23 @@ export class Graph {
         }
         return temp; */
         return this.A;
+    }
+
+    /**
+     * 
+     * @returns The adjacency matrix without capacities in form Number[][]
+     */
+    getAWithoutCaps() {
+        var res = [];
+        for (var i = 0; i < this.n; i++) {
+            var temp = [];
+            for (var k = 0; k < this.A[i].length; k++) {
+                temp.push(new Number(this.A[i][k][0]));
+            }
+            res.push(temp);
+        }
+
+        return res;
     }
 
     adjMatrix() {

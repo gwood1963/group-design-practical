@@ -6,6 +6,7 @@ import { Generate } from './Generate.js'
 import { Graph } from './Graph.js'
 import { ReadSeed } from './ReadSeed.js'
 import { MaxFlowSolver } from './MaxFlowSolver.js'
+import { Display } from './Display.js'
 
 //all capacities equal to 5 in this case
 //simple test
@@ -36,6 +37,25 @@ var sampleA1List = [
     []
 ]
 
+var sampleA1ListNoCap = [
+    [
+        1,
+        2
+    ],
+    [
+        2,
+        4
+    ],
+    [
+        3
+    ],
+    [
+        1,
+        4
+    ],
+    []
+]
+
 var graph1 = new Graph(n1, sampleA1List);
 
 var goodA = [
@@ -57,6 +77,29 @@ var goodA = [
     [
         [3, 6],
         [5, 10]
+    ],
+    []
+]
+
+var goodANoCap = [
+    [
+        1,
+        2
+    ],
+    [
+        2,
+        3,
+        4
+    ],
+    [
+        4
+    ],
+    [
+        5
+    ],
+    [
+        3,
+        5
     ],
     []
 ]
@@ -121,6 +164,40 @@ var unconnectedA = [
     ]
 ]
 
+var simpleANoCap = [
+    [
+        1,
+        2
+    ],
+    [
+        2,
+        3
+    ],
+    [
+        3
+    ],
+    []
+]
+
+var clusterANoCap = [
+    [
+        1,
+        2
+    ],
+    [
+        0,
+        2
+    ],
+    [
+        0,
+        1,
+        3
+    ],
+    [
+
+    ]
+]
+
 /*
 
 0 -> 1 -> 4
@@ -135,6 +212,7 @@ class Test {
     dummyGraph;
     readSeed = new ReadSeed;
     maxFlowSolver = new MaxFlowSolver;
+    display = new Display;
 
     constructor() {}
 
@@ -225,6 +303,54 @@ class Test {
         console.log("Is connected?")
         console.log(this.generate.isConnected(goodA))
     }
+
+    displayTest1() {
+        var coords = this.display.getPositions(5, sampleA1ListNoCap, 100, 100);
+        this.display.consoleDisplay(5, sampleA1ListNoCap, coords, 100, 100);
+    }
+
+    displayTest2() {
+        var coords = this.display.getPositions(6, goodANoCap, 100, 100);
+        this.display.consoleDisplay(6, goodANoCap, coords, 100, 100);
+    }
+    displayTest3() {
+        var coords = this.display.getPositions(4, simpleANoCap, 100, 100);
+        this.display.consoleDisplay(4, simpleANoCap, coords, 100, 100);
+    }
+    displayTest4() {
+        var coords = this.display.getPositions(4, clusterANoCap, 100, 100);
+        this.display.consoleDisplay(4, clusterANoCap, coords, 100, 100);
+    }
+    fullTest() {
+        this.generate.generate(6, 6, 2, 2, 1, 10)
+        var randomG = this.generate.export();
+        var randomA = randomG.getA();
+        var n = randomA.length
+        console.log(this.generate.isDirected(randomA))
+        console.log(this.generate.isConnected(randomA))
+        for (var i = 0; i < n; i++) {
+            console.log("A[" + i + "]: " + randomA[i])
+        }
+        console.log("Max flow: " + this.maxFlowSolver.maxFlow(randomG))
+        var randomANoCap = randomG.getAWithoutCaps();
+        var coords = this.display.getPositions(6, randomANoCap, 100, 100)
+        this.display.consoleDisplay(6, randomANoCap, coords, 100, 100)
+    }
+    fullTest2() {
+        this.generate.generate(5, 2, 2, 2, 1, 10)
+        var randomG = this.generate.export();
+        var randomA = randomG.getA();
+        var n = randomA.length
+        console.log(this.generate.isDirected(randomA))
+        console.log(this.generate.isConnected(randomA))
+        for (var i = 0; i < n; i++) {
+            console.log("A[" + i + "]: " + randomA[i])
+        }
+        console.log("Max flow: " + this.maxFlowSolver.maxFlow(randomG))
+        var randomANoCap = randomG.getAWithoutCaps();
+        var coords = this.display.getPositions(5, randomANoCap, 100, 100)
+        this.display.consoleDisplay(5, randomANoCap, coords, 100, 100)
+    }
 }
 
 
@@ -270,21 +396,67 @@ function runGenerationTest5() {
     tester.generationTest5();
 }
 
+function runDisplayTest1() {
+    var tester = new Test;
+
+    tester.displayTest1();
+}
+
+function runDisplayTest2() {
+    var tester = new Test;
+
+    tester.displayTest2();
+}
+
+function runDisplayTest3() {
+    var tester = new Test;
+
+    tester.displayTest3();
+}
+
+function runDisplayTest4() {
+    var tester = new Test;
+
+    tester.displayTest4();
+}
+
+function runFullTest() {
+    var tester = new Test;
+
+    tester.fullTest();
+}
+
+function runFullTest2() {
+    var tester = new Test;
+
+    tester.fullTest2();
+}
+
+
 function log3() {
     console.log(3);
 };
 
-console.log("hi");
-runTest1();
+//console.log("hi");
+//runTest1();
 //runGenerationTest1();
-console.log("______________________________________________________")
-runTest2();
+//console.log("______________________________________________________")
+//runTest2();
 //runGenerationTest2();
-console.log("______________________________________________________")
-runGenerationTest4();
-console.log("______________________________________________________")
-runGenerationTest5();
+//console.log("______________________________________________________")
+//runGenerationTest4();
+//console.log("______________________________________________________")
+//runGenerationTest5();
 
-console.log("______________________________________________________")
-console.log("generate a good adj list")
-runGenerationTest3();
+//console.log("______________________________________________________")
+//console.log("generate a good adj list")
+//runGenerationTest3();
+
+//console.log(1 / 0)
+
+//runDisplayTest1();
+//runDisplayTest2();
+//runDisplayTest3();
+//runDisplayTest4();
+//runFullTest();
+runFullTest2();
