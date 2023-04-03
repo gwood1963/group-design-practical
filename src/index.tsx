@@ -13,6 +13,7 @@ import Database01Page from "./pages/Database01Page";
 import AdminLogIn from "./pages/AdminLogIn";
 
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -37,7 +38,8 @@ const router = createBrowserRouter([
   {
     path: "/adminlogin",
     element: <AdminLogIn />,
-  }
+  },
+
 ]);
 
 const root = ReactDOM.createRoot(
