@@ -27,10 +27,16 @@ import ImageNode from '../components/ImageNode'
 const GamePage = () => {
   const auth = getAuth();
   const navigate = useNavigate();
+  const blueGradient = "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)"
+  const yellowGradient = "linear-gradient(180deg, rgba(255,245,156,1) 0%,   rgba(255, 253, 232,1) 100%)"
   const [time, setTime] = useState<number>(0);
   const [collapseButton, collapseState] = useState("+");
+  const [instructBoxSize, setBoxSize] = useState("10%");
+  const [instructBoxColor, setBoxColor] = useState(blueGradient)
   const toggleCollapse = () => {
     collapseState((state) => (state === "-" ? "+" : "-"));
+    setBoxSize((state) => (state === "10%" ? "50%" : "10%"));
+    setBoxColor((state) => (state === blueGradient ? yellowGradient : blueGradient))
   };
   let start = 0;
   useEffect(() => {
@@ -52,13 +58,13 @@ const GamePage = () => {
   function scalex(x:number) {return x*12.5} /**These scale functions are likely now redundant as I have worked out there is a fitView function. However they are left here in case we still need to convert David's position output into coordinates. */
   function scaley(y:number) {return y*6.5}
   const initialNodes = [
-    { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'START', image: "/building2trees.svg", color: "green"} },
+    { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'West Office', image: "/building2trees.svg", color: "green"} },
     { id: '2', type: "ImageNode", position: { x: scalex(20), y: scaley(30) }, data: { label: '', image: "/church.svg" ,color: "black" } },
     { id: '3', type: "ImageNode",position: { x: scalex(20), y: scaley(80) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
     { id: '4', type: "ImageNode",position: { x: scalex(50), y: scaley(40) }, data: { label: '', image: "/building2trees.svg", color: "black"  } },
     {id: '5', type: "ImageNode",position: { x: scalex(60), y: scaley(60) }, data: { label: '' , image: "/factory.svg", color: "black" } },
     {id: '6', type: "ImageNode",position: { x: scalex(70), y: scaley(20) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
-    {id: '7', type: "ImageNode", position: { x: scalex(80), y: scaley(50) }, data: { label: 'END', image: "/building2trees.svg", color: "red"  } },
+    {id: '7', type: "ImageNode", position: { x: scalex(80), y: scaley(50) }, data: { label: 'East Office', image: "/building2trees.svg", color: "red"  } },
   ];
   /**TO DO: add a label to the start node which says how many people need to get accross.  */
 
@@ -144,7 +150,7 @@ const GamePage = () => {
             id="PuzzleBox"
             style={{
               width: "100%",
-              height: "80%",
+              height: "90%",
               marginBottom: "1rem",
               borderRadius: "5px",
               background: 
@@ -180,29 +186,34 @@ const GamePage = () => {
             style={{
               width: "100%",
               borderRadius: "5px",
-              background:
-                "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
-              height: "20%",
+              background: instructBoxColor,
+              height: instructBoxSize,
+              
             }}
           >
             <div
               id="InstructionText"
               style={{
                 alignItems: "center",
-                padding: "10px",
+                padding: "5px",
                 height: "100%",
                 width: "100%",
-                textAlign: "center",
+                textAlign: "left",
               }}
             >
               {collapseButton === "-" && (
-                <h4>This time, the government have told you that their main priority is to connect two new government offices such that employees can go between the two in less than 2minutes. <br></br><br></br>
-                  This is now your main priority. You are encouraged to think outside of the box to achieve it.  <br></br><br></br>
-                  The solution you submit will be proposed to the Government. You should still aim to satisfy as many of the other demands as possible too.<br></br><br></br>
-                </h4>
+                <div style = {{fontSize: "18px", position: "relative", width: "100%"}}>
+                  <b>A company owner has two offices in this city. </b> Currently all of her employees are in the West Office. <br/>
+                  However, she needs to move <b>as many employees as possible to the East Office within the next 10 minutes </b> for a conference.<br/> <br/>
+                  Unfontunatly, the City Council has imposed some <b>strict traffic restrictions</b>, limiting the number of people the company is to allowed to send down any <br/> given road in the city within a 10 minute period. <br/><br/>
+                  She has asked you for your help. You need to <b>suggest how many people she sends down each road, in order to get as many emploeyees  from the<br/> West to East Office as possible, without breaking the traffic restrictions.</b> <br/><br/>
+                  When you think your suggestion gets as many people to the East Office as possible, press <i><b>Submit and Move On.</b></i>
+
+
+                </div>
               )}
               {collapseButton === "+" && (
-                <h1>Your first task is to find the instructions for this problem</h1>
+                <div style ={{fontSize: "35px", position: "relative", top: "15%", left: "5%", color: ""}}><i>Click [+] to view </i><b>Instructions</b> </div>
               )}
             </div>
 
@@ -239,10 +250,15 @@ const GamePage = () => {
               textAlign: "center",
             }}
           >
-          <h1>[Controls]</h1> <br></br>
-          <h4>- Click on a road, and then use the slider to set how many people you want to send down it.</h4><br></br>
-          <h4>- Click on a city for information on it.</h4><br></br>
-          <h4>- Click submit when you think you have the maximum number of people reaching the target city.</h4></div>
+            <text style = {{fontSize: "50px", padding: "30px", }}>Controls </text>
+            <text style = {{textAlign: "center", fontSize: "20px", position: "relative", top: "40px"}}>
+              <br/>
+              <b>Traffic limits:</b> where a road displays "5/10", for example, this indicates that the road has a limit of 10 people, and you are currently sending 5 people down it. <br/><br/><br/>
+              <b>To edit the number you are sending down a road: </b>click on the road, and then use the slider. <br/> <br/><br/>
+              <b> To submit your suggestion: </b>Click <i>Submit and Move On.</i><br/> <br/><br/>
+              Remember you <b>must</b> submit before the timer runs out.
+            </text>
+          </div>
           </div>
       </div>
     </MainWrapper>
