@@ -11,6 +11,7 @@ import UserTokenPage from "./pages/UserToken";
 import GamePage from "./pages/GamePage";
 import Database01Page from "./pages/Database01Page";
 import AdminLogIn from "./pages/AdminLogIn";
+import GameStart from "./pages/GameStart"
 
 
 
@@ -38,6 +39,11 @@ const router = createBrowserRouter([
   {
     path: "/adminlogin",
     element: <AdminLogIn />,
+  },
+  {
+    path: "/gamestart",
+    element: <GameStart/>,
+
   },
 
 ]);

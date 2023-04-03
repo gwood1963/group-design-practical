@@ -47,6 +47,18 @@ code {
   justify-content: center;
 }
 
+/*Styling for white pop-out boxes*/
+
+.whitePopOut {
+  background: white;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+  width: 50%;
+  height: 60%;
+  justify-content: left;
+  flex-direction: column;
+  display: flex;
+}
+
 
 /*DATABASE PAGE STYLING*/
 /*class for the div in which the table is held*/

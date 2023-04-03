@@ -22,19 +22,10 @@ const SignupPage = () => {
         <ActionButton onClick= {() => {}} text = "Data Policy" backcolor = "rgba(0,0,0,0)" /> {/** Code to display data policy */}
       </div>
       <MainWrapper justifyContent="space-around">
-        <div style = {{
-          background: "white",
-          boxShadow: "0 0 50px rgba(0, 0, 0, 0.2)",
-          width: "50%",
-          height: "60%",
-          justifyContent: "left",
-          flexDirection: "column",
-          display: "flex",
-
-        }}>
+        <div className = "whitePopOut">
           
           <div className = "textbox" style = {{position: "relative", top: "30px", left: "30px", fontSize: "50px",}} >Sign up or log in</div>
-          <div style = {{padding: "30px", fontSize: "18px", position: "relative", top: "40px", left: "10px"}}>
+          <div style = {{padding: "30px", fontSize: "20px", position: "relative", top: "40px", left: "10px"}}>
             Please sign in or create an account to play. Your email will only be used to contact you for information and invitiations related to a career here at Microsoft. <br></br>
             <br></br>
             <Checkbox/>  {/*TO DO:  implemenet features that sign up is only permitted once box checked*/ }
@@ -45,7 +36,7 @@ const SignupPage = () => {
               onClick={(_) => {
                 signInWithPopup(auth, provider)
                   .then((_) => {
-                    navigate("/game");
+                    navigate("/gamestart");
                   })
                   .catch((error) => {
                     setError(`Error ${error.code} - ${error.message}`);
