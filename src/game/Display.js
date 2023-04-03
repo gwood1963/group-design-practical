@@ -39,7 +39,7 @@ export class Display {
         var coords = this.generateInitialCoords(n, w, h);
         this.consoleDisplay(n, A, coords, w, h);
         var newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
-        this.consoleDisplay(n, A, newCoords, w, h);
+        //this.consoleDisplay(n, A, newCoords, w, h);
         var loss = this.loss(n, coords, newCoords, w, h);
 
         var iters = 0;
@@ -47,8 +47,8 @@ export class Display {
             coords = newCoords;
             newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
             loss = this.loss(n, coords, newCoords, w, h);
-            console.log("iter: " + iters)
-            this.consoleDisplay(n, A, coords, w, h);
+            //console.log("iter: " + iters)
+            //this.consoleDisplay(n, A, coords, w, h);
             iters++;
         }
 
@@ -94,8 +94,8 @@ export class Display {
         //evaluate force for all of them, then using deltaT find new coords
         var newCoords = [];
 
-        console.log("velocities")
-        console.log(v)
+        /* console.log("velocities")
+        console.log(v) */
 
         for (var i = 0; i < n; i++) {
             var force = this.forceOnNode(i, n, A, coords, w, h); //assumed to be equal to acceleration
@@ -110,10 +110,10 @@ export class Display {
             newCoords.push([coords[i][0] + distanceX, coords[i][1] + distanceY]);
         }
 
-        console.log("new velocities")
+        /* console.log("new velocities")
         console.log(v)
         console.log("new coords")
-        console.log(newCoords)
+        console.log(newCoords) */
 
         return newCoords;
     }
@@ -270,12 +270,12 @@ export class Display {
         temp.push(new Number(posChange[0]));
         temp.push(new Number(posChange[1]));
 
-        console.log(k + ": adjpos, allpos, adjForce, allForce, poschange")
+        /* console.log(k + ": adjpos, allpos, adjForce, allForce, poschange")
         console.log(adjPos)
         console.log(allPos)
         console.log(adjForce)
         console.log(allForce)
-        console.log(posChange)
+        console.log(posChange) */
 
         return temp;
 
@@ -293,8 +293,10 @@ export class Display {
         var interpolationCount = 20;
         var resolution = 30;
 
-        //console.log("coords to draw: ")
-        //console.log(coords);
+        /* console.log("coords to draw: ")
+        console.log(coords);
+        console.log("A: ")
+        console.log(A) */
 
         var adjustedCoords = [];
         for (var i = 0; i < n; i++) {
@@ -316,6 +318,8 @@ export class Display {
             //draw each edge... use + signs
             for (var k = 0; k < A[i].length; k++) {
                 var j = A[i][k];
+
+                //console.log(i + "  " + j)
                 //interpolation 
                 var iX = coords[i][0];
                 var iY = coords[i][1];

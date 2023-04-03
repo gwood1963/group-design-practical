@@ -94,8 +94,8 @@ export class Graph {
         var res = [];
         for (var i = 0; i < this.n; i++) {
             var temp = [];
-            for (var k = 0; k < A[i].length; k++) {
-                temp.push(new Number(A[i][k][1]));
+            for (var k = 0; k < this.A[i].length; k++) {
+                temp.push(new Number(this.A[i][k][0]));
             }
             res.push(temp);
         }

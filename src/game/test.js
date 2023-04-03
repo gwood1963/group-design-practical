@@ -321,6 +321,36 @@ class Test {
         var coords = this.display.getPositions(4, clusterANoCap, 100, 100);
         this.display.consoleDisplay(4, clusterANoCap, coords, 100, 100);
     }
+    fullTest() {
+        this.generate.generate(6, 6, 2, 2, 1, 10)
+        var randomG = this.generate.export();
+        var randomA = randomG.getA();
+        var n = randomA.length
+        console.log(this.generate.isDirected(randomA))
+        console.log(this.generate.isConnected(randomA))
+        for (var i = 0; i < n; i++) {
+            console.log("A[" + i + "]: " + randomA[i])
+        }
+        console.log("Max flow: " + this.maxFlowSolver.maxFlow(randomG))
+        var randomANoCap = randomG.getAWithoutCaps();
+        var coords = this.display.getPositions(6, randomANoCap, 100, 100)
+        this.display.consoleDisplay(6, randomANoCap, coords, 100, 100)
+    }
+    fullTest2() {
+        this.generate.generate(5, 2, 2, 2, 1, 10)
+        var randomG = this.generate.export();
+        var randomA = randomG.getA();
+        var n = randomA.length
+        console.log(this.generate.isDirected(randomA))
+        console.log(this.generate.isConnected(randomA))
+        for (var i = 0; i < n; i++) {
+            console.log("A[" + i + "]: " + randomA[i])
+        }
+        console.log("Max flow: " + this.maxFlowSolver.maxFlow(randomG))
+        var randomANoCap = randomG.getAWithoutCaps();
+        var coords = this.display.getPositions(5, randomANoCap, 100, 100)
+        this.display.consoleDisplay(5, randomANoCap, coords, 100, 100)
+    }
 }
 
 
@@ -390,6 +420,18 @@ function runDisplayTest4() {
     tester.displayTest4();
 }
 
+function runFullTest() {
+    var tester = new Test;
+
+    tester.fullTest();
+}
+
+function runFullTest2() {
+    var tester = new Test;
+
+    tester.fullTest2();
+}
+
 
 function log3() {
     console.log(3);
@@ -412,7 +454,9 @@ function log3() {
 
 //console.log(1 / 0)
 
-runDisplayTest1();
+//runDisplayTest1();
 //runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
+//runFullTest();
+runFullTest2();
