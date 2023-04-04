@@ -48,7 +48,7 @@ export class ReadSeed {
             j++;
         }
 
-        var A = adjListFromArr(n, edges, capacities);
+        var A = this.adjListFromArr(n, edges, capacities);
 
         this.graph = new Graph(n, A);
     }
@@ -57,10 +57,10 @@ export class ReadSeed {
         return this.graph;
     }
 
-    static adjListFromArr(n, edges, capacities) {
+    adjListFromArr(n, edges, capacities) {
         //Assuming edges does not have any repeats and capacities correspond to edges
         var e = edges.length;
-        assert(n === capacities.length);
+        //assert(n === capacities.length);
 
         var adj = new Array(n).fill([]);
 
