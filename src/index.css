@@ -202,3 +202,20 @@ tbody td:hover:before {
 
 /**GAME DISPLAY */
 
+.edgebutton {
+  pointer-events: all
+}
+
+.slidecontainer {
+  text-align: center;
+}
+
+/* The slider itself */
+.slider {
+  pointer-events: all
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}

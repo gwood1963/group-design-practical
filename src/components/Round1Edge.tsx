@@ -1,7 +1,6 @@
-
-
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { EdgeProps, getBezierPath, EdgeLabelRenderer } from 'reactflow';
+import ActionButton from "../components/ActionButton";
 
 const Round1Edge: FC<EdgeProps> = ({
   id,
@@ -22,6 +21,13 @@ const Round1Edge: FC<EdgeProps> = ({
     targetY,
     targetPosition,
   });
+  const [sliderToggle, sliderState] = useState("false");
+  const toggleCollapse = () => {sliderState((state) => (state === "true" ? "false" : "true"))};
+  var myValue: any=0     
+  const getSliderValue = (event:any=0) => {
+      data.flowFunc(event.target.value)
+      console.log(data.flow);
+  }
 
   return (
     <>
@@ -46,9 +52,16 @@ const Round1Edge: FC<EdgeProps> = ({
             borderWidth: "1px",
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
           }}
-          className="nodrag nopan"
-        >
-          {data.label}
+          className="nodrag nopan slidecontainer"
+        > 
+          {sliderToggle === "true" && (
+            <div>
+              0 <input type="range" min="0" max={data.capacity} value={data.flow} className="slider" onChange={getSliderValue} onInput={getSliderValue}></input> {data.capacity}
+            </div>
+          )}
+          <button className="edgebutton" onClick={toggleCollapse}>
+            {data.flow}/{data.capacity} 
+          </button>
         </div>
       </EdgeLabelRenderer>
     </>
