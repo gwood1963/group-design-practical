@@ -50,6 +50,8 @@ const GamePage = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  /** Dummy code to test sliders, remove once data from max flow puzzle has been hooked up to display */
   const [ flow, setFlow ] = useState<number>(5)
   const capacity = 10;
 
@@ -168,8 +170,6 @@ const GamePage = () => {
             edgeTypes={edgeTypes} 
             nodeTypes = {nodeTypes}
             fitView
-            /**TO DO: implement an 'on click' function for edges which makes the slider appear */
-
             >
             <Controls/>
             <Background variant= {BackgroundVariant.Dots} gap={12} size={1} />
