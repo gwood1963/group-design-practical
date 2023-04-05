@@ -37,8 +37,22 @@ export class Round1 {
         }
         console.log("Max flow: " + this.maxFlowSolver.maxFlow(randomG)) */
         //var randomANoCap = randomG.getAWithoutCaps();
-        var coords = this.display.getPositions(6, randomANoCap, 1000, 500);
+        var coords = this.display.getPositions(n, randomANoCap, 1000, 500);
         //this.display.consoleDisplay(6, randomANoCap, coords, 100, 100)
+    }
+
+    genRandom() {
+        this.generate.generate(6, 6, 2, 2, 1, 10)
+        var randomG = this.generate.export();
+        this.theGraph = randomG;
+        var randomA = randomG.getA();
+        this.theA = randomA;
+        var randomANoCap = randomG.getAWithoutCaps();
+        this.theANoCap = randomANoCap;
+        var n = randomA.length;
+        this.theN = n;
+        var coords = this.display.getPositionsRandom(n, randomANoCap, 1000, 500);
+
     }
 
     getGraph() {

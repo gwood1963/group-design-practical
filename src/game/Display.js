@@ -10,6 +10,25 @@ Idea:
  - maybe use a force based system (each node repels from other nodes and the boundaries, but attract to connected nodes)
 
 */
+
+//import { cross } from "d3-array";
+
+/*
+
+New Idea: 
+
+1. Generate 100 or so random positions for the nodes
+2. Which one has the least crossing number? (computed "dynamically", like as in max of array)
+3. scale up/down to take up the appropriate amount of space
+
+for calculating number of edge crossings, see: 
+Bentley–Ottmann algorithm
+Idea: vertical line test
+
+or brute force of course will work (easier to implement)
+
+*/
+
 export class Display {
     wallRepelFactor = 1; //how "repelly" do we want the walls, can be changes later
     forceScaling = 1; //maybe not used since it'll depend on size of canvas, it's essentially G, the gravitational constant
@@ -53,6 +72,70 @@ export class Display {
         }
 
         return coords; //or newCoords, both work
+    }
+
+    /**
+     * Find optimal positions for the nodes to be displayed to minimize edge
+     * crossing, total edge length, etc. while also taking up a fair amount 
+     * of space in the canvas it will be displayed on
+     * @param {Int} n - number of nodes
+     * @param {Number[][]} A - Adjacency List without capacities
+     * @param {Int} w - Width of canvas
+     * @param {Int} h - Height of canvas
+     * 
+     * @returns {Number[][]} - Array of (x, y)'s: result[k][x][y] means node k is at (x, y)
+     */
+    getPositionsRandom(n, A, w, h) {
+        //var coords = this.generateInitialCoordsRandom(n, w, h);
+        var bestCoords = []; // = coords;
+        var bestCrossCount = 10000000;
+        var crossCount = 0;
+        for (var iters = 0; iters < 100; iters++) {
+            var coords = this.generateInitialCoordsRandom(n, w, h);
+            for (var i = 0; i < n; i++) {
+                for (var k = 0; k < A[i].length; k++) {
+                    const j = A[i][k];
+                    for (var a = i + 1; a < n; a++) {
+                        for (var r = 0; r < A[a].length; r++) {
+                            const b = A[a][r];
+                            if (this.isCrossing(coords[i], coords[j], coords[a], coords[b]))
+                                crossCount++;
+                        }
+                    }
+                }
+            }
+            if (crossCount < bestCrossCount) {
+                bestCoords = coords;
+                bestCrossCount = crossCount;
+            }
+        }
+        return bestCoords;
+    }
+
+    /**
+     * 
+     * @returns whether the edge through points 1, 2 cross the edge through points 3, 4
+     */
+    isCrossing(p1, p2, p3, p4) {
+        //Idea: get slope of line from 1 to 2
+        //if 3 is above line and 4 is below line or vice versa, then cross
+        //otherwise no cross
+        //how to tell if 3 is above line? 
+        //is y3-y1 > m(x3-x1)? If yes then 3 is above the line.
+
+        const x1 = p1[0];
+        const x2 = p2[0];
+        const x3 = p3[0];
+        const x4 = p4[0];
+        const y1 = p1[1];
+        const y2 = p2[1];
+        const y3 = p3[1];
+        const y4 = p4[1];
+
+        const m = (y2 - y1) / (x2 - x1);
+        if (y3 - y1 > m * (x3 - x1) && y4 - y1 < m * (x4 - x1)) return true;
+        else if (y3 - y1 < m * (x3 - x1) && y4 - y1 > m * (x4 - x1)) return true;
+        return false;
     }
 
     /**
@@ -139,20 +222,31 @@ export class Display {
 
             coords.push([centerX + x, centerY + y]); //add coordinate to the list
         }
-
-        /* var coords = [];
-        for (var i = 0; i < n; i++) {
-            var x = w * Math.random();
-            var y = h * Math.random();;
-
-            coords.push([x, y]); //add coordinate to the list
-        } */
-
-        //Idea: generate randomly
-
-        //console.log(coords)
         return coords;
     }
+
+    /**
+     * Generates randomly the initial positions of the n nodes taking into account width and height of the canvas
+     * @param {Int} n 
+     * @param {Int} w 
+     * @param {Int} h 
+     * 
+     * @returns {Number[][]} Array of coordinates
+     */
+    generateInitialCoordsRandom(n, w, h) {
+        //Idea: generate randomly
+        var lowerX = w / 8;
+        var lowerY = h / 8;
+        var coords = [];
+        for (var i = 0; i < n; i++) {
+            var x = lowerX + w * Math.random() * 3 / 4;
+            var y = lowerY + h * Math.random() * 3 / 4;
+
+            coords.push([x, y]); //add coordinate to the list
+        }
+        return coords;
+    }
+
 
     dist(deltaX, deltaY) {
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);

@@ -348,7 +348,7 @@ class Test {
         }
         console.log("Max flow: " + this.maxFlowSolver.maxFlow(randomG))
         var randomANoCap = randomG.getAWithoutCaps();
-        var coords = this.display.getPositions(5, randomANoCap, 100, 100)
+        var coords = this.display.getPositionsRandom(5, randomANoCap, 100, 100)
         this.display.consoleDisplay(5, randomANoCap, coords, 100, 100)
     }
 }

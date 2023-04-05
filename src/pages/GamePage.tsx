@@ -56,14 +56,14 @@ const GamePage = () => {
 /** ---------------------------------------------------- */
 
 const round1 = new Round1;
-round1.gen();
+round1.genRandom();
 
 const graph = round1.getGraph();
 const A = round1.getA();
 const ANoCap = round1.getANoCap();
 const n = round1.getN();
 
-var coords = round1.getCoords(800, 500);
+var coords = round1.getCoords(500, 300);
 
 var initialNodesTemp = [];
 for (var i = 0; i < n; i ++) {
