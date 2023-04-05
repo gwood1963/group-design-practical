@@ -55,6 +55,8 @@ const GamePage = () => {
 /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
 /** ---------------------------------------------------- */
 
+/** ---------- David's Addition, looks very weird compared to my console output */
+
 const round1 = new Round1;
 round1.genRandom();
 
@@ -99,7 +101,7 @@ for (var i = 0; i < n; i ++) {
 const initialNodes = initialNodesTemp;
 const initialEdges = initialEdgesTemp;
 
-
+/** ---------------------------------------------------------------------- */
 
   /**TO DO: the x and y coordinates need to be taken from an array. */
   function scalex(x:number) {return x*12.5} /**These scale functions are likely now redundant as I have worked out there is a fitView function. However they are left here in case we still need to convert David's position output into coordinates. */

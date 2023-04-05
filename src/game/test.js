@@ -305,7 +305,7 @@ class Test {
     }
 
     displayTest1() {
-        var coords = this.display.getPositions(5, sampleA1ListNoCap, 100, 100);
+        var coords = this.display.getPositionsRandom(5, sampleA1ListNoCap, 100, 100);
         this.display.consoleDisplay(5, sampleA1ListNoCap, coords, 100, 100);
     }
 
@@ -333,7 +333,7 @@ class Test {
         }
         console.log("Max flow: " + this.maxFlowSolver.maxFlow(randomG))
         var randomANoCap = randomG.getAWithoutCaps();
-        var coords = this.display.getPositions(6, randomANoCap, 100, 100)
+        var coords = this.display.getPositionsRandom(6, randomANoCap, 100, 100)
         this.display.consoleDisplay(6, randomANoCap, coords, 100, 100)
     }
     fullTest2() {
@@ -458,5 +458,5 @@ function log3() {
 //runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
-//runFullTest();
-runFullTest2();
+runFullTest();
+//runFullTest2();

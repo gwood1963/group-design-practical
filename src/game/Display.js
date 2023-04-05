@@ -11,7 +11,6 @@ Idea:
 
 */
 
-//import { cross } from "d3-array";
 
 /*
 
@@ -89,27 +88,96 @@ export class Display {
         //var coords = this.generateInitialCoordsRandom(n, w, h);
         var bestCoords = []; // = coords;
         var bestCrossCount = 10000000;
-        var crossCount = 0;
-        for (var iters = 0; iters < 100; iters++) {
+        for (var iters = 0; iters < 1000; iters++) {
+            var crossCount = 0;
+            //console.log("random")
             var coords = this.generateInitialCoordsRandom(n, w, h);
             for (var i = 0; i < n; i++) {
                 for (var k = 0; k < A[i].length; k++) {
-                    const j = A[i][k];
+                    var j = A[i][k];
                     for (var a = i + 1; a < n; a++) {
                         for (var r = 0; r < A[a].length; r++) {
-                            const b = A[a][r];
+                            var b = A[a][r];
                             if (this.isCrossing(coords[i], coords[j], coords[a], coords[b]))
                                 crossCount++;
                         }
                     }
                 }
             }
+            coords = this.adjustArea(n, coords, w, h);
+
             if (crossCount < bestCrossCount) {
-                bestCoords = coords;
+                //bestCoords = coords; //need to opdate references
+                bestCoords = [];
+                for (var i = 0; i < n; i++) {
+                    bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
+                }
+                console.log("updated coordinates")
+                console.log(bestCoords);
                 bestCrossCount = crossCount;
+                console.log(bestCrossCount)
+            }
+            if (crossCount == bestCrossCount) {
+                console.log("equal cross count")
+                    //compare node spacing here
+                if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords)) {
+                    bestCoords = [];
+                    for (var i = 0; i < n; i++) {
+                        bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
+                    }
+                    console.log("updated coordinates")
+                    console.log(bestCoords);
+                    bestCrossCount = crossCount;
+                    console.log(bestCrossCount)
+                }
             }
         }
+        console.log("best crossing: ")
+        console.log(bestCrossCount)
+
+        //bestCoords = this.adjustArea(n, bestCoords, w, h);
         return bestCoords;
+    }
+
+    /**
+     * 
+     * @param {Number[][]} coords 
+     * @param {Number} w
+     * @param {Number} h
+     */
+    adjustArea(n, coords, w, h) {
+        var minX = coords[0][0];
+        var maxX = coords[0][0];
+        var minY = coords[0][1];
+        var maxY = coords[0][1];
+        for (var i = 1; i < n; i++) {
+            minX = Math.min(minX, coords[i][0]);
+            maxX = Math.max(maxX, coords[i][0]);
+            minY = Math.min(minY, coords[i][1]);
+            maxY = Math.max(maxY, coords[i][1]);
+        }
+        //each x goes from x -> (x - minX) * (0.75 * w / (maxX - minX)) + (0.125 * w)
+        var newCoords = [];
+        for (var i = 0; i < n; i++) {
+            var x = (coords[i][0] - minX) * (0.75 * w / (maxX - minX)) + (0.125 * w);
+            var y = (coords[i][1] - minY) * (0.75 * h / (maxY - minY)) + (0.125 * h);
+            newCoords.push([x, y]);
+        }
+        return newCoords;
+    }
+
+
+    nodeSpacing(n, coords) {
+        var closest = 10000000;
+        for (var i = 0; i < n; i++) {
+            for (var j = i + 1; j < n; j++) {
+                var dist = Math.sqrt(Math.pow(coords[i][0] - coords[j][0], 2) + Math.pow(coords[i][1] - coords[j][1], 2));
+                //console.log("dist: " + dist)
+                closest = Math.min(closest, dist);
+            }
+        }
+        console.log("spacing: " + closest)
+        return closest;
     }
 
     /**
@@ -237,8 +305,23 @@ export class Display {
         //Idea: generate randomly
         var lowerX = w / 8;
         var lowerY = h / 8;
+
+        /* function genX(w) {
+            return lowerX + w * Math.random() * 3 / 4;
+        }
+
+        function genY(h) {
+            return lowerY + h * Math.random() * 3 / 4;
+        } */
+
         var coords = [];
         for (var i = 0; i < n; i++) {
+            /* var x = w / 2;
+            var y = h / 2;
+            while (x > w * 3 / 8 && x < w * 5 / 8 && y > h * 3 / 8 && y > h * 5 / 8) {
+                x = lowerX + w * Math.random() * 3 / 4;
+                y = lowerY + h * Math.random() * 3 / 4;
+            } */
             var x = lowerX + w * Math.random() * 3 / 4;
             var y = lowerY + h * Math.random() * 3 / 4;
 
