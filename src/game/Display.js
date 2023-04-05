@@ -58,13 +58,13 @@ export class Display {
         this.consoleDisplay(n, A, coords, w, h);
         var newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
         //this.consoleDisplay(n, A, newCoords, w, h);
-        var loss = this.loss(n, coords, newCoords, w, h);
+        //var loss = this.loss(n, coords, newCoords, w, h);
 
         var iters = 0;
-        while (loss > 0.001 && iters < this.maxIters) {
+        while ( /* loss > 0.001 && */ iters < this.maxIters) {
             coords = newCoords;
             newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
-            loss = this.loss(n, coords, newCoords, w, h);
+            //loss = this.loss(n, coords, newCoords, w, h);
             //console.log("iter: " + iters)
             //this.consoleDisplay(n, A, coords, w, h);
             iters++;
@@ -86,6 +86,7 @@ export class Display {
      */
     getPositionsRandom(n, A, w, h) {
         //var coords = this.generateInitialCoordsRandom(n, w, h);
+        //TODO: make s on left, t on right
         var bestCoords = []; // = coords;
         var bestCrossCount = 10000000;
         for (var iters = 0; iters < 1000; iters++) {
@@ -121,6 +122,9 @@ export class Display {
                 console.log("equal cross count")
                     //compare node spacing here
                 if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords)) {
+                    //if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords) &&
+                    //this.relativePositionLoss(n, A, coords) < this.relativePositionLoss(n, A, bestCoords)) {
+                    //if (this.loss(n, A, coords) > this.loss(n, A, bestCoords)) {
                     bestCoords = [];
                     for (var i = 0; i < n; i++) {
                         bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
@@ -216,7 +220,7 @@ export class Display {
      * 
      * @returns {Number} A loss value equal to a function of the max change in position (relative to w and h) for any node (currently f(x) = x is that function)
      */
-    loss(n, oldCoords, newCoords, w, h) {
+    /* loss(n, oldCoords, newCoords, w, h) {
         var maxChange = 0;
         for (var i = 0; i < n; i++) {
             var changeX = (newCoords[i][0] - oldCoords[i][0]) / w;
@@ -228,6 +232,31 @@ export class Display {
         }
 
         return maxChange;
+    } */
+
+
+    /* loss(n, A, coords) {
+        return this.relativePositionLoss(n, A, coords) + this.nodeSpacing(n, coords);
+    } */
+
+    /**
+     * essentially sums up the difference in x of edges going backwards (to the left)
+     */
+    relativePositionLoss(n, A, coords) {
+        //essentially sums up the difference in x of edges going backwards (to the left)
+        var loss = 0;
+        for (var i = 0; i < n; i++) {
+            for (var k = 0; k < A[i].length; k++) {
+                var j = A[i][k];
+                var iX = coords[i][0];
+                var jX = coords[j][0];
+
+                if (iX > jX) {
+                    loss += iX - jX;
+                }
+            }
+        }
+        return loss;
     }
 
     /**
@@ -303,7 +332,7 @@ export class Display {
      */
     generateInitialCoordsRandom(n, w, h) {
         //Idea: generate randomly
-        var lowerX = w / 8;
+        var lowerX = w / 6;
         var lowerY = h / 8;
 
         /* function genX(w) {
@@ -315,18 +344,20 @@ export class Display {
         } */
 
         var coords = [];
-        for (var i = 0; i < n; i++) {
+        coords.push([w / 8, lowerY + h * Math.random() * 3 / 4])
+        for (var i = 1; i < n - 1; i++) {
             /* var x = w / 2;
             var y = h / 2;
             while (x > w * 3 / 8 && x < w * 5 / 8 && y > h * 3 / 8 && y > h * 5 / 8) {
                 x = lowerX + w * Math.random() * 3 / 4;
                 y = lowerY + h * Math.random() * 3 / 4;
             } */
-            var x = lowerX + w * Math.random() * 3 / 4;
+            var x = lowerX + w * Math.random() * 2 / 3;
             var y = lowerY + h * Math.random() * 3 / 4;
 
             coords.push([x, y]); //add coordinate to the list
         }
+        coords.push([7 * w / 8, lowerY + h * Math.random() * 3 / 4])
         return coords;
     }
 

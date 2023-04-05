@@ -13,6 +13,7 @@ export class Round1 {
     theA;
     theANoCap;
     theN;
+    theCoords;
     seedReader = new ReadSeed;
     maxFlowEngine = new MaxFlowSolver;
     generate = new Generate;
@@ -42,7 +43,7 @@ export class Round1 {
     }
 
     genRandom() {
-        this.generate.generate(6, 6, 2, 2, 1, 10)
+        this.generate.generate(5, 3, 2, 2, 1, 10)
         var randomG = this.generate.export();
         this.theGraph = randomG;
         var randomA = randomG.getA();
@@ -52,7 +53,7 @@ export class Round1 {
         var n = randomA.length;
         this.theN = n;
         var coords = this.display.getPositionsRandom(n, randomANoCap, 1000, 500);
-
+        this.theCoords = coords;
     }
 
     getGraph() {
@@ -73,8 +74,9 @@ export class Round1 {
 
     getCoords(w, h) {
         //var randomANoCap = randomG.getAWithoutCaps();
-        var coords = this.display.getPositions(this.theN, this.theANoCap, w, h);
-        return coords
+        /* var coords = this.display.getPositionsRandom(this.theN, this.theANoCap, w, h);
+        return coords */
+        return this.theCoords;
     }
 
     readSeed(seed) {
