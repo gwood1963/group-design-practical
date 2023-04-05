@@ -70,7 +70,7 @@ export class Generate {
         this.graph.setParams(n, adj);
         //this.graph.adjList(adj);
         //this.graph.logInfo();
-        if (!this.isDirected(adj) || !this.isConnected(adj)) {
+        if (!this.isDirected(adj) || !this.isConnected(adj) || !this.allInHasOut(adj)) {
             this.generate(numNodes, numEdges, numFromS, numIntoT, minCap, maxCap);
         }
     }
@@ -194,7 +194,31 @@ export class Generate {
         }
 
         return numUnvisited == 0;
+    }
 
+    /**
+     * returns true if for all nodes not s or t, exist edges in and out
+     * @param {Number[][][]} A 
+     */
+    allInHasOut(A) {
+        var enter = [];
+        var exit = [];
+        for (var i = 0; i < A.length; i++) {
+            enter.push(false);
+            exit.push(false);
+        }
+        for (var i = 0; i < A.length; i++) {
+            for (var k = 0; k < A[i].length; k++) {
+                var j = A[i][k][0];
+                enter[j] = true;
+                exit[i] = true;
+            }
+        }
+        for (var i = 1; i < A.length - 1; i++) {
+            if (!enter[i] || !exit[i])
+                return false;
+        }
+        return true;
     }
 
 }
