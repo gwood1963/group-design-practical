@@ -27,6 +27,7 @@ const edgeTypes: EdgeTypes = {
   'Round1Edge': Round1Edge,
 };
 
+
 const GamePage = () => {
   const auth = getAuth();
   const navigate = useNavigate();
@@ -60,11 +61,58 @@ const GamePage = () => {
 /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
 /** ---------------------------------------------------- */
 
+/** ---------- David's Addition, looks very weird compared to my console output */
+
+const round1 = new Round1;
+round1.genRandom();
+
+const graph = round1.getGraph();
+const A = round1.getA();
+const ANoCap = round1.getANoCap();
+const n = round1.getN();
+
+var coords = round1.getCoords(500, 300);
+
+var initialNodesTemp = [];
+for (var i = 0; i < n; i ++) {
+  const temp = {
+    id: '' + i,
+    type: "ImageNode",
+    position: { x: coords[i][0], y: coords[i][1] },
+    data: {
+      label: '',
+      image: "/church.svg",
+      color: "black"
+    }
+  };
+  initialNodesTemp.push(temp);
+}
+
+var initialEdgesTemp = [];
+for (var i = 0; i < n; i ++) {
+  for (var k = 0; k < A[i].length; k ++) {
+    var j = A[i][k][0];
+    const temp = {
+      id: 'e' + i + '-' + j,
+      source: '' + i,
+      target: '' + j,
+      animated: true,
+      type: "Round1Edge",
+      data: {Label: '0/' + A[i][k][1]}
+    }
+    initialEdgesTemp.push(temp);
+  }
+}
+
+const initialNodes = initialNodesTemp;
+const initialEdges = initialEdgesTemp;
+
+/** ---------------------------------------------------------------------- */
 
   /**TO DO: the x and y coordinates need to be taken from an array. */
   function scalex(x:number) {return x*12.5} /**These scale functions are likely now redundant as I have worked out there is a fitView function. However they are left here in case we still need to convert David's position output into coordinates. */
   function scaley(y:number) {return y*6.5}
-  const initialNodes = [
+  /* const initialNodes = [
     { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'West Office', image: "/building2trees.svg", color: "green"} },
     { id: '2', type: "ImageNode", position: { x: scalex(20), y: scaley(30) }, data: { label: '', image: "/church.svg" ,color: "black" } },
     { id: '3', type: "ImageNode",position: { x: scalex(20), y: scaley(80) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
@@ -72,13 +120,13 @@ const GamePage = () => {
     {id: '5', type: "ImageNode",position: { x: scalex(60), y: scaley(60) }, data: { label: '' , image: "/factory.svg", color: "black" } },
     {id: '6', type: "ImageNode",position: { x: scalex(70), y: scaley(20) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
     {id: '7', type: "ImageNode", position: { x: scalex(80), y: scaley(50) }, data: { label: 'East Office', image: "/building2trees.svg", color: "red"  } },
-  ];
+  ]; */
   /**TO DO: add a label to the start node which says how many people need to get accross.  */
 
   /**TO DO: The data labels in the edges below need to be taken from the live flow (stored in an array?) and the capacities from the array of capacities */
   /**TO DO: implement that the source and targets are taken from the adjacency list generated */
   const initialEdges = [
-    { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '', flow: flow, flowFunc: setFlow, capacity: capacity}},
+    { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/12', flow: flow, flowFunc: setFlow, capacity: capacity}},
     { id: 'e2-4', source: '2', target: '4', animated: true, type: "Round1Edge", data: {label: '4/8'}},
     { id: 'e4-6', source: '4', target: '6', animated: true, type: "Round1Edge", data: {label: '0/2'}},
     { id: 'e4-7', source: '4', target: '7', animated: true, type: "Round1Edge", data: {label: '2/10'}},
@@ -88,7 +136,7 @@ const GamePage = () => {
     { id: 'e1-3', source: '1', target: '3', animated: true, type: "Round1Edge", data: {label: '1/11'}},
     { id: 'e3-5', source: '3', target: '5', animated: true, type: "Round1Edge", data: {label: '7/7'}},
     { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/4'}},
-  ];
+  ]; */
 
 
 
