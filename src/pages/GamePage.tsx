@@ -5,18 +5,11 @@ import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
 import ReactFlow from 'reactflow';
 import 'reactflow/dist/style.css';
-import React, { useCallback } from 'react';
+import React  from 'react';
 import {
   Controls,
   Background,
-  addEdge,
-  Connection,
-  Edge,
   EdgeTypes,
-  Node,
-  useEdgesState,
-  useNodesState,
-  MiniMap,
   BackgroundVariant,
 } from 'reactflow';
 import Round1Edge from '../components/Round1Edge';
@@ -105,7 +98,6 @@ for (var i = 0; i < n; i ++) {
 }
 
 const initialNodes = initialNodesTemp;
-const initialEdges = initialEdgesTemp;
 
 /** ---------------------------------------------------------------------- */
 
@@ -136,7 +128,7 @@ const initialEdges = initialEdgesTemp;
     { id: 'e1-3', source: '1', target: '3', animated: true, type: "Round1Edge", data: {label: '1/11'}},
     { id: 'e3-5', source: '3', target: '5', animated: true, type: "Round1Edge", data: {label: '7/7'}},
     { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/4'}},
-  ]; */
+  ];
 
 
 
