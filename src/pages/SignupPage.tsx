@@ -1,5 +1,11 @@
 import LinkButton from "../components/LinkButton";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  AuthProvider,
+  getAuth,
+  GoogleAuthProvider,
+  OAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
@@ -10,10 +16,25 @@ const SignupPage = () => {
 
   const auth = getAuth();
   auth.useDeviceLanguage();
-  const provider = new GoogleAuthProvider();
+  const googleProvider = new GoogleAuthProvider();
+  const microsoftProvider = new OAuthProvider("microsoft.com");
 
   const [error, setError] = useState<string | undefined>(undefined);
   const [tos, setTos] = useState<boolean>(false);
+
+  const handleSignup = (provider: AuthProvider) => {
+    if (!tos) {
+      setError(`You must accept the Data Policy to sign up!`);
+      return;
+    }
+    signInWithPopup(auth, provider)
+      .then((_) => {
+        navigate("/gamestart");
+      })
+      .catch((error) => {
+        setError(`Error ${error.code} - ${error.message}`);
+      });
+  };
 
   return (
     <>
@@ -69,19 +90,11 @@ const SignupPage = () => {
             }}
           >
             <ActionButton
-              onClick={(_) => {
-                if (!tos) {
-                  setError(`You must accept the Data Policy to sign up!`);
-                  return;
-                }
-                signInWithPopup(auth, provider)
-                  .then((_) => {
-                    navigate("/gamestart");
-                  })
-                  .catch((error) => {
-                    setError(`Error ${error.code} - ${error.message}`);
-                  });
-              }}
+              onClick={(_) => handleSignup(microsoftProvider)}
+              text="Sign in with Microsoft"
+            />
+            <ActionButton
+              onClick={(_) => handleSignup(googleProvider)}
               text="Sign in with Google"
             />
             {error !== undefined && (
