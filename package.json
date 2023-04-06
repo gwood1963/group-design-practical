@@ -7,12 +7,13 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.13",
+    "@types/node": "^16.18.23",
     "@types/react-dom": "^18.0.11",
-    "firebase": "^9.17.2",
+    "firebase": "^9.19.1",
+    "latest-version": "^7.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.2",
+    "react-router-dom": "^6.10.0",
     "react-scripts": "^5.0.1",
     "react-table": "^7.8.0",
     "reactflow": "^11.7.0",
@@ -45,10 +46,10 @@
   },
   "devDependencies": {
     "@types/firebase": "^3.2.1",
-    "@types/react": "^18.0.28",
+    "@types/react": "^18.0.33",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-table": "^7.7.14",
-    "csstype": "^3.1.1"
+    "csstype": "^3.1.2"
   },
   "proxy": "http://localhost:3000"
 }

@@ -20,10 +20,12 @@ import {
   BackgroundVariant,
 } from 'reactflow';
 import Round1Edge from '../components/Round1Edge';
+//import SliderEdge from '../components/SliderEdge';
 import ImageNode from '../components/ImageNode'
-
 import { Round1 } from '../game/Round1'
-
+const edgeTypes: EdgeTypes = {
+  'Round1Edge': Round1Edge,
+};
 
 
 const GamePage = () => {
@@ -49,6 +51,10 @@ const GamePage = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  /** Dummy code to test sliders, remove once data from max flow puzzle has been hooked up to display */
+  const [ flow, setFlow ] = useState<number>(5)
+  const capacity = 10;
 
 
 
@@ -119,8 +125,8 @@ const initialEdges = initialEdgesTemp;
 
   /**TO DO: The data labels in the edges below need to be taken from the live flow (stored in an array?) and the capacities from the array of capacities */
   /**TO DO: implement that the source and targets are taken from the adjacency list generated */
-  /* const initialEdges = [
-    { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/12'}},
+  const initialEdges = [
+    { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/12', flow: flow, flowFunc: setFlow, capacity: capacity}},
     { id: 'e2-4', source: '2', target: '4', animated: true, type: "Round1Edge", data: {label: '4/8'}},
     { id: 'e4-6', source: '4', target: '6', animated: true, type: "Round1Edge", data: {label: '0/2'}},
     { id: 'e4-7', source: '4', target: '7', animated: true, type: "Round1Edge", data: {label: '2/10'}},
@@ -129,13 +135,10 @@ const initialEdges = initialEdgesTemp;
     { id: 'e2-5', source: '2', target: '5', animated: true, type: "Round1Edge", data: {label: '5/10'}},
     { id: 'e1-3', source: '1', target: '3', animated: true, type: "Round1Edge", data: {label: '1/11'}},
     { id: 'e3-5', source: '3', target: '5', animated: true, type: "Round1Edge", data: {label: '7/7'}},
-    { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/10'}},
     { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/4'}},
   ]; */
 
-  const edgeTypes: EdgeTypes = {
-    'Round1Edge': Round1Edge,
-  };
+
 
   const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
   
@@ -215,8 +218,6 @@ const initialEdges = initialEdgesTemp;
             edgeTypes={edgeTypes} 
             nodeTypes = {nodeTypes}
             fitView
-            /**TO DO: implement an 'on click' function for edges which makes the slider appear */
-
             >
             <Controls/>
             <Background variant= {BackgroundVariant.Dots} gap={12} size={1} />
