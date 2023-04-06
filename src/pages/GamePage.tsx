@@ -98,6 +98,7 @@ for (var i = 0; i < n; i ++) {
 }
 
 const initialNodes = initialNodesTemp;
+const initialEdges = initialEdgesTemp;
 
 /** ---------------------------------------------------------------------- */
 
@@ -117,7 +118,7 @@ const initialNodes = initialNodesTemp;
 
   /**TO DO: The data labels in the edges below need to be taken from the live flow (stored in an array?) and the capacities from the array of capacities */
   /**TO DO: implement that the source and targets are taken from the adjacency list generated */
-  const initialEdges = [
+  /* const initialEdges = [
     { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/12', flow: flow, flowFunc: setFlow, capacity: capacity}},
     { id: 'e2-4', source: '2', target: '4', animated: true, type: "Round1Edge", data: {label: '4/8'}},
     { id: 'e4-6', source: '4', target: '6', animated: true, type: "Round1Edge", data: {label: '0/2'}},
@@ -128,13 +129,28 @@ const initialNodes = initialNodesTemp;
     { id: 'e1-3', source: '1', target: '3', animated: true, type: "Round1Edge", data: {label: '1/11'}},
     { id: 'e3-5', source: '3', target: '5', animated: true, type: "Round1Edge", data: {label: '7/7'}},
     { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/4'}},
-  ];
+  ]; */
 
 
 
   const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
   
   /**------------------------------------------------------------------------------------------------------------ */
+
+  // if we don't memoize this, it keeps rerendering
+  const graphDisplay = React.useMemo(() => {
+    return <ReactFlow 
+      nodes={initialNodes}
+      edges={initialEdges} 
+      panOnDrag = {true} 
+      edgeTypes={edgeTypes} 
+      nodeTypes = {nodeTypes}
+      fitView
+      >
+      <Controls/>
+      <Background variant= {BackgroundVariant.Dots} gap={12} size={1} />
+    </ReactFlow>
+  }, [])
   
 
   return (
@@ -201,19 +217,9 @@ const initialNodes = initialNodesTemp;
                 "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
             }}
           >
-          {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
-       
-          <ReactFlow 
-            nodes={initialNodes}
-            edges={initialEdges} 
-            panOnDrag = {true} 
-            edgeTypes={edgeTypes} 
-            nodeTypes = {nodeTypes}
-            fitView
-            >
-            <Controls/>
-            <Background variant= {BackgroundVariant.Dots} gap={12} size={1} />
-          </ReactFlow>
+          {/* HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
+          {graphDisplay}
+          
           {/** the following div covers up the React Flow logo */}
           <div style = {{position: "relative", bottom: "20px", left: "96%", background: "rgba(243,243,243,1)", width: "50px", height: "20px"}}></div>
 
