@@ -22,7 +22,7 @@ import {
 import Round1Edge from '../components/Round1Edge';
 //import SliderEdge from '../components/SliderEdge';
 import ImageNode from '../components/ImageNode'
-
+import { Round1 } from '../game/Round1'
 const edgeTypes: EdgeTypes = {
   'Round1Edge': Round1Edge,
 };
