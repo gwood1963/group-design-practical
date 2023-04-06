@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
+import ImageActionButton from "../components/ImageActionButton";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -46,14 +47,20 @@ const SignupPage = () => {
           backcolor="rgba(0,0,0,0)"
         />
         <ActionButton
-          onClick={() => {}}
+          onClick={() => {
+            var datapolicy = document.getElementById("DataPolicy")!;
+            datapolicy?.classList.toggle("show");
+          }}
           text="Data Policy"
           backcolor="rgba(0,0,0,0)"
         />{" "}
         {/** Code to display data policy */}
       </div>
       <MainWrapper justifyContent="space-around">
-        <div className="whitePopOut">
+        
+
+
+        <div className="whitePopOut" style ={{position: "absolute", top: "20%", left: "25%"}}>
           <div
             className="textbox"
             style={{
@@ -61,6 +68,7 @@ const SignupPage = () => {
               top: "30px",
               left: "30px",
               fontSize: "50px",
+              
             }}
           >
             Sign up or log in
@@ -103,6 +111,12 @@ const SignupPage = () => {
               </p>
             )}
           </div>
+        </div>
+        <div id = "DataPolicy" className = "whitePopOut" >
+          <div style = {{position: "relative", left: "92%"}}>
+            <ImageActionButton image = "/close.svg" text = "Close" onClick = {() => {var datapolicy = document.getElementById("DataPolicy")!; datapolicy?.classList.toggle("show");}}/>
+          </div>
+          <div className = "textbox" style ={{position: "relative", width: "100%", height: "80"}}></div>
         </div>
       </MainWrapper>
     </>

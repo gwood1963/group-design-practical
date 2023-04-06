@@ -59,6 +59,23 @@ code {
   display: flex;
 }
 
+#DataPolicy.whitePopOut {
+
+  visibility: hidden;
+}
+
+#DataPolicy.whitePopOut.show {
+  visibility: visible;
+  position: absolute;
+  top: 10%;
+  left: 25%;
+  width: 50%;
+  height: 85%;
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+}
+
 
 /*DATABASE PAGE STYLING*/
 /*class for the div in which the table is held*/
