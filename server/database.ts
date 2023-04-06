@@ -23,6 +23,7 @@ export const getRecentScores = async () => {
         inner join [dbo].[Attempts] attempts on attempts.UserID=users.UserID
         join (select UserID, max(AttemptDate) most_recent from attempts group by UserID) t 
             on t.most_recent = attempts.AttemptDate and t.UserID = users.UserID
+        where users.UserID != 0
         order by users.UserID`
     ).then(res => res.recordset);
 
@@ -35,6 +36,18 @@ export const invite = async (ids: Array<number>) => {
         await poolConnection.request()
             .input('id', Int, id)
             .query(`update [dbo].[Users] set Invited = 1 where UserID = @id`)
+    });
+}
+
+export const deleteSelected = async (ids: Array<number>) => {
+    var poolConnection = await connect(connection);
+    ids.forEach(async id => {
+        await poolConnection.request()
+            .input('id', Int, id)
+            .query(`delete from [dbo].[Users] where UserID = @id`)
+        await poolConnection.request()
+            .input('id', Int, id)
+            .query('update [dbo].[Attempts] set UserID = 0 where UserID = @id')
     });
 }
 

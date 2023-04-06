@@ -165,6 +165,34 @@ const Database01Page = () => {
                 <span className = "popuptext" id = "InvitePopup"> None selected!</span>
                 </div>
 
+                {/**Delete Candidates button, with associated updates to database and popup */}
+                <div className = "popup" onClick = {(_)=> {
+                    if (window.confirm('Are you sure you want to delete these users?')) {
+                        var popup = document.getElementById("DeletePopup")!;
+                        var numSelected = selectedFlatRows.length;
+                        if (numSelected > 0) {
+                            popup.innerHTML = numSelected + " selected candidates deleted";
+                        } else {
+                            popup.innerHTML = "None selected"
+                        }
+                        popup?.classList.toggle("show");
+                        setTimeout(() => {popup?.classList.toggle("show");}, 3000);
+                        const ids = selectedFlatRows.map((row) => row.original.UserID)
+                        fetch("/api/delete", {
+                            method: "DELETE",
+                            body: JSON.stringify(ids),
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        getScores() //updates the database to show the change
+                    }
+                }}>  
+                Delete Selected
+                <span className = "popuptext" id = "DeletePopup"> None selected!</span>
+                </div>
+
                 {/**Back button */}
                 <div style = {{position: "absolute", right: "5px"}}>
                     <ActionButton
