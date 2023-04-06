@@ -9,6 +9,7 @@
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.23",
     "@types/react-dom": "^18.0.11",
+    "eslint": "^8.37.0",
     "firebase": "^9.19.1",
     "latest-version": "^7.0.0",
     "react": "^18.2.0",
@@ -24,7 +25,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build && node copy.ts",
     "test": "react-scripts test --passWithNoTests",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --fix --ext .ts"
   },
   "eslintConfig": {
     "extends": [
