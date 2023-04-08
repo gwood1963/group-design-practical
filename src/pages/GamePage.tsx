@@ -1,5 +1,5 @@
 import { getAuth } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
@@ -15,6 +15,7 @@ import {
 import Round1Edge from '../components/Round1Edge';
 //import SliderEdge from '../components/SliderEdge';
 import ImageNode from '../components/ImageNode'
+
 import { Round1 } from '../game/Round1'
 const edgeTypes: EdgeTypes = {
   'Round1Edge': Round1Edge,
@@ -35,107 +36,207 @@ const GamePage = () => {
     setBoxSize((state) => (state === "10%" ? "50%" : "10%"));
     setBoxColor((state) => (state === blueGradient ? yellowGradient : blueGradient))
   };
+
+
+  const [ flows, setFlows ] = useState([{id: "dummmy", flow: 5}]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
+  //@ts-ignore
+  const [initialNodes, setInitialNodes] = useState([])  //a state to store the array of nodes.
+  //@ts-ignore
+  const [initialEdges, setInitialEdges] = useState([]) //a state to store the array of edges.
+  //@ts-ignore
+  const [adjacency, setAdjacency] = useState([[]]) //I am using this purely to store the adjacency matrix outputted by davids generation so that I can access it in different use effects. 
+  //adjacency[i][0][0] would give you the name of the node that is first in the adjacenies of node i. 
+  //adjacency[i][0][1]  gives you the capacity of that edge.
+
+  const [num, setN] = useState(0) //this is the to store the number of nodes in the game generated
+
+  //IDEA: function below should map over the array of flows until it finds the entry matching thisid. It then returns the flow associated with this entry.
+  function findFlow(thisid:String) { return ((flows.filter(edge => {return edge.id == thisid})).map(edge => edge.flow))[0]};
+  
+  //DELETE?: The lines below were originally used to regenerate a new graph every 20s when david was testing. So you can likely delete it now but I leave it here in case you need something similar.
   let start = 0;
   useEffect(() => {
     start = Date.now() / 1000;
     const interval = setInterval(() => {
-      setTime(3000 - Math.floor(Date.now() / 1000 - start));
-    }, 1000);
+      setTime(3000 - Math.floor(Date.now() / 1000 - start)); /
+    }, 20000);
 
     return () => clearInterval(interval);
   }, []);
 
   /** Dummy code to test sliders, remove once data from max flow puzzle has been hooked up to display */
-  const [ flow, setFlow ] = useState<number>(5)
-  const capacity = 10;
+  //const [ flow, setFlow ] = useState<number>(5)
+  //const capacity = 10;
 
 
 
 /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
 /** ---------------------------------------------------- */
 
-/** ---------- David's Addition, looks very weird compared to my console output */
 
-const round1 = new Round1;
-round1.genRandom();
+//IDEA: If you use a useMemo or useEffect, with a function as the first paramter, and a [] as the second paramter, then the code in it should only run once when the page first loads
+//the second paramter is the list of React States which it 'watches' -- it will re-render if any of them change
 
-const graph = round1.getGraph();
-const A = round1.getA();
-const ANoCap = round1.getANoCap();
-const n = round1.getN();
+useMemo(() => {  //NOTE: George thinks we should change this to a use effect -- see group chat
+//@ts-ignore
+  var initialNodesTemp = []
+  //@ts-ignore
 
-var coords = round1.getCoords(500, 300);
+  const round1 = new Round1;
+  round1.genRandom();
 
-var initialNodesTemp = [];
-for (var i = 0; i < n; i ++) {
-  const temp = {
-    id: '' + i,
-    type: "ImageNode",
-    position: { x: coords[i][0], y: coords[i][1] },
-    data: {
-      label: '',
-      image: "/church.svg",
-      color: "black"
-    }
-  };
-  initialNodesTemp.push(temp);
-}
+  const graph = round1.getGraph();  //this is where the graph is actually generated
+  const A = round1.getA();
+  setAdjacency(A) //here we essentially save the adjacecy list to a state so we can access it outside of this useMemo
+  const ANoCap = round1.getANoCap();
+  
+  const n = round1.getN();
+  setN(n)
 
-var initialEdgesTemp = [];
-for (var i = 0; i < n; i ++) {
-  for (var k = 0; k < A[i].length; k ++) {
-    var j = A[i][k][0];
+
+
+  var coords = round1.getCoords(500, 300); //gives the coordinates of the nodes 
+
+
+  for (var i = 0; i < n; i ++) { //this genereates the set of nodes and puts them in initialNodesTemp
     const temp = {
-      id: 'e' + i + '-' + j,
-      source: '' + i,
-      target: '' + j,
-      animated: true,
-      type: "Round1Edge",
-      data: {Label: '0/' + A[i][k][1]}
-    }
-    initialEdgesTemp.push(temp);
+      id: '' + i,
+      type: "ImageNode",
+      position: { x: coords[i][0], y: coords[i][1] },
+      data: {
+        label: '',
+        image: "/church.svg",
+        color: "black"
+      }
+    };
+    initialNodesTemp.push(temp);
+    //@ts-ignore
+    setInitialNodes(initialNodesTemp)  //SET THE ACTUAL STATE so that initialNodes is updated and can be accessed outside this useMemo
   }
-}
+}, []);
 
-const initialNodes = initialNodesTemp;
+
+//IDEA: whilst the nodes only need to be rendered once, we will need to re-render the edges every time the flows change if we want to update the labels.
+//So I have tried to put it in a useEffect with second paramater [flows], hoping that it would update only when flows changes 
+//I think this is the right strategy, however I am running into a problem where for some reason it is re-rendering infinitely often, as though flows is constantly being changed
+//see the console log to see how many times "re-rendering edges is called"
+//Maybe it's stuck in an infinite loop because I call setFlows at the end of the funciton, meaning as soon as the function is finished it then calls itself again because flows changes
+//^^Thinking about it -- thats definitely the problem.
+//^^Might be solveable by having two different useEffects: one which just runs on start up, in which we initialise all the flows to 0 as below and use setFlows  ...
+//and a separate one which watches flows and purely updates the labels of the edges if flows changes (without calling setFlows inside the function)
+
+
+useEffect(() => {
+  
+  console.log("re-rendering edges")
+  var initialEdgesTemp = []
+  //@ts-ignore
+  var flowsTemp = []
+  for (var i = 0; i < num; i ++) {
+    for (var k = 0; k < adjacency[i].length; k ++) {
+      var j = adjacency[i][k][0];
+      const myid = 'e' + i + '-' + j;
+      //@ts-ignore
+
+      flowsTemp.push({id: myid, flow: 0});  //this is for initialising the flows arrey
+      const capacity = String(adjacency[i][k][1]) //need to hook up to actual capacity array
+      //@ts-ignore
+
+      //@ts-ignore
+      /*function setFlow(f:number) {
+        //@ts-ignore
+        const rest =  flows.filter(edge => {return edge.id != myid})
+        setFlows([
+          //@ts-ignore
+          ...rest,
+          //@ts-ignore
+          {id: myid, flow: f}
+        ])
+
+      };*/
+    
+
+      const temp = {
+        id: myid,
+        source: '' + i,
+        target: '' + j,
+        animated: true,
+        type: "Round1Edge",
+        data: {
+          ID: myid,
+          //@ts-ignore
+          Label:  String(findFlow()) + adjacency[i][k][1], //problem -- I'm not sure that findFlow is actually working as we hope here.  HOWEVER, I think it might work once we separate out the cases of initialisation and updating (as per my comment paragraph above, s.t. we only use findFlows when we are updating labels, because then there will actually be something in the flows array to fetch)
+          //@ts-ignore
+          flow: findFlow(),
+          //@ts-ignore
+          //flowFunc: setFlows,
+          capacity: capacity,
+          allFlows: flows, //thought this might be useful to access from the slider function
+        }
+
+      }
+      initialEdgesTemp.push(temp);
+      
+    }
+  }
+  //@ts-ignore
+  setFlows(flowsTemp)
+  //@ts-ignore
+  setInitialEdges(initialEdgesTemp)
+}, [flows]); //depend on flows?
+  /*
+  //@ts-ignore
+  //const initialNodes = initialNodesTemp;
+  console.log("Here are initial nodes")
+  console.log(initialNodesTemp)
+  //@ts-ignore
+  //const initialEdges = initialEdgesTemp;
+  console.log("HERE ARE FLOWS")
+  console.log(flows)
+  console.log("Here are initial nodes")
+  console.log(initialNodes)*/
+
+
+
+
 
 /** ---------------------------------------------------------------------- */
 
-  /**TO DO: the x and y coordinates need to be taken from an array. */
-  function scalex(x:number) {return x*12.5} /**These scale functions are likely now redundant as I have worked out there is a fitView function. However they are left here in case we still need to convert David's position output into coordinates. */
-  function scaley(y:number) {return y*6.5}
-  /* const initialNodes = [
-    { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'West Office', image: "/building2trees.svg", color: "green"} },
-    { id: '2', type: "ImageNode", position: { x: scalex(20), y: scaley(30) }, data: { label: '', image: "/church.svg" ,color: "black" } },
-    { id: '3', type: "ImageNode",position: { x: scalex(20), y: scaley(80) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
-    { id: '4', type: "ImageNode",position: { x: scalex(50), y: scaley(40) }, data: { label: '', image: "/building2trees.svg", color: "black"  } },
-    {id: '5', type: "ImageNode",position: { x: scalex(60), y: scaley(60) }, data: { label: '' , image: "/factory.svg", color: "black" } },
-    {id: '6', type: "ImageNode",position: { x: scalex(70), y: scaley(20) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
-    {id: '7', type: "ImageNode", position: { x: scalex(80), y: scaley(50) }, data: { label: 'East Office', image: "/building2trees.svg", color: "red"  } },
-  ]; */
-  /**TO DO: add a label to the start node which says how many people need to get accross.  */
+/**TO DO: the x and y coordinates need to be taken from an array. */
+function scalex(x:number) {return x*12.5} /**These scale functions are likely now redundant as I have worked out there is a fitView function. However they are left here in case we still need to convert David's position output into coordinates. */
+function scaley(y:number) {return y*6.5}
+/* const initialNodes = [
+  { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'West Office', image: "/building2trees.svg", color: "green"} },
+  { id: '2', type: "ImageNode", position: { x: scalex(20), y: scaley(30) }, data: { label: '', image: "/church.svg" ,color: "black" } },
+  { id: '3', type: "ImageNode",position: { x: scalex(20), y: scaley(80) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
+  { id: '4', type: "ImageNode",position: { x: scalex(50), y: scaley(40) }, data: { label: '', image: "/building2trees.svg", color: "black"  } },
+  {id: '5', type: "ImageNode",position: { x: scalex(60), y: scaley(60) }, data: { label: '' , image: "/factory.svg", color: "black" } },
+  {id: '6', type: "ImageNode",position: { x: scalex(70), y: scaley(20) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
+  {id: '7', type: "ImageNode", position: { x: scalex(80), y: scaley(50) }, data: { label: 'East Office', image: "/building2trees.svg", color: "red"  } },
+]; */
+/**TO DO: add a label to the start node which says how many people need to get accross.  */
 
-  /**TO DO: The data labels in the edges below need to be taken from the live flow (stored in an array?) and the capacities from the array of capacities */
-  /**TO DO: implement that the source and targets are taken from the adjacency list generated */
-  const initialEdges = [
-    { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/12', flow: flow, flowFunc: setFlow, capacity: capacity}},
-    { id: 'e2-4', source: '2', target: '4', animated: true, type: "Round1Edge", data: {label: '4/8'}},
-    { id: 'e4-6', source: '4', target: '6', animated: true, type: "Round1Edge", data: {label: '0/2'}},
-    { id: 'e4-7', source: '4', target: '7', animated: true, type: "Round1Edge", data: {label: '2/10'}},
-    { id: 'e6-7', source: '6', target: '7', animated: true, type: "Round1Edge", data: {label: '5/9'}},
-    { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/3'}},
-    { id: 'e2-5', source: '2', target: '5', animated: true, type: "Round1Edge", data: {label: '5/10'}},
-    { id: 'e1-3', source: '1', target: '3', animated: true, type: "Round1Edge", data: {label: '1/11'}},
-    { id: 'e3-5', source: '3', target: '5', animated: true, type: "Round1Edge", data: {label: '7/7'}},
-    { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/4'}},
-  ];
+/**TO DO: The data labels in the edges below need to be taken from the live flow (stored in an array?) and the capacities from the array of capacities */
+/**TO DO: implement that the source and targets are taken from the adjacency list generated */
+/*const initialEdges = [
+  { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/12', flow: flow, flowFunc: setFlow, capacity: capacity}},
+  { id: 'e2-4', source: '2', target: '4', animated: true, type: "Round1Edge", data: {label: '4/8'}},
+  { id: 'e4-6', source: '4', target: '6', animated: true, type: "Round1Edge", data: {label: '0/2'}},
+  { id: 'e4-7', source: '4', target: '7', animated: true, type: "Round1Edge", data: {label: '2/10'}},
+  { id: 'e6-7', source: '6', target: '7', animated: true, type: "Round1Edge", data: {label: '5/9'}},
+  { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/3'}},
+  { id: 'e2-5', source: '2', target: '5', animated: true, type: "Round1Edge", data: {label: '5/10'}},
+  { id: 'e1-3', source: '1', target: '3', animated: true, type: "Round1Edge", data: {label: '1/11'}},
+  { id: 'e3-5', source: '3', target: '5', animated: true, type: "Round1Edge", data: {label: '7/7'}},
+  { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/4'}},
+];*/
 
 
 
-  const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
-  
-  /**------------------------------------------------------------------------------------------------------------ */
-  
+const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
+
+/**------------------------------------------------------------------------------------------------------------ */
+
 
   return (
     <MainWrapper flexDirection="column">
