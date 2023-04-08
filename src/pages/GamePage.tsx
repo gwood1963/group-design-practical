@@ -1,4 +1,4 @@
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
@@ -22,7 +22,37 @@ const edgeTypes: EdgeTypes = {
 
 
 const GamePage = () => {
+  //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
+  //--------------------------------------------------------------------------------------------------------------
+  //it will fetch the data of the currently signed in candidate, once when the page opens
+
+
+  //GEORGE: use the following states varaibles to query the database. They will be of the signed in candidate. userId is unique.
+  const [email,setEmail] = useState<string|null>("")
+  const [fullName,setName] = useState<string|null>("")
+  const [userId,setUserId] = useState<string>("") 
+
   const auth = getAuth();
+
+  useEffect(() => {onAuthStateChanged(auth, (user) =>{  //I think the useEffect here is needed to prevent infinite loops where the page re-renders, causing the emails and names to be set again, which causes another re-render  etc
+    if (user){
+      setEmail(user.email);
+      setName(user.displayName);
+      setUserId(user.uid);  //uniquely identifies users.
+      console.log(user.uid)
+      console.log(user.email)
+      console.log(user.displayName)
+      
+    }
+    })
+  }, []);
+
+
+
+
+  
+
+  //----------------------------------------------------------------------------------------------------------------------
   const navigate = useNavigate();
   const blueGradient = "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)"
   const yellowGradient = "linear-gradient(180deg, rgba(255,245,156,1) 0%,   rgba(255, 253, 232,1) 100%)"
@@ -35,12 +65,13 @@ const GamePage = () => {
     setBoxSize((state) => (state === "10%" ? "50%" : "10%"));
     setBoxColor((state) => (state === blueGradient ? yellowGradient : blueGradient))
   };
+  
   let start = 0;
   useEffect(() => {
     start = Date.now() / 1000;
     const interval = setInterval(() => {
       setTime(3000 - Math.floor(Date.now() / 1000 - start));
-    }, 1000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);

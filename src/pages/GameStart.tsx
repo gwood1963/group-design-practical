@@ -1,11 +1,37 @@
 import LinkButton from "../components/LinkButton";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
+import {useState, useEffect} from "react"
 
 const GameStart = () => {
+  //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
+  //--------------------------------------------------------------------------------------------------------------
+  //it will fetch the data of the currently signed in candidate, once when the page opens
+
+
+  //GEORGE: use the following states varaibles to query the database. They will be of hte signed in candidate. userId is unique.
+  const [email,setEmail] = useState<string|null>("")
+  const [fullName,setName] = useState<string|null>("")
+  const [userId,setUserId] = useState<string>("") 
+
   const auth = getAuth();
+
+  useEffect(() => {onAuthStateChanged(auth, (user) =>{  //I think the useEffect here is needed to prevent infinite loops where the page re-renders, causing the emails and names to be set again, which causes another re-render  etc
+    if (user){
+      setEmail(user.email);
+      setName(user.displayName);
+      setUserId(user.uid);  //uniquely identifies users.
+      console.log(user.uid)
+      console.log(user.email)
+      console.log(user.displayName)
+      
+    }
+    })
+  }, []);
+
+
   const navigate = useNavigate();
 
   return (

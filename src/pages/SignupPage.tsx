@@ -5,6 +5,7 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
   signInWithPopup,
+  onAuthStateChanged,
 } from "firebase/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -23,19 +24,30 @@ const SignupPage = () => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [tos, setTos] = useState<boolean>(false);
 
+
   const handleSignup = (provider: AuthProvider) => {
     if (!tos) {
       setError(`You must accept the Data Policy to sign up!`);
       return;
     }
     signInWithPopup(auth, provider)
-      .then((_) => {
+      .then((result) => {
+        const credential = GoogleAuthProvider.credentialFromResult(result); //gives access to the Google API
+        const token = credential?.accessToken;
+        const user = result.user;
+        const email = user.email;  //these aren't actually used in thise page. See the start of GamePage and GameStartPage for how to access these values if you do need them
+        const fullName = user.displayName;
+        const userID = user.uid;
+        
         navigate("/gamestart");
       })
       .catch((error) => {
         setError(`Error ${error.code} - ${error.message}`);
       });
   };
+
+
+
 
   return (
     <>
