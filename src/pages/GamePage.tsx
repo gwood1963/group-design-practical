@@ -27,7 +27,7 @@ const GamePage = () => {
   //it will fetch the data of the currently signed in candidate, once when the page opens
 
 
-  //GEORGE: use the following states varaibles to query the database. They will be of hte signed in candidate. userId is unique.
+  //GEORGE: use the following states varaibles to query the database. They will be of the signed in candidate. userId is unique.
   const [email,setEmail] = useState<string|null>("")
   const [fullName,setName] = useState<string|null>("")
   const [userId,setUserId] = useState<string>("") 
