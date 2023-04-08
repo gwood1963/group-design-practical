@@ -116,7 +116,7 @@ const GamePage = () => {
         <div style={{ flexGrow: 1 }}></div>
         <ActionButton 
           text="Submit and Move On" 
-          onClick={() => {}} 
+          onClick={() => {navigate("/goodbye");}} 
           backcolor = "rgba(80, 180, 80, 1)"
         />
         <ActionButton
