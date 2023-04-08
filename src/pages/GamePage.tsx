@@ -1,4 +1,4 @@
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
@@ -22,7 +22,19 @@ const edgeTypes: EdgeTypes = {
 
 
 const GamePage = () => {
+  //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
+  //--------------------------------------------------------------------------------------------------------------
   const auth = getAuth();
+  onAuthStateChanged(auth, (user) =>{
+    if (user){
+      const email = user.email;
+      const fullName = user.displayName;
+      const userID = user.uid;  //uniquely identifies users.
+
+    }
+  })
+
+  //----------------------------------------------------------------------------------------------------------------------
   const navigate = useNavigate();
   const blueGradient = "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)"
   const yellowGradient = "linear-gradient(180deg, rgba(255,245,156,1) 0%,   rgba(255, 253, 232,1) 100%)"

@@ -1,11 +1,34 @@
 import LinkButton from "../components/LinkButton";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
+import {useState} from "react"
 
 const GameStart = () => {
+  //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
+  //--------------------------------------------------------------------------------------------------------------
+  //these states should't ever update so you don't need to worry about re-rendering
+  const [email,setEmail] = useState<string|null>("")
+  const [fullName,setName] = useState<string|null>("")
+  const [userId,setUserId] = useState<string>("")
+
   const auth = getAuth();
+  onAuthStateChanged(auth, (user) =>{
+    if (user){
+      setEmail(user.email);
+      setName(user.displayName);
+      setUserId(user.uid);  //uniquely identifies users.
+
+    }
+  })
+
+  console.log(email)
+  console.log(fullName)
+  console.log(userId)
+
+  //----------------------------------------------------------------------------------------------------------------------
+
   const navigate = useNavigate();
 
   return (
