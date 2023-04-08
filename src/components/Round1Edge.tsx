@@ -23,7 +23,15 @@ const Round1Edge: FC<EdgeProps> = ({
   const [sliderToggle, sliderState] = useState("false");
   const toggleCollapse = () => {sliderState((state) => (state === "true" ? "false" : "true"))}; 
   const getSliderValue = (event:any=0) => {
-      data.flowFunc(event.target.value)
+      const newFlow = event.target.value
+      console.log(data.allFlows);
+      //@ts-ignore
+      const rest = (data.allFlows).filter(edge => {return edge.id != data.ID})
+      console.log(rest)
+      data.flowFunc([...rest, {id: data.ID, flow: newFlow}])  //I tried to adapt what you had before to update the flows array. I don't think this works though.
+      //I'm not sure that passing the function through flowFunc works. It's worth doing some reactFlow reasearch here.
+      console.log(data.allFlows);
+      
       console.log(data.flow);
   }
 
