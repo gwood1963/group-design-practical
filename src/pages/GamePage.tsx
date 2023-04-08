@@ -24,15 +24,33 @@ const edgeTypes: EdgeTypes = {
 const GamePage = () => {
   //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
   //--------------------------------------------------------------------------------------------------------------
-  const auth = getAuth();
-  onAuthStateChanged(auth, (user) =>{
-    if (user){
-      const email = user.email;
-      const fullName = user.displayName;
-      const userID = user.uid;  //uniquely identifies users.
+  //it will fetch the data of the currently signed in candidate, once when the page opens
 
+
+  //GEORGE: use the following states varaibles to query the database. They will be of hte signed in candidate. userId is unique.
+  const [email,setEmail] = useState<string|null>("")
+  const [fullName,setName] = useState<string|null>("")
+  const [userId,setUserId] = useState<string>("") 
+
+  const auth = getAuth();
+
+  useEffect(() => {onAuthStateChanged(auth, (user) =>{  //I think the useEffect here is needed to prevent infinite loops where the page re-renders, causing the emails and names to be set again, which causes another re-render  etc
+    if (user){
+      setEmail(user.email);
+      setName(user.displayName);
+      setUserId(user.uid);  //uniquely identifies users.
+      console.log(user.uid)
+      console.log(user.email)
+      console.log(user.displayName)
+      
     }
-  })
+    })
+  }, []);
+
+
+
+
+  
 
   //----------------------------------------------------------------------------------------------------------------------
   const navigate = useNavigate();
@@ -47,12 +65,13 @@ const GamePage = () => {
     setBoxSize((state) => (state === "10%" ? "50%" : "10%"));
     setBoxColor((state) => (state === blueGradient ? yellowGradient : blueGradient))
   };
+  
   let start = 0;
   useEffect(() => {
     start = Date.now() / 1000;
     const interval = setInterval(() => {
       setTime(3000 - Math.floor(Date.now() / 1000 - start));
-    }, 1000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);

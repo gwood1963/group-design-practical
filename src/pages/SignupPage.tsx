@@ -35,7 +35,7 @@ const SignupPage = () => {
         const credential = GoogleAuthProvider.credentialFromResult(result); //gives access to the Google API
         const token = credential?.accessToken;
         const user = result.user;
-        const email = user.email;
+        const email = user.email;  //these aren't actually used in thise page. See the start of GamePage and GameStartPage for how to access these values if you do need them
         const fullName = user.displayName;
         const userID = user.uid;
         

@@ -8,14 +8,14 @@ import {
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
-import {useState} from "react";
+import {useImperativeHandle, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import ImageActionButton from "../components/ImageActionButton";
 
 const AdminLogIn = () => {
   const navigate = useNavigate();
-  //Sign in attempt 
+  //Admin sign in 
   //--------------------------------------------------------------------------------------------------------------
   const auth = getAuth();
   auth.useDeviceLanguage();
@@ -23,7 +23,7 @@ const AdminLogIn = () => {
   const microsoftProvider = new OAuthProvider("microsoft.com");
 
   const [error, setError] = useState<string | undefined>(undefined);
-  const [isAdmin, setisAdmin] = useState<boolean>(false);
+  const [isAdmin, setisAdmin] = useState<boolean>(false);  //I'm not sure you actuall need a state for this so you can probably delete
 
   const handleSignup = (provider: AuthProvider) => {
     
@@ -34,9 +34,13 @@ const AdminLogIn = () => {
         const user = result.user;
         const email = user.email;
         const fullName = user.displayName;
-        const userID = user.uid;
+        const userID = user.uid;  
+        console.log("Current user ID")
+        console.log(userID) //GEORGE: for testing you will want to add some fields in the table which are registered admins (e.g. youself.)
+        //GEORGE: If you run the game and log in, you will be able to read your own id in the consloe.
 
-        if (true) {//REPALCE true with a function which tests whter the userID is a registered admin.
+
+        if (true) {//GEORGE: true with a function which tests whether the 'userID' is a registered admin, by quereying a list in the database. 
           auth.signOut()
           setError("Oh no! It seems you are not a registered admin. If you think this is a mistake, please contact miranda.conn@some.ox.ac.uk")
 
@@ -60,10 +64,11 @@ const AdminLogIn = () => {
     <>
     <div className = "navBar">
       <LinkButton target="/" text="back button" image="/back.svg" backcolor = "rgba(0,0,0,0)"/>
+      
     </div>  
     <MainWrapper justifyContent="space-around">
         
-        <div className="whitePopOut" style ={{position: "absolute", top: "20%", left: "25%"}}>
+        <div className="whitePopOut" style ={{position: "absolute", top: "30%", left: "25%", height: "45%"}}>
           <div
             className="textbox"
             style={{
