@@ -8,7 +8,7 @@ import {useState} from "react"
 const GameStart = () => {
   //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
   //--------------------------------------------------------------------------------------------------------------
-  //these states should't ever update so you don't need to worry about re-rendering
+  //these states will only be set once, so this whole section will only cause 3 re-renders in the life of the page.
   const [email,setEmail] = useState<string|null>("")
   const [fullName,setName] = useState<string|null>("")
   const [userId,setUserId] = useState<string>("")
@@ -22,10 +22,6 @@ const GameStart = () => {
 
     }
   })
-
-  console.log(email)
-  console.log(fullName)
-  console.log(userId)
 
   //----------------------------------------------------------------------------------------------------------------------
 
