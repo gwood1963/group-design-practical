@@ -205,8 +205,9 @@ export class Display {
         const y4 = p4[1];
 
         const m = (y2 - y1) / (x2 - x1);
-        if (y3 - y1 > m * (x3 - x1) && y4 - y1 < m * (x4 - x1)) return true;
-        else if (y3 - y1 < m * (x3 - x1) && y4 - y1 > m * (x4 - x1)) return true;
+        const m2 = (y4 - y3) / (x4 - x3);
+        if ((y3 - y1 > m * (x3 - x1) && y4 - y1 < m * (x4 - x1)) && (y1 - y3 > m2 * (x1 - x3) && y2 - y3 < m2 * (x2 - x3))) return true;
+        else if ((y3 - y1 < m * (x3 - x1) && y4 - y1 > m * (x4 - x1)) && (y1 - y3 < m2 * (x1 - x3) && y2 - y3 > m2 * (x2 - x3))) return true;
         return false;
     }
 

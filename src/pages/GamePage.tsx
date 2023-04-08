@@ -88,7 +88,7 @@ const GamePage = () => {
 /** ---------- David's Addition, looks very weird compared to my console output */
 
 const round1 = new Round1;
-round1.genRandom();
+round1.genRandom(5, 3, 2, 2, 5, 10);
 
 const graph = round1.getGraph();
 const A = round1.getA();

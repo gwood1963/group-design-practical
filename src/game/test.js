@@ -7,6 +7,7 @@ import { Graph } from './Graph.js'
 import { ReadSeed } from './ReadSeed.js'
 import { MaxFlowSolver } from './MaxFlowSolver.js'
 import { Display } from './Display.js'
+import { Round1 } from './Round1.js'
 
 //all capacities equal to 5 in this case
 //simple test
@@ -432,10 +433,21 @@ function runFullTest2() {
     tester.fullTest2();
 }
 
+function testRound1() {
+    const round1 = new Round1;
+    round1.genRandom(5, 3, 2, 2, 5, 10);
+    round1.theGraph.logInfo();
 
-function log3() {
-    console.log(3);
-};
+    /* const graph = round1.getGraph();
+    const A = round1.getA();
+    const ANoCap = round1.getANoCap();
+    const n = round1.getN(); */
+    const seed = round1.makeSeed();
+    console.log(seed);
+    const Round1_ = new Round1;
+    Round1_.readSeed(seed);
+    Round1_.theGraph.logInfo();
+}
 
 //console.log("hi");
 //runTest1();
@@ -458,5 +470,7 @@ function log3() {
 //runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
-runFullTest();
+//runFullTest();
 //runFullTest2();
+
+testRound1();

@@ -44,8 +44,14 @@ export class Graph {
     }
 
     setParams(n, A) {
-        this.n = n;
-        this.A = A;
+        this.n = new Number(n);
+        this.A = [];
+        for (var i = 0; i < this.n; i++) {
+            this.A.push([]);
+            for (var j = 0; j < A[i].length; j++) {
+                this.A[i].push([new Number(A[i][j][0]), new Number(A[i][j][1])]);
+            }
+        }
     }
 
     setCapacitiesZero() {
