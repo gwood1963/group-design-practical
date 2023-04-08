@@ -14,10 +14,22 @@ export class Round1 {
     theANoCap;
     theN;
     theCoords;
-    seedReader = new ReadSeed;
+    seedReader = new ReadSeed(1);
     maxFlowEngine = new MaxFlowSolver;
     generate = new Generate;
     display = new Display; //likely not needed in the end
+
+    readSeed(seed) {
+        this.seedReader.readSeed(seed);
+        this.theGraph.duplicate(this.seedReader.getGraph());
+        this.theA = this.theGraph.getA();
+        this.theANoCap = this.theGraph.getAWithoutCaps();
+        this.theN = this.theGraph.dim();
+    }
+
+    makeSeed() {
+        return this.seedReader.makeSeed(this.theGraph);
+    }
 
     /**
      * @require numNodes > 2 (s, t, and other nodes)
