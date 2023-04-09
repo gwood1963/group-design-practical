@@ -202,6 +202,7 @@ const initialNodes = initialNodesTemp;
                 seed: round1.makeSeed()
               })
             })
+            navigate("/goodbye");
           }} 
           backcolor = "rgba(80, 180, 80, 1)"
         />
