@@ -40,9 +40,9 @@ const GamePage = () => {
 
   const [ flows, setFlows ] = useState([{id: "dummmy", flow: 5}]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
   //@ts-ignore
-  const [initialNodes, setInitialNodes] = useState([])  //a state to store the array of nodes.
+  const [initialNodes, setInitialNodes] = useState<any[]>([])  //a state to store the array of nodes.
   //@ts-ignore
-  const [initialEdges, setInitialEdges] = useState([]) //a state to store the array of edges.
+  const [initialEdges, setInitialEdges] = useState<any[]>([]) //a state to store the array of edges.
   //@ts-ignore
   const [adjacency, setAdjacency] = useState([[]]) //I am using this purely to store the adjacency matrix outputted by davids generation so that I can access it in different use effects. 
   //adjacency[i][0][0] would give you the name of the node that is first in the adjacenies of node i. 
@@ -58,7 +58,7 @@ const GamePage = () => {
   useEffect(() => {
     start = Date.now() / 1000;
     const interval = setInterval(() => {
-      setTime(3000 - Math.floor(Date.now() / 1000 - start)); /
+      setTime(3000 - Math.floor(Date.now() / 1000 - start));
     }, 20000);
 
     return () => clearInterval(interval);
@@ -77,7 +77,7 @@ const GamePage = () => {
 //IDEA: If you use a useMemo or useEffect, with a function as the first paramter, and a [] as the second paramter, then the code in it should only run once when the page first loads
 //the second paramter is the list of React States which it 'watches' -- it will re-render if any of them change
 
-useMemo(() => {  //NOTE: George thinks we should change this to a use effect -- see group chat
+useEffect(() => {  //NOTE: George thinks we should change this to a use effect -- see group chat
 //@ts-ignore
   var initialNodesTemp = []
   //@ts-ignore
@@ -128,10 +128,56 @@ useMemo(() => {  //NOTE: George thinks we should change this to a use effect -- 
 
 useEffect(() => {
   
-  console.log("re-rendering edges")
-  var initialEdgesTemp = []
-  //@ts-ignore
+  console.log("initialising edges")
   var flowsTemp = []
+  var initialEdgesTemp = []
+  for (var i = 0; i < num; i ++) {
+    for (var k = 0; k < adjacency[i].length; k ++) {
+      var j = adjacency[i][k][0];
+      const myid = 'e' + i + '-' + j;
+      flowsTemp.push({id: myid, flow: 0});  //this is for initialising the flows arrey
+      const capacity = String(adjacency[i][k][1]) //need to hook up to actual capacity array
+      const temp = {
+        id: myid,
+        source: '' + i,
+        target: '' + j,
+        animated: true,
+        type: "Round1Edge",
+        data: {
+          ID: myid,
+          //@ts-ignore
+          Label:  String(0) + adjacency[i][k][1], //problem -- I'm not sure that findFlow is actually working as we hope here.  HOWEVER, I think it might work once we separate out the cases of initialisation and updating (as per my comment paragraph above, s.t. we only use findFlows when we are updating labels, because then there will actually be something in the flows array to fetch)
+          //@ts-ignore
+          flow: '0',
+          //@ts-ignore
+          //flowFunc: setFlows,
+          capacity: capacity,
+          allFlows: flows, //thought this might be useful to access from the slider function
+        }
+
+      }
+      initialEdgesTemp.push(temp);
+    }
+  }
+  setFlows(flowsTemp)
+  setInitialEdges(initialEdgesTemp)
+}, []); //depend on flows?
+  /*
+  //@ts-ignore
+  //const initialNodes = initialNodesTemp;
+  console.log("Here are initial nodes")
+  console.log(initialNodesTemp)
+  //@ts-ignore
+  //const initialEdges = initialEdgesTemp;
+  console.log("HERE ARE FLOWS")
+  console.log(flows)
+  console.log("Here are initial nodes")
+  console.log(initialNodes)*/
+
+useEffect (() => {
+  console.log("re-rendering")
+  var flowsTemp = []
+  var initialEdgesTemp = []
   for (var i = 0; i < num; i ++) {
     for (var k = 0; k < adjacency[i].length; k ++) {
       var j = adjacency[i][k][0];
@@ -140,22 +186,6 @@ useEffect(() => {
 
       flowsTemp.push({id: myid, flow: 0});  //this is for initialising the flows arrey
       const capacity = String(adjacency[i][k][1]) //need to hook up to actual capacity array
-      //@ts-ignore
-
-      //@ts-ignore
-      /*function setFlow(f:number) {
-        //@ts-ignore
-        const rest =  flows.filter(edge => {return edge.id != myid})
-        setFlows([
-          //@ts-ignore
-          ...rest,
-          //@ts-ignore
-          {id: myid, flow: f}
-        ])
-
-      };*/
-    
-
       const temp = {
         id: myid,
         source: '' + i,
@@ -176,27 +206,10 @@ useEffect(() => {
 
       }
       initialEdgesTemp.push(temp);
-      
     }
   }
-  //@ts-ignore
-  setFlows(flowsTemp)
-  //@ts-ignore
   setInitialEdges(initialEdgesTemp)
-}, [flows]); //depend on flows?
-  /*
-  //@ts-ignore
-  //const initialNodes = initialNodesTemp;
-  console.log("Here are initial nodes")
-  console.log(initialNodesTemp)
-  //@ts-ignore
-  //const initialEdges = initialEdgesTemp;
-  console.log("HERE ARE FLOWS")
-  console.log(flows)
-  console.log("Here are initial nodes")
-  console.log(initialNodes)*/
-
-
+}, []);
 
 
 
