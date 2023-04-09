@@ -49,7 +49,7 @@ const Round1Edge: FC<EdgeProps> = ({
             position: "absolute",
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             background: "#ffcc00",
-            padding: 10,
+            padding: 5,
             borderRadius: 5,
             fontSize: 16,
             fontWeight: 700,

@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
@@ -10,16 +10,10 @@ import { Controls, Background, EdgeTypes, BackgroundVariant } from "reactflow";
 import Round1Edge from "../components/Round1Edge";
 //import SliderEdge from '../components/SliderEdge';
 import ImageNode from "../components/ImageNode";
-
 import { Round1 } from "../game/Round1";
 const edgeTypes: EdgeTypes = {
   Round1Edge: Round1Edge,
 };
-
-const blueGradient =
-  "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)";
-const yellowGradient =
-  "linear-gradient(180deg, rgba(255,245,156,1) 0%,   rgba(255, 253, 232,1) 100%)";
 
 const GamePage = () => {
   //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
@@ -46,13 +40,14 @@ const GamePage = () => {
 
   //----------------------------------------------------------------------------------------------------------------------
   const navigate = useNavigate();
-
-  // UI State
+  const blueGradient =
+    "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)";
+  const yellowGradient =
+    "linear-gradient(180deg, rgba(255,245,156,1) 0%,   rgba(255, 253, 232,1) 100%)";
   const [time, setTime] = useState<number>(0);
   const [collapseButton, collapseState] = useState("+");
   const [instructBoxSize, setBoxSize] = useState("10%");
   const [instructBoxColor, setBoxColor] = useState(blueGradient);
-
   const toggleCollapse = () => {
     collapseState((state) => (state === "-" ? "+" : "-"));
     setBoxSize((state) => (state === "10%" ? "50%" : "10%"));
@@ -61,46 +56,26 @@ const GamePage = () => {
     );
   };
 
+  let start = 0;
+  useEffect(() => {
+    start = Date.now() / 1000;
+    const interval = setInterval(() => {
+      setTime(3000 - Math.floor(Date.now() / 1000 - start));
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Game State
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
   const [nodes, setNodes] = useState<Node[]>([]); //a state to store the array of nodes.
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
   const [round, setRound] = useState<Round1>();
 
-  //IDEA: function below should map over the array of flows until it finds the entry matching thisid. It then returns the flow associated with this entry.
-  // function findFlow(thisid: String) {
-  //   return flows
-  //     .filter((edge) => {
-  //       return edge.id == thisid;
-  //     })
-  //     .map((edge) => edge.flow)[0];
-  // }
-
-  //DELETE?: The lines below were originally used to regenerate a new graph every 20s when david was testing. So you can likely delete it now but I leave it here in case you need something similar.
-  let start = 0;
-  // useEffect(() => {
-  //   start = Date.now() / 1000;
-  //   const interval = setInterval(() => {
-  //     setTime(3000 - Math.floor(Date.now() / 1000 - start));
-  //   }, 20000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
   /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
   /** ---------------------------------------------------- */
 
-  //IDEA: If you use a useMemo or useEffect, with a function as the first paramter, and a [] as the second paramter, then the code in it should only run once when the page first loads
-  //the second paramter is the list of React States which it 'watches' -- it will re-render if any of them change
+  /** ---------- David's Addition, looks very weird compared to my console output */
 
-  //IDEA: whilst the nodes only need to be rendered once, we will need to re-render the edges every time the flows change if we want to update the labels.
-  // So I have tried to put it in a useEffect with second paramater [flows], hoping that it would update only when flows changes
-  // I think this is the right strategy, however I am running into a problem where for some reason it is re-rendering infinitely often, as though flows is constantly being changed
-  // see the console log to see how many times "re-rendering edges is called"
-  // Maybe it's stuck in an infinite loop because I call setFlows at the end of the funciton, meaning as soon as the function is finished it then calls itself again because flows changes
-  // ^^Thinking about it -- thats definitely the problem.
-  // ^^Might be solveable by having two different useEffects: one which just runs on start up, in which we initialise all the flows to 0 as below and use setFlows  ...
-  // and a separate one which watches flows and purely updates the labels of the edges if flows changes (without calling setFlows inside the function)
 
   useEffect(() => {
     let nodesTemp = [];
@@ -218,31 +193,106 @@ const GamePage = () => {
   function scaley(y: number) {
     return y * 6.5;
   }
-  /* const nodes = [
-  { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'West Office', image: "/building2trees.svg", color: "green"} },
-  { id: '2', type: "ImageNode", position: { x: scalex(20), y: scaley(30) }, data: { label: '', image: "/church.svg" ,color: "black" } },
-  { id: '3', type: "ImageNode",position: { x: scalex(20), y: scaley(80) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
-  { id: '4', type: "ImageNode",position: { x: scalex(50), y: scaley(40) }, data: { label: '', image: "/building2trees.svg", color: "black"  } },
-  {id: '5', type: "ImageNode",position: { x: scalex(60), y: scaley(60) }, data: { label: '' , image: "/factory.svg", color: "black" } },
-  {id: '6', type: "ImageNode",position: { x: scalex(70), y: scaley(20) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
-  {id: '7', type: "ImageNode", position: { x: scalex(80), y: scaley(50) }, data: { label: 'East Office', image: "/building2trees.svg", color: "red"  } },
-]; */
+  /* const initialNodes = [
+    { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'West Office', image: "/building2trees.svg", color: "green"} },
+    { id: '2', type: "ImageNode", position: { x: scalex(20), y: scaley(30) }, data: { label: '', image: "/church.svg" ,color: "black" } },
+    { id: '3', type: "ImageNode",position: { x: scalex(20), y: scaley(80) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
+    { id: '4', type: "ImageNode",position: { x: scalex(50), y: scaley(40) }, data: { label: '', image: "/building2trees.svg", color: "black"  } },
+    {id: '5', type: "ImageNode",position: { x: scalex(60), y: scaley(60) }, data: { label: '' , image: "/factory.svg", color: "black" } },
+    {id: '6', type: "ImageNode",position: { x: scalex(70), y: scaley(20) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
+    {id: '7', type: "ImageNode", position: { x: scalex(80), y: scaley(50) }, data: { label: 'East Office', image: "/building2trees.svg", color: "red"  } },
+  ]; */
   /**TO DO: add a label to the start node which says how many people need to get accross.  */
 
   /**TO DO: The data labels in the edges below need to be taken from the live flow (stored in an array?) and the capacities from the array of capacities */
   /**TO DO: implement that the source and targets are taken from the adjacency list generated */
-  /*const initialEdges = [
-  { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/12', flow: flow, flowFunc: setFlow, capacity: capacity}},
-  { id: 'e2-4', source: '2', target: '4', animated: true, type: "Round1Edge", data: {label: '4/8'}},
-  { id: 'e4-6', source: '4', target: '6', animated: true, type: "Round1Edge", data: {label: '0/2'}},
-  { id: 'e4-7', source: '4', target: '7', animated: true, type: "Round1Edge", data: {label: '2/10'}},
-  { id: 'e6-7', source: '6', target: '7', animated: true, type: "Round1Edge", data: {label: '5/9'}},
-  { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/3'}},
-  { id: 'e2-5', source: '2', target: '5', animated: true, type: "Round1Edge", data: {label: '5/10'}},
-  { id: 'e1-3', source: '1', target: '3', animated: true, type: "Round1Edge", data: {label: '1/11'}},
-  { id: 'e3-5', source: '3', target: '5', animated: true, type: "Round1Edge", data: {label: '7/7'}},
-  { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/4'}},
-];*/
+  // const initialEdges = [
+  //   {
+  //     id: "e1-2",
+  //     source: "1",
+  //     target: "2",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: {
+  //       label: "5/12",
+  //       flow: flow,
+  //       flowFunc: setFlow,
+  //       capacity: capacity,
+  //     },
+  //   },
+  //   {
+  //     id: "e2-4",
+  //     source: "2",
+  //     target: "4",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "4/8" },
+  //   },
+  //   {
+  //     id: "e4-6",
+  //     source: "4",
+  //     target: "6",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "0/2" },
+  //   },
+  //   {
+  //     id: "e4-7",
+  //     source: "4",
+  //     target: "7",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "2/10" },
+  //   },
+  //   {
+  //     id: "e6-7",
+  //     source: "6",
+  //     target: "7",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "5/9" },
+  //   },
+  //   {
+  //     id: "e5-7",
+  //     source: "5",
+  //     target: "7",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "2/3" },
+  //   },
+  //   {
+  //     id: "e2-5",
+  //     source: "2",
+  //     target: "5",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "5/10" },
+  //   },
+  //   {
+  //     id: "e1-3",
+  //     source: "1",
+  //     target: "3",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "1/11" },
+  //   },
+  //   {
+  //     id: "e3-5",
+  //     source: "3",
+  //     target: "5",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "7/7" },
+  //   },
+  //   {
+  //     id: "e5-7",
+  //     source: "5",
+  //     target: "7",
+  //     animated: true,
+  //     type: "Round1Edge",
+  //     data: { label: "2/4" },
+  //   },
+  // ];
 
   const nodeTypes = React.useMemo(() => ({ ImageNode: ImageNode }), []);
 
@@ -342,6 +392,17 @@ const GamePage = () => {
               <Controls />
               <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
+            {/** the following div covers up the React Flow logo */}
+            <div
+              style={{
+                position: "relative",
+                bottom: "20px",
+                left: "96%",
+                background: "rgba(243,243,243,1)",
+                width: "50px",
+                height: "20px",
+              }}
+            ></div>
           </div>
           <div
             id="InstructionBox"
