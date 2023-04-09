@@ -392,17 +392,6 @@ const GamePage = () => {
               <Controls />
               <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
-            {/** the following div covers up the React Flow logo */}
-            <div
-              style={{
-                position: "relative",
-                bottom: "20px",
-                left: "96%",
-                background: "rgba(243,243,243,1)",
-                width: "50px",
-                height: "20px",
-              }}
-            ></div>
           </div>
           <div
             id="InstructionBox"
