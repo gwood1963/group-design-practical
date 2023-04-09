@@ -4,6 +4,7 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SignupPage from "./pages/SignupPage";
+import GoodbyePage from "./pages/GoodbyePage";
 import { initializeApp } from "firebase/app";
 import PageWrapper from "./components/PageWrapper";
 import HomePage from "./pages/HomePage";
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <SignupPage />,
+  },
+  {
+    path: "/goodbye",
+    element: <GoodbyePage />,
   },
   {
     path: "/tokeninput",

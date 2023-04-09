@@ -1,5 +1,7 @@
 import { getAuth } from "firebase/auth";
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
@@ -22,7 +24,37 @@ const yellowGradient =
   "linear-gradient(180deg, rgba(255,245,156,1) 0%,   rgba(255, 253, 232,1) 100%)";
 
 const GamePage = () => {
+  //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
+  //--------------------------------------------------------------------------------------------------------------
+  //it will fetch the data of the currently signed in candidate, once when the page opens
+
+
+  //GEORGE: use the following states varaibles to query the database. They will be of the signed in candidate. userId is unique.
+  const [email,setEmail] = useState<string|null>("")
+  const [fullName,setName] = useState<string|null>("")
+  const [userId,setUserId] = useState<string>("") 
+
   const auth = getAuth();
+
+  useEffect(() => {onAuthStateChanged(auth, (user) =>{  //I think the useEffect here is needed to prevent infinite loops where the page re-renders, causing the emails and names to be set again, which causes another re-render  etc
+    if (user){
+      setEmail(user.email);
+      setName(user.displayName);
+      setUserId(user.uid);  //uniquely identifies users.
+      console.log(user.uid)
+      console.log(user.email)
+      console.log(user.displayName)
+      
+    }
+    })
+  }, []);
+
+
+
+
+  
+
+  //----------------------------------------------------------------------------------------------------------------------
   const navigate = useNavigate();
 
   // UI State
@@ -38,6 +70,7 @@ const GamePage = () => {
       state === blueGradient ? yellowGradient : blueGradient
     );
   };
+
 
   // Game State
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
@@ -78,6 +111,7 @@ const GamePage = () => {
   // ^^Thinking about it -- thats definitely the problem.
   // ^^Might be solveable by having two different useEffects: one which just runs on start up, in which we initialise all the flows to 0 as below and use setFlows  ...
   // and a separate one which watches flows and purely updates the labels of the edges if flows changes (without calling setFlows inside the function)
+
 
   useEffect(() => {
     let nodesTemp = [];
@@ -250,10 +284,22 @@ const GamePage = () => {
 				`}
         </div>
         <div style={{ flexGrow: 1 }}></div>
-        <ActionButton
-          text="Submit and Move On"
-          onClick={() => {}}
-          backcolor="rgba(80, 180, 80, 1)"
+        <ActionButton 
+          text="Submit and Move On" 
+          onClick={() => {
+            const flows: number[][][] = [] // placeholder until we can read from sliders
+            const score = round1.getScore(flows, round1.getGraph())
+            fetch ('/api/attempt', {
+              method: 'POST',
+              body: JSON.stringify({
+                score: score,
+                email: email,
+                seed: round1.makeSeed()
+              })
+            })
+            navigate("/goodbye");
+          }} 
+          backcolor = "rgba(80, 180, 80, 1)"
         />
         <ActionButton
           text="Log out"

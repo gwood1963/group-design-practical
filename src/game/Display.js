@@ -114,12 +114,12 @@ export class Display {
                     bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
                 }
                 console.log("updated coordinates")
-                console.log(bestCoords);
+                //console.log(bestCoords);
                 bestCrossCount = crossCount;
-                console.log(bestCrossCount)
+                //console.log(bestCrossCount)
             }
             if (crossCount == bestCrossCount) {
-                console.log("equal cross count")
+                //console.log("equal cross count")
                     //compare node spacing here
                 if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords)) {
                     //if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords) &&
@@ -129,15 +129,15 @@ export class Display {
                     for (var i = 0; i < n; i++) {
                         bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
                     }
-                    console.log("updated coordinates")
-                    console.log(bestCoords);
+                    //console.log("updated coordinates")
+                    //console.log(bestCoords);
                     bestCrossCount = crossCount;
-                    console.log(bestCrossCount)
+                    //console.log(bestCrossCount)
                 }
             }
         }
-        console.log("best crossing: ")
-        console.log(bestCrossCount)
+        //console.log("best crossing: ")
+        //console.log(bestCrossCount)
 
         //bestCoords = this.adjustArea(n, bestCoords, w, h);
         return bestCoords;
@@ -180,7 +180,7 @@ export class Display {
                 closest = Math.min(closest, dist);
             }
         }
-        console.log("spacing: " + closest)
+        //console.log("spacing: " + closest)
         return closest;
     }
 
@@ -205,8 +205,9 @@ export class Display {
         const y4 = p4[1];
 
         const m = (y2 - y1) / (x2 - x1);
-        if (y3 - y1 > m * (x3 - x1) && y4 - y1 < m * (x4 - x1)) return true;
-        else if (y3 - y1 < m * (x3 - x1) && y4 - y1 > m * (x4 - x1)) return true;
+        const m2 = (y4 - y3) / (x4 - x3);
+        if ((y3 - y1 > m * (x3 - x1) && y4 - y1 < m * (x4 - x1)) && (y1 - y3 > m2 * (x1 - x3) && y2 - y3 < m2 * (x2 - x3))) return true;
+        else if ((y3 - y1 < m * (x3 - x1) && y4 - y1 > m * (x4 - x1)) && (y1 - y3 < m2 * (x1 - x3) && y2 - y3 > m2 * (x2 - x3))) return true;
         return false;
     }
 
