@@ -1,5 +1,5 @@
 import express from "express";
-import {getRecentScores, invite, deleteSelected} from "../database";
+import {getRecentScores, invite, deleteSelected, register} from "../database";
 
 var router = express.Router();
 
@@ -16,6 +16,11 @@ router.put("/invite", async (req, res, next) => {
 router.delete("/delete", async (req, res, next) => {
     const ids = req.body;
     await deleteSelected(ids);
+})
+
+router.put('/register', async (req, res, next) => {
+    const {name, email} = req.body;
+    await register(name, email);
 })
 
 export default router;

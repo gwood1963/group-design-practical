@@ -51,6 +51,20 @@ export const deleteSelected = async (ids: Array<number>) => {
     });
 }
 
+export const register = async (email: string, name: string) => {
+    var poolConnection = await connect(connection);
+    const user = await poolConnection.request().input('email', email)
+        .query('select * from [dbo].[Users] where Email = @email')
+        .then(res => res.recordset)
+    if (user.length === 0) {
+        const [firstName, surname] = name?.split(' ')
+        await poolConnection.request()
+            .input('firstName', firstName).input('surname', surname).input('email', email)
+            .query(`insert into [dbo].[Users] (FirstName, Surname, Email, Invited) 
+                    values (@firstName, @surname, @email, 0)`)
+    }
+}
+
 interface Scores {
     AttemptID: number,
     RawScore: number,
