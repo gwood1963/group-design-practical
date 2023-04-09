@@ -9,7 +9,7 @@ import { Generate } from './Generate.js';
 import { Display } from './Display.js'
 
 export class Round1 {
-    theGraph = new Graph();
+    theGraph = new Graph;
     theA;
     theANoCap;
     theN;
