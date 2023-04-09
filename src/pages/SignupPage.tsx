@@ -38,6 +38,17 @@ const SignupPage = () => {
         const email = user.email;  //these aren't actually used in thise page. See the start of GamePage and GameStartPage for how to access these values if you do need them
         const fullName = user.displayName;
         const userID = user.uid;
+        fetch('/api/register', { // add user to database if not already present
+          method: 'PUT',
+          body: JSON.stringify({
+            email: email,
+            name: fullName
+          }),
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          }
+        })
         
         navigate("/gamestart");
       })
