@@ -82,6 +82,14 @@ export const addAttempt = async (email: string, seed: string, score: number) => 
         .query(`update [dbo].[Problems] set NumPlayed = NumPlayed + 1 where ProblemID = @pid`)
 }
 
+export const isAdmin = async (email: string) => {
+    var poolConnection = await connect(connection);
+    const result: boolean = await poolConnection.request().input('email', email)
+        .query(`select IsAdmin from [dbo].[Users] where Email = @email`)
+        .then(res => res.recordset[0].IsAdmin)
+    return result
+}
+
 interface Scores {
     AttemptID: number,
     RawScore: number,

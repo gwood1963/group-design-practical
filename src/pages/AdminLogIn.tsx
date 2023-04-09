@@ -28,7 +28,7 @@ const AdminLogIn = () => {
   const handleSignup = (provider: AuthProvider) => {
     
     signInWithPopup(auth, provider)
-      .then((result) => {
+      .then(async (result) => {
         const credential = GoogleAuthProvider.credentialFromResult(result); //gives access to the Google API
         const token = credential?.accessToken;
         const user = result.user;
@@ -36,11 +36,10 @@ const AdminLogIn = () => {
         const fullName = user.displayName;
         const userID = user.uid;  
         console.log("Current user ID")
-        console.log(userID) //GEORGE: for testing you will want to add some fields in the table which are registered admins (e.g. youself.)
-        //GEORGE: If you run the game and log in, you will be able to read your own id in the consloe.
+        console.log(userID)
 
-
-        if (true) {//GEORGE: true with a function which tests whether the 'userID' is a registered admin, by quereying a list in the database. 
+        const isAdmin = await fetch(`/api/isadmin/${email}`).then(res => res.json())
+        if (!isAdmin) {
           auth.signOut()
           setError("Oh no! It seems you are not a registered admin. If you think this is a mistake, please contact miranda.conn@some.ox.ac.uk")
 
