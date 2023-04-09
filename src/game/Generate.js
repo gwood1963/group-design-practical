@@ -3,11 +3,6 @@ The purpose of this file is to generate a new random puzzle, given some initial 
 And constraints (such as connectedness) and to export as a graph (Graph.js)
 */
 
-/**
- * TODO: 
- * make sure we have all comppnents connected
- * make sure we dont have both an edge frmo i to j and from j to i
- */
 
 import { Graph } from './Graph.js'
 
@@ -42,10 +37,6 @@ export class Generate {
         var outS = this.uniqueIntsArr(numNodes - 2, numFromS); //edges out of s: random nodes indices 1 to n-1
         var inT = this.uniqueIntsArr(numNodes - 2, numIntoT); //edges into t: random nodes indices 1 to n-1
 
-        /* console.log("outS and inT: ")
-        console.log(outS)
-        console.log(inT) */
-
         for (var k = 0; k < outS.length; k++) {
             var j = outS[k];
             adj[0].push([j, this.nextCap(minCap, maxCap)]);
@@ -68,9 +59,9 @@ export class Generate {
         }
 
         this.graph.setParams(n, adj);
-        //this.graph.adjList(adj);
-        //this.graph.logInfo();
-        if (!this.isDirected(adj) || !this.isConnected(adj)) {
+
+        //check conditions, if not met, generate again
+        if (!this.isDirected(adj) || !this.isConnected(adj) || !this.allInHasOut(adj)) {
             this.generate(numNodes, numEdges, numFromS, numIntoT, minCap, maxCap);
         }
     }
@@ -127,22 +118,12 @@ export class Generate {
             m.push(temp);
         }
 
-        //console.log("matrix")
-        //console.log(m);
-        //var m = new Array(this.n)[new Array(this.n)[new Array(2)[0]]]; //[0, 0] if no edge, [1, cap] if has edge
-        //console.log(A);
         for (var i = 0; i < n; i++) {
-            //console.log(A[i].length)
             for (var j = 0; j < A[i].length; j++) {
-                //console.log(i + " " + this.A[i][j][0] + " " + this.A[i][j][1]);
                 m[i][A[i][j][0]] = 1; //edge from i to j (A[i][j][0])
             }
         }
-        //console.log("end operations")
-        //return m;
-        //m is A in matrix form, and without calacities
-        console.log("m: ")
-        console.log(m)
+        //At this point m is A in matrix form, and without capacities
 
         for (var i = 0; i < n; i++) {
             for (var j = 0; j < n; j++) {
@@ -172,18 +153,12 @@ export class Generate {
         stack.push(0);
 
         while (stack.length > 0 && numUnvisited > 0) {
-            /* console.log("stack: ")
-            console.log(stack);
-            console.log(numUnvisited) */
             var node = stack.pop();
             if (visited[node]) {
                 continue;
             }
             visited[node] = true;
             numUnvisited--;
-            /* if (numUnvisited == 0) {
-                break;
-            } */
 
             for (var k = A[node].length - 1; k >= 0; k--) {
                 var j = A[node][k][0];
@@ -194,7 +169,31 @@ export class Generate {
         }
 
         return numUnvisited == 0;
+    }
 
+    /**
+     * returns true if for all nodes not s or t, exist edges in and out
+     * @param {Number[][][]} A 
+     */
+    allInHasOut(A) {
+        var enter = [];
+        var exit = [];
+        for (var i = 0; i < A.length; i++) {
+            enter.push(false);
+            exit.push(false);
+        }
+        for (var i = 0; i < A.length; i++) {
+            for (var k = 0; k < A[i].length; k++) {
+                var j = A[i][k][0];
+                enter[j] = true;
+                exit[i] = true;
+            }
+        }
+        for (var i = 1; i < A.length - 1; i++) {
+            if (!enter[i] || !exit[i])
+                return false;
+        }
+        return true;
     }
 
 }

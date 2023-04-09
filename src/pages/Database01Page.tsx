@@ -10,16 +10,7 @@ import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/*the below code was part of my attempt to debug the type error in line 55, but I didn't manage to use it successfully
-interface Data {
-    id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    gender: string;
-    university: number;
-   }
-*/
+
 interface Data {
     UserID: number,
     FirstName: string,
@@ -34,18 +25,18 @@ interface Data {
 
 const Database01Page = () => {
     const [scores, setScores] = useState([]);
-
-    useEffect(() => {
-        console.log("loading scores");
-        getScores();
-    }, []);
-
+    const [time, setTime] = useState<number>(0);
+    
     const data: Data[] = React.useMemo(() => scores, [scores]);
+    const skipResetRef =  React.useRef() //this is not needed for now, but will be used to control whether we want to refresh selected rows after certain actions.
 
+    //Function for getting the live table data 
     async function getScores() {
         const result = await fetch("/api/database");
         const json = await result.json();
         console.log(json);
+        //@ts-ignore
+        skipResetRef.current = true
         setScores(json);
     }
 
@@ -92,7 +83,9 @@ const Database01Page = () => {
         }
     ], []);
 
-    const instance = useTable({columns, data}, useRowSelect, (hooks) => {hooks.visibleColumns.push((columns)=> {
+    
+
+    const instance = useTable({columns, data, autoResetSelectedRows: false}, useRowSelect, (hooks) => {hooks.visibleColumns.push((columns)=> {
         return [
             /*T23 - checkboxes being added to the rows */
             {
@@ -112,10 +105,30 @@ const Database01Page = () => {
             ...columns
         ]
     })})
+
+
     const {getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, selectedFlatRows} = instance;
+
+    
+    
+
+    //effect to make the data update every second
+    let start = 0;
+    useEffect(() => {
+        console.log("loading scores");
+        getScores();
+        start = Date.now() / 1000;
+        const interval = setInterval(() => {
+          setTime(3000 - Math.floor(Date.now() / 1000 - start));
+          getScores()
+          //skipResetRef.current = false
+        }, 5000);
+    
+        return () => clearInterval(interval);
+      }, []);
+
     const navigate = useNavigate();
     const auth = getAuth();
-
     
     return (
         //console.log(fakeData),
@@ -126,9 +139,11 @@ const Database01Page = () => {
 
         <MainWrapper flexDirection = "column">
             <div className = "navBar">
+                
                 <LinkButton target="/adminlogin" text="back button" image="/back.svg" backcolor = "rgba(0,0,0,0)"/>
-                <ImageActionButton text = "refresh" onClick = {() => {getScores()}} image="/refresh.svg" backcolor = "rgba(0,0,0,0)"/>
 
+                <ImageActionButton text = "refresh" onClick = {() => {getScores()}} image="/refresh.svg" backcolor = "rgba(0,0,0,0)"/>
+                {/**Invite Candidates button, with associated updates to databse and popup */}
                 <div className = "popup" onClick = {(_)=> {
                     var popup = document.getElementById("InvitePopup")!;
                     var numSelected = selectedFlatRows.length;
@@ -144,10 +159,41 @@ const Database01Page = () => {
                             'Content-Type': 'application/json'
                         }
                     });
+                    getScores() //updates the database to show the change
                 }}>  
                 Invite Selected
                 <span className = "popuptext" id = "InvitePopup"> None selected!</span>
                 </div>
+
+                {/**Delete Candidates button, with associated updates to database and popup */}
+                <div className = "popup" onClick = {(_)=> {
+                    if (window.confirm('Are you sure you want to delete these users?')) {
+                        var popup = document.getElementById("DeletePopup")!;
+                        var numSelected = selectedFlatRows.length;
+                        if (numSelected > 0) {
+                            popup.innerHTML = numSelected + " selected candidates deleted";
+                        } else {
+                            popup.innerHTML = "None selected"
+                        }
+                        popup?.classList.toggle("show");
+                        setTimeout(() => {popup?.classList.toggle("show");}, 3000);
+                        const ids = selectedFlatRows.map((row) => row.original.UserID)
+                        fetch("/api/delete", {
+                            method: "DELETE",
+                            body: JSON.stringify(ids),
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        getScores() //updates the database to show the change
+                    }
+                }}>  
+                Delete Selected
+                <span className = "popuptext" id = "DeletePopup"> None selected!</span>
+                </div>
+
+                {/**Back button */}
                 <div style = {{position: "absolute", right: "5px"}}>
                     <ActionButton
                     text="Log out"

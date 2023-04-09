@@ -10,6 +10,24 @@ Idea:
  - maybe use a force based system (each node repels from other nodes and the boundaries, but attract to connected nodes)
 
 */
+
+
+/*
+
+New Idea: 
+
+1. Generate 100 or so random positions for the nodes
+2. Which one has the least crossing number? (computed "dynamically", like as in max of array)
+3. scale up/down to take up the appropriate amount of space
+
+for calculating number of edge crossings, see: 
+Bentley–Ottmann algorithm
+Idea: vertical line test
+
+or brute force of course will work (easier to implement)
+
+*/
+
 export class Display {
     wallRepelFactor = 1; //how "repelly" do we want the walls, can be changes later
     forceScaling = 1; //maybe not used since it'll depend on size of canvas, it's essentially G, the gravitational constant
@@ -40,19 +58,157 @@ export class Display {
         this.consoleDisplay(n, A, coords, w, h);
         var newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
         //this.consoleDisplay(n, A, newCoords, w, h);
-        var loss = this.loss(n, coords, newCoords, w, h);
+        //var loss = this.loss(n, coords, newCoords, w, h);
 
         var iters = 0;
-        while (loss > 0.001 && iters < this.maxIters) {
+        while ( /* loss > 0.001 && */ iters < this.maxIters) {
             coords = newCoords;
             newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
-            loss = this.loss(n, coords, newCoords, w, h);
+            //loss = this.loss(n, coords, newCoords, w, h);
             //console.log("iter: " + iters)
             //this.consoleDisplay(n, A, coords, w, h);
             iters++;
         }
 
         return coords; //or newCoords, both work
+    }
+
+    /**
+     * Find optimal positions for the nodes to be displayed to minimize edge
+     * crossing, total edge length, etc. while also taking up a fair amount 
+     * of space in the canvas it will be displayed on
+     * @param {Int} n - number of nodes
+     * @param {Number[][]} A - Adjacency List without capacities
+     * @param {Int} w - Width of canvas
+     * @param {Int} h - Height of canvas
+     * 
+     * @returns {Number[][]} - Array of (x, y)'s: result[k][x][y] means node k is at (x, y)
+     */
+    getPositionsRandom(n, A, w, h) {
+        //var coords = this.generateInitialCoordsRandom(n, w, h);
+        //TODO: make s on left, t on right
+        var bestCoords = []; // = coords;
+        var bestCrossCount = 10000000;
+        for (var iters = 0; iters < 1000; iters++) {
+            var crossCount = 0;
+            //console.log("random")
+            var coords = this.generateInitialCoordsRandom(n, w, h);
+            for (var i = 0; i < n; i++) {
+                for (var k = 0; k < A[i].length; k++) {
+                    var j = A[i][k];
+                    for (var a = i + 1; a < n; a++) {
+                        for (var r = 0; r < A[a].length; r++) {
+                            var b = A[a][r];
+                            if (this.isCrossing(coords[i], coords[j], coords[a], coords[b]))
+                                crossCount++;
+                        }
+                    }
+                }
+            }
+            coords = this.adjustArea(n, coords, w, h);
+
+            if (crossCount < bestCrossCount) {
+                //bestCoords = coords; //need to opdate references
+                bestCoords = [];
+                for (var i = 0; i < n; i++) {
+                    bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
+                }
+                console.log("updated coordinates")
+                //console.log(bestCoords);
+                bestCrossCount = crossCount;
+                //console.log(bestCrossCount)
+            }
+            if (crossCount == bestCrossCount) {
+                //console.log("equal cross count")
+                    //compare node spacing here
+                if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords)) {
+                    //if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords) &&
+                    //this.relativePositionLoss(n, A, coords) < this.relativePositionLoss(n, A, bestCoords)) {
+                    //if (this.loss(n, A, coords) > this.loss(n, A, bestCoords)) {
+                    bestCoords = [];
+                    for (var i = 0; i < n; i++) {
+                        bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
+                    }
+                    //console.log("updated coordinates")
+                    //console.log(bestCoords);
+                    bestCrossCount = crossCount;
+                    //console.log(bestCrossCount)
+                }
+            }
+        }
+        //console.log("best crossing: ")
+        //console.log(bestCrossCount)
+
+        //bestCoords = this.adjustArea(n, bestCoords, w, h);
+        return bestCoords;
+    }
+
+    /**
+     * 
+     * @param {Number[][]} coords 
+     * @param {Number} w
+     * @param {Number} h
+     */
+    adjustArea(n, coords, w, h) {
+        var minX = coords[0][0];
+        var maxX = coords[0][0];
+        var minY = coords[0][1];
+        var maxY = coords[0][1];
+        for (var i = 1; i < n; i++) {
+            minX = Math.min(minX, coords[i][0]);
+            maxX = Math.max(maxX, coords[i][0]);
+            minY = Math.min(minY, coords[i][1]);
+            maxY = Math.max(maxY, coords[i][1]);
+        }
+        //each x goes from x -> (x - minX) * (0.75 * w / (maxX - minX)) + (0.125 * w)
+        var newCoords = [];
+        for (var i = 0; i < n; i++) {
+            var x = (coords[i][0] - minX) * (0.75 * w / (maxX - minX)) + (0.125 * w);
+            var y = (coords[i][1] - minY) * (0.75 * h / (maxY - minY)) + (0.125 * h);
+            newCoords.push([x, y]);
+        }
+        return newCoords;
+    }
+
+
+    nodeSpacing(n, coords) {
+        var closest = 10000000;
+        for (var i = 0; i < n; i++) {
+            for (var j = i + 1; j < n; j++) {
+                var dist = Math.sqrt(Math.pow(coords[i][0] - coords[j][0], 2) + Math.pow(coords[i][1] - coords[j][1], 2));
+                //console.log("dist: " + dist)
+                closest = Math.min(closest, dist);
+            }
+        }
+        //console.log("spacing: " + closest)
+        return closest;
+    }
+
+    /**
+     * 
+     * @returns whether the edge through points 1, 2 cross the edge through points 3, 4
+     */
+    isCrossing(p1, p2, p3, p4) {
+        //Idea: get slope of line from 1 to 2
+        //if 3 is above line and 4 is below line or vice versa, then cross
+        //otherwise no cross
+        //how to tell if 3 is above line? 
+        //is y3-y1 > m(x3-x1)? If yes then 3 is above the line.
+
+        const x1 = p1[0];
+        const x2 = p2[0];
+        const x3 = p3[0];
+        const x4 = p4[0];
+        const y1 = p1[1];
+        const y2 = p2[1];
+        const y3 = p3[1];
+        const y4 = p4[1];
+
+        const m = (y2 - y1) / (x2 - x1);
+        const m2 = (y4 - y3) / (x4 - x3);
+        if ((y3 - y1 > m * (x3 - x1) && y4 - y1 < m * (x4 - x1)) && (y1 - y3 > m2 * (x1 - x3) && y2 - y3 < m2 * (x2 - x3))) return true;
+        else if ((y3 - y1 < m * (x3 - x1) && y4 - y1 > m * (x4 - x1)) && (y1 - y3 < m2 * (x1 - x3) && y2 - y3 > m2 * (x2 - x3))) return true;
+        return false;
     }
 
     /**
@@ -65,7 +221,7 @@ export class Display {
      * 
      * @returns {Number} A loss value equal to a function of the max change in position (relative to w and h) for any node (currently f(x) = x is that function)
      */
-    loss(n, oldCoords, newCoords, w, h) {
+    /* loss(n, oldCoords, newCoords, w, h) {
         var maxChange = 0;
         for (var i = 0; i < n; i++) {
             var changeX = (newCoords[i][0] - oldCoords[i][0]) / w;
@@ -77,6 +233,31 @@ export class Display {
         }
 
         return maxChange;
+    } */
+
+
+    /* loss(n, A, coords) {
+        return this.relativePositionLoss(n, A, coords) + this.nodeSpacing(n, coords);
+    } */
+
+    /**
+     * essentially sums up the difference in x of edges going backwards (to the left)
+     */
+    relativePositionLoss(n, A, coords) {
+        //essentially sums up the difference in x of edges going backwards (to the left)
+        var loss = 0;
+        for (var i = 0; i < n; i++) {
+            for (var k = 0; k < A[i].length; k++) {
+                var j = A[i][k];
+                var iX = coords[i][0];
+                var jX = coords[j][0];
+
+                if (iX > jX) {
+                    loss += iX - jX;
+                }
+            }
+        }
+        return loss;
     }
 
     /**
@@ -139,20 +320,48 @@ export class Display {
 
             coords.push([centerX + x, centerY + y]); //add coordinate to the list
         }
-
-        /* var coords = [];
-        for (var i = 0; i < n; i++) {
-            var x = w * Math.random();
-            var y = h * Math.random();;
-
-            coords.push([x, y]); //add coordinate to the list
-        } */
-
-        //Idea: generate randomly
-
-        //console.log(coords)
         return coords;
     }
+
+    /**
+     * Generates randomly the initial positions of the n nodes taking into account width and height of the canvas
+     * @param {Int} n 
+     * @param {Int} w 
+     * @param {Int} h 
+     * 
+     * @returns {Number[][]} Array of coordinates
+     */
+    generateInitialCoordsRandom(n, w, h) {
+        //Idea: generate randomly
+        var lowerX = w / 6;
+        var lowerY = h / 8;
+
+        /* function genX(w) {
+            return lowerX + w * Math.random() * 3 / 4;
+        }
+
+        function genY(h) {
+            return lowerY + h * Math.random() * 3 / 4;
+        } */
+
+        var coords = [];
+        coords.push([w / 8, lowerY + h * Math.random() * 3 / 4])
+        for (var i = 1; i < n - 1; i++) {
+            /* var x = w / 2;
+            var y = h / 2;
+            while (x > w * 3 / 8 && x < w * 5 / 8 && y > h * 3 / 8 && y > h * 5 / 8) {
+                x = lowerX + w * Math.random() * 3 / 4;
+                y = lowerY + h * Math.random() * 3 / 4;
+            } */
+            var x = lowerX + w * Math.random() * 2 / 3;
+            var y = lowerY + h * Math.random() * 3 / 4;
+
+            coords.push([x, y]); //add coordinate to the list
+        }
+        coords.push([7 * w / 8, lowerY + h * Math.random() * 3 / 4])
+        return coords;
+    }
+
 
     dist(deltaX, deltaY) {
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);

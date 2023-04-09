@@ -1,4 +1,4 @@
-import {connect, IRecordSet, Int} from "mssql"
+import {connect, IRecordSet, Int, Float} from "mssql"
 import { json } from "stream/consumers";
 
 const connection = "Driver={ODBC Driver 18 for SQL Server};Server=tcp:recruitment-server.database.windows.net,1433;Database=recruitment-db;Uid=CloudSAe040e98e;Pwd=FMR93qpa;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;";
@@ -23,6 +23,7 @@ export const getRecentScores = async () => {
         inner join [dbo].[Attempts] attempts on attempts.UserID=users.UserID
         join (select UserID, max(AttemptDate) most_recent from attempts group by UserID) t 
             on t.most_recent = attempts.AttemptDate and t.UserID = users.UserID
+        where users.UserID != 0
         order by users.UserID`
     ).then(res => res.recordset);
 
@@ -38,13 +39,56 @@ export const invite = async (ids: Array<number>) => {
     });
 }
 
+export const deleteSelected = async (ids: Array<number>) => {
+    var poolConnection = await connect(connection);
+    ids.forEach(async id => {
+        await poolConnection.request()
+            .input('id', Int, id)
+            .query(`delete from [dbo].[Users] where UserID = @id`)
+        await poolConnection.request()
+            .input('id', Int, id)
+            .query('update [dbo].[Attempts] set UserID = 0 where UserID = @id')
+    });
+}
+
+export const register = async (email: string, name: string) => {
+    var poolConnection = await connect(connection);
+    const user = await poolConnection.request().input('email', email)
+        .query('select * from [dbo].[Users] where Email = @email')
+        .then(res => res.recordset)
+    if (user.length === 0) {
+        const [firstName, surname] = name?.split(' ')
+        await poolConnection.request()
+            .input('firstName', firstName).input('surname', surname).input('email', email)
+            .query(`insert into [dbo].[Users] (FirstName, Surname, Email, Invited) 
+                    values (@firstName, @surname, @email, 0)`)
+    }
+}
+
+export const addAttempt = async (email: string, seed: string, score: number) => {
+    var poolConnection = await connect(connection);
+    const user = await poolConnection.request().input('email', email)
+        .query('select UserID from [dbo].[Users] where Email = @email')
+        .then(res => res.recordset[0].UserID)
+    const problem = await poolConnection.request().input('seed', seed)
+        .query('select ProblemID from [dbo].[Problems] where Email = @seed')
+        .then(res => res.recordset[0].ProblemID)
+    await poolConnection.request()
+        .input('uid', user).input('pid', problem).input('score', Float, score)
+        .query(`insert into [dbo].[Attempts] (UserID, ProblemID, RawScore, AttemptDate)
+                values (@uid, @pid, @score, getdate())`)
+    await updatePercentiles(problem)
+    await poolConnection.request().input('pid', problem)
+        .query(`update [dbo].[Problems] set NumPlayed = NumPlayed + 1 where ProblemID = @pid`)
+}
+
 interface Scores {
     AttemptID: number,
     RawScore: number,
     Percentile: number
 }
 
-const updatePercentiles = async (problemID: string) => {
+const updatePercentiles = async (problemID: number) => {
     var poolConnection = await connect(connection);
 
     // load scores and percentiles
