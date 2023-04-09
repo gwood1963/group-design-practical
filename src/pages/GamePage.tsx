@@ -191,7 +191,18 @@ const initialNodes = initialNodesTemp;
         <div style={{ flexGrow: 1 }}></div>
         <ActionButton 
           text="Submit and Move On" 
-          onClick={() => {}} 
+          onClick={() => {
+            const flows: number[][][] = [] // placeholder until we can read from sliders
+            const score = round1.getScore(flows, round1.getGraph())
+            fetch ('/api/attempt', {
+              method: 'POST',
+              body: JSON.stringify({
+                score: score,
+                email: email,
+                seed: round1.makeSeed()
+              })
+            })
+          }} 
           backcolor = "rgba(80, 180, 80, 1)"
         />
         <ActionButton
