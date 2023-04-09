@@ -51,27 +51,27 @@ export const deleteSelected = async (ids: Array<number>) => {
     });
 }
 
-export const register = async (email: string, name: string) => {
+export const register = async (email: string, name: string, uid: string) => {
     var poolConnection = await connect(connection);
-    const user = await poolConnection.request().input('email', email)
-        .query('select * from [dbo].[Users] where Email = @email')
+    const user = await poolConnection.request().input('uid', uid)
+        .query('select * from [dbo].[Users] where AuthId = @uid')
         .then(res => res.recordset)
     if (user.length === 0) {
         const [firstName, surname] = name?.split(' ')
         await poolConnection.request()
-            .input('firstName', firstName).input('surname', surname).input('email', email)
-            .query(`insert into [dbo].[Users] (FirstName, Surname, Email, Invited) 
-                    values (@firstName, @surname, @email, 0)`)
+            .input('firstName', firstName).input('surname', surname).input('email', email).input('uid', uid)
+            .query(`insert into [dbo].[Users] (FirstName, Surname, Email, Invited, AuthId) 
+                    values (@firstName, @surname, @email, 0, @uid)`)
     }
 }
 
-export const addAttempt = async (email: string, seed: string, score: number) => {
+export const addAttempt = async (uid: string, seed: string, score: number) => {
     var poolConnection = await connect(connection);
-    const user = await poolConnection.request().input('email', email)
-        .query('select UserID from [dbo].[Users] where Email = @email')
+    const user = await poolConnection.request().input('uid', uid)
+        .query('select UserID from [dbo].[Users] where AuthID = @uid')
         .then(res => res.recordset[0].UserID)
     const problem = await poolConnection.request().input('seed', seed)
-        .query('select ProblemID from [dbo].[Problems] where Email = @seed')
+        .query('select ProblemID from [dbo].[Problems] where Seed = @seed')
         .then(res => res.recordset[0].ProblemID)
     await poolConnection.request()
         .input('uid', user).input('pid', problem).input('score', Float, score)
@@ -80,6 +80,14 @@ export const addAttempt = async (email: string, seed: string, score: number) => 
     await updatePercentiles(problem)
     await poolConnection.request().input('pid', problem)
         .query(`update [dbo].[Problems] set NumPlayed = NumPlayed + 1 where ProblemID = @pid`)
+}
+
+export const isAdmin = async (uid: string) => {
+    var poolConnection = await connect(connection);
+    const result: boolean = await poolConnection.request().input('uid', uid)
+        .query(`select IsAdmin from [dbo].[Users] where AuthID = @uid`)
+        .then(res => res.recordset[0].IsAdmin)
+    return result
 }
 
 interface Scores {

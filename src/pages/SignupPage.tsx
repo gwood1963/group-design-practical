@@ -42,7 +42,8 @@ const SignupPage = () => {
           method: 'PUT',
           body: JSON.stringify({
             email: email,
-            name: fullName
+            name: fullName,
+            uid: userID
           }),
           headers: {
             Accept: 'application/json',

@@ -333,9 +333,9 @@ const GamePage = () => {
               method: "POST",
               body: JSON.stringify({
                 score: score,
-                email: email,
-                seed: round.makeSeed(),
-              }),
+                uid: userId,
+                seed: round.makeSeed()
+              })
             });
             navigate("/goodbye");
           }}
