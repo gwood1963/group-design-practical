@@ -41,20 +41,20 @@ const GamePage = () => {
 
   // Game State
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
-  const [initialNodes, setInitialNodes] = useState<Node[]>([]); //a state to store the array of nodes.
+  const [nodes, setNodes] = useState<Node[]>([]); //a state to store the array of nodes.
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
 
   //IDEA: function below should map over the array of flows until it finds the entry matching thisid. It then returns the flow associated with this entry.
-  function findFlow(thisid: String) {
-    return flows
-      .filter((edge) => {
-        return edge.id == thisid;
-      })
-      .map((edge) => edge.flow)[0];
-  }
+  // function findFlow(thisid: String) {
+  //   return flows
+  //     .filter((edge) => {
+  //       return edge.id == thisid;
+  //     })
+  //     .map((edge) => edge.flow)[0];
+  // }
 
   //DELETE?: The lines below were originally used to regenerate a new graph every 20s when david was testing. So you can likely delete it now but I leave it here in case you need something similar.
-  // let start = 0;
+  let start = 0;
   // useEffect(() => {
   //   start = Date.now() / 1000;
   //   const interval = setInterval(() => {
@@ -80,8 +80,7 @@ const GamePage = () => {
   // and a separate one which watches flows and purely updates the labels of the edges if flows changes (without calling setFlows inside the function)
 
   useEffect(() => {
-    console.log("asdfasdf");
-    let initialNodesTemp = [];
+    let nodesTemp = [];
 
     const round1 = new Round1();
     round1.genRandom();
@@ -94,9 +93,9 @@ const GamePage = () => {
 
     let coords = round1.getCoords(500, 300); //gives the coordinates of the nodes
 
-    //this genereates the set of nodes and puts them in initialNodesTemp
+    // Generate nodes
     for (let i = 0; i < nodeCount; i++) {
-      const temp = {
+      const node = {
         id: `${i}`,
         type: "ImageNode",
         position: { x: coords[i][0], y: coords[i][1] },
@@ -106,11 +105,10 @@ const GamePage = () => {
           color: "black",
         },
       };
-      initialNodesTemp.push(temp);
+      nodesTemp.push(node);
     }
-    setInitialNodes(initialNodesTemp);
+    setNodes(nodesTemp);
 
-    console.log("initialising edges");
     let flowsTemp = [];
     let initialEdgesTemp: Edge[] = [];
     for (let i = 0; i < nodeCount; i++) {
@@ -126,15 +124,12 @@ const GamePage = () => {
           animated: true,
           type: "Round1Edge",
           data: {
-            ID: myid,
-            //@ts-ignore
-            Label: String(0) + adjacency[i][k][1], //problem -- I'm not sure that findFlow is actually working as we hope here.  HOWEVER, I think it might work once we separate out the cases of initialisation and updating (as per my comment paragraph above, s.t. we only use findFlows when we are updating labels, because then there will actually be something in the flows array to fetch)
-            //@ts-ignore
-            flow: "0",
-            //@ts-ignore
-            //flowFunc: setFlows,
+            id: myid,
+            getFlow: () => (
+              flows.find((f) => f.id.localeCompare(myid))?.flow || 0
+            ),
+            setFlow: setFlows,
             capacity: capacity,
-            // allFlows: flows, //thought this might be useful to access from the slider function
           },
         };
         initialEdgesTemp.push(temp);
@@ -144,17 +139,18 @@ const GamePage = () => {
     setEdges(initialEdgesTemp);
   }, []);
 
+  console.log(flows);
   /*
   //@ts-ignore
-  //const initialNodes = initialNodesTemp;
+  //const nodes = nodesTemp;
   console.log("Here are initial nodes")
-  console.log(initialNodesTemp)
+  console.log(nodesTemp)
   //@ts-ignore
   //const initialEdges = initialEdgesTemp;
   console.log("HERE ARE FLOWS")
   console.log(flows)
   console.log("Here are initial nodes")
-  console.log(initialNodes)*/
+  console.log(nodes)*/
 
   //useEffect(() => {
   //  console.log("re-rendering");
@@ -201,7 +197,7 @@ const GamePage = () => {
   function scaley(y: number) {
     return y * 6.5;
   }
-  /* const initialNodes = [
+  /* const nodes = [
   { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'West Office', image: "/building2trees.svg", color: "green"} },
   { id: '2', type: "ImageNode", position: { x: scalex(20), y: scaley(30) }, data: { label: '', image: "/church.svg" ,color: "black" } },
   { id: '3', type: "ImageNode",position: { x: scalex(20), y: scaley(80) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
@@ -300,7 +296,7 @@ const GamePage = () => {
             {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
 
             <ReactFlow
-              nodes={initialNodes}
+              nodes={nodes}
               edges={edges}
               panOnDrag={true}
               edgeTypes={edgeTypes}
