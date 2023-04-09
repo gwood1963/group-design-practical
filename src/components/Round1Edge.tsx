@@ -41,7 +41,7 @@ const Round1Edge: FC<EdgeProps> = ({
         id={id}
         className="react-flow__edge-path"
         d={edgePath}
-        style={{ stroke: "rgb(5, 16, 46)", strokeWidth: "10px" }}
+        style={{ stroke: "rgb(5, 16, 46)", strokeWidth: "5px" }}
       />
       <EdgeLabelRenderer>
         <div
