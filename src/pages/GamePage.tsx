@@ -1,167 +1,149 @@
 import { getAuth } from "firebase/auth";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
-import ReactFlow from 'reactflow';
-import 'reactflow/dist/style.css';
-import React  from 'react';
-import {
-  Controls,
-  Background,
-  EdgeTypes,
-  BackgroundVariant,
-} from 'reactflow';
-import Round1Edge from '../components/Round1Edge';
+import ReactFlow, { Edge, Node } from "reactflow";
+import "reactflow/dist/style.css";
+import React from "react";
+import { Controls, Background, EdgeTypes, BackgroundVariant } from "reactflow";
+import Round1Edge from "../components/Round1Edge";
 //import SliderEdge from '../components/SliderEdge';
-import ImageNode from '../components/ImageNode'
+import ImageNode from "../components/ImageNode";
 
-import { Round1 } from '../game/Round1'
+import { Round1 } from "../game/Round1";
 const edgeTypes: EdgeTypes = {
-  'Round1Edge': Round1Edge,
+  Round1Edge: Round1Edge,
 };
 
+const blueGradient =
+  "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)";
+const yellowGradient =
+  "linear-gradient(180deg, rgba(255,245,156,1) 0%,   rgba(255, 253, 232,1) 100%)";
 
 const GamePage = () => {
   const auth = getAuth();
   const navigate = useNavigate();
-  const blueGradient = "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)"
-  const yellowGradient = "linear-gradient(180deg, rgba(255,245,156,1) 0%,   rgba(255, 253, 232,1) 100%)"
+
+  // UI State
   const [time, setTime] = useState<number>(0);
   const [collapseButton, collapseState] = useState("+");
   const [instructBoxSize, setBoxSize] = useState("10%");
-  const [instructBoxColor, setBoxColor] = useState(blueGradient)
+  const [instructBoxColor, setBoxColor] = useState(blueGradient);
+
   const toggleCollapse = () => {
     collapseState((state) => (state === "-" ? "+" : "-"));
     setBoxSize((state) => (state === "10%" ? "50%" : "10%"));
-    setBoxColor((state) => (state === blueGradient ? yellowGradient : blueGradient))
+    setBoxColor((state) =>
+      state === blueGradient ? yellowGradient : blueGradient
+    );
   };
 
-
-  const [ flows, setFlows ] = useState([{id: "dummmy", flow: 5}]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
-  //@ts-ignore
-  const [initialNodes, setInitialNodes] = useState<any[]>([])  //a state to store the array of nodes.
-  //@ts-ignore
-  const [initialEdges, setInitialEdges] = useState<any[]>([]) //a state to store the array of edges.
-  //@ts-ignore
-  const [adjacency, setAdjacency] = useState([[]]) //I am using this purely to store the adjacency matrix outputted by davids generation so that I can access it in different use effects. 
-  //adjacency[i][0][0] would give you the name of the node that is first in the adjacenies of node i. 
-  //adjacency[i][0][1]  gives you the capacity of that edge.
-
-  const [num, setN] = useState(0) //this is the to store the number of nodes in the game generated
+  // Game State
+  const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
+  const [initialNodes, setInitialNodes] = useState<Node[]>([]); //a state to store the array of nodes.
+  const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
 
   //IDEA: function below should map over the array of flows until it finds the entry matching thisid. It then returns the flow associated with this entry.
-  function findFlow(thisid:String) { return ((flows.filter(edge => {return edge.id == thisid})).map(edge => edge.flow))[0]};
-  
-  //DELETE?: The lines below were originally used to regenerate a new graph every 20s when david was testing. So you can likely delete it now but I leave it here in case you need something similar.
-  let start = 0;
-  useEffect(() => {
-    start = Date.now() / 1000;
-    const interval = setInterval(() => {
-      setTime(3000 - Math.floor(Date.now() / 1000 - start));
-    }, 20000);
+  function findFlow(thisid: String) {
+    return flows
+      .filter((edge) => {
+        return edge.id == thisid;
+      })
+      .map((edge) => edge.flow)[0];
+  }
 
-    return () => clearInterval(interval);
+  //DELETE?: The lines below were originally used to regenerate a new graph every 20s when david was testing. So you can likely delete it now but I leave it here in case you need something similar.
+  // let start = 0;
+  // useEffect(() => {
+  //   start = Date.now() / 1000;
+  //   const interval = setInterval(() => {
+  //     setTime(3000 - Math.floor(Date.now() / 1000 - start));
+  //   }, 20000);
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
+  /** ---------------------------------------------------- */
+
+  //IDEA: If you use a useMemo or useEffect, with a function as the first paramter, and a [] as the second paramter, then the code in it should only run once when the page first loads
+  //the second paramter is the list of React States which it 'watches' -- it will re-render if any of them change
+
+  //IDEA: whilst the nodes only need to be rendered once, we will need to re-render the edges every time the flows change if we want to update the labels.
+  // So I have tried to put it in a useEffect with second paramater [flows], hoping that it would update only when flows changes
+  // I think this is the right strategy, however I am running into a problem where for some reason it is re-rendering infinitely often, as though flows is constantly being changed
+  // see the console log to see how many times "re-rendering edges is called"
+  // Maybe it's stuck in an infinite loop because I call setFlows at the end of the funciton, meaning as soon as the function is finished it then calls itself again because flows changes
+  // ^^Thinking about it -- thats definitely the problem.
+  // ^^Might be solveable by having two different useEffects: one which just runs on start up, in which we initialise all the flows to 0 as below and use setFlows  ...
+  // and a separate one which watches flows and purely updates the labels of the edges if flows changes (without calling setFlows inside the function)
+
+  useEffect(() => {
+    console.log("asdfasdf");
+    let initialNodesTemp = [];
+
+    const round1 = new Round1();
+    round1.genRandom();
+
+    round1.getGraph(); //this is where the graph is actually generated
+    const adjacency = round1.getA();
+    // const ANoCap = round1.getANoCap();
+
+    const nodeCount = round1.getN();
+
+    let coords = round1.getCoords(500, 300); //gives the coordinates of the nodes
+
+    //this genereates the set of nodes and puts them in initialNodesTemp
+    for (let i = 0; i < nodeCount; i++) {
+      const temp = {
+        id: `${i}`,
+        type: "ImageNode",
+        position: { x: coords[i][0], y: coords[i][1] },
+        data: {
+          label: "",
+          image: "/church.svg",
+          color: "black",
+        },
+      };
+      initialNodesTemp.push(temp);
+    }
+    setInitialNodes(initialNodesTemp);
+
+    console.log("initialising edges");
+    let flowsTemp = [];
+    let initialEdgesTemp: Edge[] = [];
+    for (let i = 0; i < nodeCount; i++) {
+      for (let k = 0; k < adjacency[i].length; k++) {
+        let j = adjacency[i][k][0];
+        const myid = "e" + i + "-" + j;
+        flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
+        const capacity = String(adjacency[i][k][1]); //need to hook up to actual capacity array
+        const temp = {
+          id: myid,
+          source: `${i}`,
+          target: `${j}`,
+          animated: true,
+          type: "Round1Edge",
+          data: {
+            ID: myid,
+            //@ts-ignore
+            Label: String(0) + adjacency[i][k][1], //problem -- I'm not sure that findFlow is actually working as we hope here.  HOWEVER, I think it might work once we separate out the cases of initialisation and updating (as per my comment paragraph above, s.t. we only use findFlows when we are updating labels, because then there will actually be something in the flows array to fetch)
+            //@ts-ignore
+            flow: "0",
+            //@ts-ignore
+            //flowFunc: setFlows,
+            capacity: capacity,
+            // allFlows: flows, //thought this might be useful to access from the slider function
+          },
+        };
+        initialEdgesTemp.push(temp);
+      }
+    }
+    setFlows(flowsTemp);
+    setEdges(initialEdgesTemp);
   }, []);
 
-  /** Dummy code to test sliders, remove once data from max flow puzzle has been hooked up to display */
-  //const [ flow, setFlow ] = useState<number>(5)
-  //const capacity = 10;
-
-
-
-/**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
-/** ---------------------------------------------------- */
-
-
-//IDEA: If you use a useMemo or useEffect, with a function as the first paramter, and a [] as the second paramter, then the code in it should only run once when the page first loads
-//the second paramter is the list of React States which it 'watches' -- it will re-render if any of them change
-
-useEffect(() => {  //NOTE: George thinks we should change this to a use effect -- see group chat
-//@ts-ignore
-  var initialNodesTemp = []
-  //@ts-ignore
-
-  const round1 = new Round1;
-  round1.genRandom();
-
-  const graph = round1.getGraph();  //this is where the graph is actually generated
-  const A = round1.getA();
-  setAdjacency(A) //here we essentially save the adjacecy list to a state so we can access it outside of this useMemo
-  const ANoCap = round1.getANoCap();
-  
-  const n = round1.getN();
-  setN(n)
-
-
-
-  var coords = round1.getCoords(500, 300); //gives the coordinates of the nodes 
-
-
-  for (var i = 0; i < n; i ++) { //this genereates the set of nodes and puts them in initialNodesTemp
-    const temp = {
-      id: '' + i,
-      type: "ImageNode",
-      position: { x: coords[i][0], y: coords[i][1] },
-      data: {
-        label: '',
-        image: "/church.svg",
-        color: "black"
-      }
-    };
-    initialNodesTemp.push(temp);
-    //@ts-ignore
-    setInitialNodes(initialNodesTemp)  //SET THE ACTUAL STATE so that initialNodes is updated and can be accessed outside this useMemo
-  }
-}, []);
-
-
-//IDEA: whilst the nodes only need to be rendered once, we will need to re-render the edges every time the flows change if we want to update the labels.
-//So I have tried to put it in a useEffect with second paramater [flows], hoping that it would update only when flows changes 
-//I think this is the right strategy, however I am running into a problem where for some reason it is re-rendering infinitely often, as though flows is constantly being changed
-//see the console log to see how many times "re-rendering edges is called"
-//Maybe it's stuck in an infinite loop because I call setFlows at the end of the funciton, meaning as soon as the function is finished it then calls itself again because flows changes
-//^^Thinking about it -- thats definitely the problem.
-//^^Might be solveable by having two different useEffects: one which just runs on start up, in which we initialise all the flows to 0 as below and use setFlows  ...
-//and a separate one which watches flows and purely updates the labels of the edges if flows changes (without calling setFlows inside the function)
-
-
-useEffect(() => {
-  
-  console.log("initialising edges")
-  var flowsTemp = []
-  var initialEdgesTemp = []
-  for (var i = 0; i < num; i ++) {
-    for (var k = 0; k < adjacency[i].length; k ++) {
-      var j = adjacency[i][k][0];
-      const myid = 'e' + i + '-' + j;
-      flowsTemp.push({id: myid, flow: 0});  //this is for initialising the flows arrey
-      const capacity = String(adjacency[i][k][1]) //need to hook up to actual capacity array
-      const temp = {
-        id: myid,
-        source: '' + i,
-        target: '' + j,
-        animated: true,
-        type: "Round1Edge",
-        data: {
-          ID: myid,
-          //@ts-ignore
-          Label:  String(0) + adjacency[i][k][1], //problem -- I'm not sure that findFlow is actually working as we hope here.  HOWEVER, I think it might work once we separate out the cases of initialisation and updating (as per my comment paragraph above, s.t. we only use findFlows when we are updating labels, because then there will actually be something in the flows array to fetch)
-          //@ts-ignore
-          flow: '0',
-          //@ts-ignore
-          //flowFunc: setFlows,
-          capacity: capacity,
-          allFlows: flows, //thought this might be useful to access from the slider function
-        }
-
-      }
-      initialEdgesTemp.push(temp);
-    }
-  }
-  setFlows(flowsTemp)
-  setInitialEdges(initialEdgesTemp)
-}, []); //depend on flows?
   /*
   //@ts-ignore
   //const initialNodes = initialNodesTemp;
@@ -174,51 +156,52 @@ useEffect(() => {
   console.log("Here are initial nodes")
   console.log(initialNodes)*/
 
-useEffect (() => {
-  console.log("re-rendering")
-  var flowsTemp = []
-  var initialEdgesTemp = []
-  for (var i = 0; i < num; i ++) {
-    for (var k = 0; k < adjacency[i].length; k ++) {
-      var j = adjacency[i][k][0];
-      const myid = 'e' + i + '-' + j;
-      //@ts-ignore
+  //useEffect(() => {
+  //  console.log("re-rendering");
+  //  let flowsTemp = [];
+  //  let initialEdgesTemp = [];
+  //  for (let i = 0; i < num; i++) {
+  //    for (let k = 0; k < adjacency[i].length; k++) {
+  //      let j = adjacency[i][k][0];
+  //      const myid = "e" + i + "-" + j;
+  //      //@ts-ignore
 
-      flowsTemp.push({id: myid, flow: 0});  //this is for initialising the flows arrey
-      const capacity = String(adjacency[i][k][1]) //need to hook up to actual capacity array
-      const temp = {
-        id: myid,
-        source: '' + i,
-        target: '' + j,
-        animated: true,
-        type: "Round1Edge",
-        data: {
-          ID: myid,
-          //@ts-ignore
-          Label:  String(findFlow()) + adjacency[i][k][1], //problem -- I'm not sure that findFlow is actually working as we hope here.  HOWEVER, I think it might work once we separate out the cases of initialisation and updating (as per my comment paragraph above, s.t. we only use findFlows when we are updating labels, because then there will actually be something in the flows array to fetch)
-          //@ts-ignore
-          flow: findFlow(),
-          //@ts-ignore
-          //flowFunc: setFlows,
-          capacity: capacity,
-          allFlows: flows, //thought this might be useful to access from the slider function
-        }
+  //      flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
+  //      const capacity = String(adjacency[i][k][1]); //need to hook up to actual capacity array
+  //      const temp = {
+  //        id: myid,
+  //        source: "" + i,
+  //        target: "" + j,
+  //        animated: true,
+  //        type: "Round1Edge",
+  //        data: {
+  //          ID: myid,
+  //          //@ts-ignore
+  //          Label: String(findFlow()) + adjacency[i][k][1], //problem -- I'm not sure that findFlow is actually working as we hope here.  HOWEVER, I think it might work once we separate out the cases of initialisation and updating (as per my comment paragraph above, s.t. we only use findFlows when we are updating labels, because then there will actually be something in the flows array to fetch)
+  //          //@ts-ignore
+  //          flow: findFlow(),
+  //          //@ts-ignore
+  //          //flowFunc: setFlows,
+  //          capacity: capacity,
+  //          allFlows: flows, //thought this might be useful to access from the slider function
+  //        },
+  //      };
+  //      initialEdgesTemp.push(temp);
+  //    }
+  //  }
+  //  setEdges(initialEdgesTemp);
+  //}, []);
 
-      }
-      initialEdgesTemp.push(temp);
-    }
+  /** ---------------------------------------------------------------------- */
+
+  /**TO DO: the x and y coordinates need to be taken from an array. */
+  function scalex(x: number) {
+    return x * 12.5;
+  } /**These scale functions are likely now redundant as I have worked out there is a fitView function. However they are left here in case we still need to convert David's position output into coordinates. */
+  function scaley(y: number) {
+    return y * 6.5;
   }
-  setInitialEdges(initialEdgesTemp)
-}, []);
-
-
-
-/** ---------------------------------------------------------------------- */
-
-/**TO DO: the x and y coordinates need to be taken from an array. */
-function scalex(x:number) {return x*12.5} /**These scale functions are likely now redundant as I have worked out there is a fitView function. However they are left here in case we still need to convert David's position output into coordinates. */
-function scaley(y:number) {return y*6.5}
-/* const initialNodes = [
+  /* const initialNodes = [
   { id: '1', type: "ImageNode", position: { x: scalex(10) , y: scaley(50) }, data: { label: 'West Office', image: "/building2trees.svg", color: "green"} },
   { id: '2', type: "ImageNode", position: { x: scalex(20), y: scaley(30) }, data: { label: '', image: "/church.svg" ,color: "black" } },
   { id: '3', type: "ImageNode",position: { x: scalex(20), y: scaley(80) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
@@ -227,11 +210,11 @@ function scaley(y:number) {return y*6.5}
   {id: '6', type: "ImageNode",position: { x: scalex(70), y: scaley(20) }, data: { label: '' , image: "/skyscraper.svg", color: "black" } },
   {id: '7', type: "ImageNode", position: { x: scalex(80), y: scaley(50) }, data: { label: 'East Office', image: "/building2trees.svg", color: "red"  } },
 ]; */
-/**TO DO: add a label to the start node which says how many people need to get accross.  */
+  /**TO DO: add a label to the start node which says how many people need to get accross.  */
 
-/**TO DO: The data labels in the edges below need to be taken from the live flow (stored in an array?) and the capacities from the array of capacities */
-/**TO DO: implement that the source and targets are taken from the adjacency list generated */
-/*const initialEdges = [
+  /**TO DO: The data labels in the edges below need to be taken from the live flow (stored in an array?) and the capacities from the array of capacities */
+  /**TO DO: implement that the source and targets are taken from the adjacency list generated */
+  /*const initialEdges = [
   { id: 'e1-2', source: '1', target: '2', animated: true, type: "Round1Edge", data: {label: '5/12', flow: flow, flowFunc: setFlow, capacity: capacity}},
   { id: 'e2-4', source: '2', target: '4', animated: true, type: "Round1Edge", data: {label: '4/8'}},
   { id: 'e4-6', source: '4', target: '6', animated: true, type: "Round1Edge", data: {label: '0/2'}},
@@ -244,17 +227,13 @@ function scaley(y:number) {return y*6.5}
   { id: 'e5-7', source: '5', target: '7', animated: true, type: "Round1Edge", data: {label: '2/4'}},
 ];*/
 
+  const nodeTypes = React.useMemo(() => ({ ImageNode: ImageNode }), []);
 
-
-const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
-
-/**------------------------------------------------------------------------------------------------------------ */
-
+  /**------------------------------------------------------------------------------------------------------------ */
 
   return (
     <MainWrapper flexDirection="column">
-      <div className = "navBar"
-      >
+      <div className="navBar">
         <div
           id="Timer"
           style={{
@@ -267,15 +246,18 @@ const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
             fontWeight: "bold",
             fontSize: "14px",
           }}
-        >Time Remaining: {`${Math.floor(time / 60)
-          .toString()
-          .padStart(2, "0")}:${(time % 60).toString().padStart(2, "0")}
-				`}</div>
+        >
+          Time Remaining:{" "}
+          {`${Math.floor(time / 60)
+            .toString()
+            .padStart(2, "0")}:${(time % 60).toString().padStart(2, "0")}
+				`}
+        </div>
         <div style={{ flexGrow: 1 }}></div>
-        <ActionButton 
-          text="Submit and Move On" 
-          onClick={() => {}} 
-          backcolor = "rgba(80, 180, 80, 1)"
+        <ActionButton
+          text="Submit and Move On"
+          onClick={() => {}}
+          backcolor="rgba(80, 180, 80, 1)"
         />
         <ActionButton
           text="Log out"
@@ -283,7 +265,7 @@ const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
             auth.signOut();
             navigate("/signup");
           }}
-          backcolor= "rgba(0,0,0,0)"
+          backcolor="rgba(0,0,0,0)"
         />
       </div>
       <div
@@ -293,7 +275,7 @@ const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
           height: "90%",
           width: "100%",
           position: "relative",
-          top: "3%"
+          top: "3%",
         }}
       >
         <div
@@ -311,31 +293,23 @@ const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
               height: "90%",
               marginBottom: "1rem",
               borderRadius: "5px",
-              background: 
+              background:
                 "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
             }}
           >
-          {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
-       
-          <ReactFlow 
-            nodes={initialNodes}
-            edges={initialEdges} 
-            panOnDrag = {true} 
-            edgeTypes={edgeTypes} 
-            nodeTypes = {nodeTypes}
-            fitView
+            {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
+
+            <ReactFlow
+              nodes={initialNodes}
+              edges={edges}
+              panOnDrag={true}
+              edgeTypes={edgeTypes}
+              nodeTypes={nodeTypes}
+              fitView
             >
-            <Controls/>
-            <Background variant= {BackgroundVariant.Dots} gap={12} size={1} />
-          </ReactFlow>
-          {/** the following div covers up the React Flow logo */}
-          <div style = {{position: "relative", bottom: "20px", left: "96%", background: "rgba(243,243,243,1)", width: "50px", height: "20px"}}></div>
-
-
-
-
-
-
+              <Controls />
+              <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+            </ReactFlow>
           </div>
           <div
             id="InstructionBox"
@@ -344,7 +318,6 @@ const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
               borderRadius: "5px",
               background: instructBoxColor,
               height: instructBoxSize,
-              
             }}
           >
             <div
@@ -358,35 +331,68 @@ const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
               }}
             >
               {collapseButton === "-" && (
-                <div style = {{fontSize: "18px", position: "relative", width: "100%"}}>
-                  <b>A company owner has two offices in this city. </b> Currently all of her employees are in the West Office. <br/>
-                  However, she needs to move <b>as many employees as possible to the East Office within the next 10 minutes </b> for a conference.<br/> <br/>
-                  Unfontunatly, the City Council has imposed some <b>strict traffic restrictions</b>, limiting the number of people the company is to allowed to send down any <br/> given road in the city within a 10 minute period. <br/><br/>
-                  She has asked you for your help. You need to <b>suggest how many people she sends down each road, in order to get as many emploeyees  from the<br/> West to East Office as possible, without breaking the traffic restrictions.</b> <br/><br/>
-                  When you think your suggestion gets as many people to the East Office as possible, press <i><b>Submit and Move On.</b></i>
-
-
+                <div
+                  style={{
+                    fontSize: "18px",
+                    position: "relative",
+                    width: "100%",
+                  }}
+                >
+                  <b>A company owner has two offices in this city. </b>{" "}
+                  Currently all of her employees are in the West Office. <br />
+                  However, she needs to move{" "}
+                  <b>
+                    as many employees as possible to the East Office within the
+                    next 10 minutes{" "}
+                  </b>{" "}
+                  for a conference.
+                  <br /> <br />
+                  Unfontunatly, the City Council has imposed some{" "}
+                  <b>strict traffic restrictions</b>, limiting the number of
+                  people the company is to allowed to send down any <br /> given
+                  road in the city within a 10 minute period. <br />
+                  <br />
+                  She has asked you for your help. You need to{" "}
+                  <b>
+                    suggest how many people she sends down each road, in order
+                    to get as many emploeyees from the
+                    <br /> West to East Office as possible, without breaking the
+                    traffic restrictions.
+                  </b>{" "}
+                  <br />
+                  <br />
+                  When you think your suggestion gets as many people to the East
+                  Office as possible, press{" "}
+                  <i>
+                    <b>Submit and Move On.</b>
+                  </i>
                 </div>
               )}
               {collapseButton === "+" && (
-                <div style ={{fontSize: "35px", position: "relative", top: "15%", left: "5%", color: ""}}><i>Click [+] to view </i><b>Instructions</b> </div>
+                <div
+                  style={{
+                    fontSize: "35px",
+                    position: "relative",
+                    top: "15%",
+                    left: "5%",
+                    color: "",
+                  }}
+                >
+                  <i>Click [+] to view </i>
+                  <b>Instructions</b>{" "}
+                </div>
               )}
             </div>
-
           </div>
           <div
             style={{
               position: "absolute",
               bottom: 0,
-              left: 0
+              left: 0,
             }}
           >
-            <ActionButton 
-              text={collapseButton}
-              onClick={toggleCollapse} 
-            />
+            <ActionButton text={collapseButton} onClick={toggleCollapse} />
           </div>
-
         </div>
         <div
           id="ControlsBox"
@@ -398,7 +404,7 @@ const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
               "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
           }}
         >
-          <div 
+          <div
             id="ControlText"
             style={{
               alignItems: "center",
@@ -406,16 +412,32 @@ const nodeTypes = React.useMemo(() => ({ "ImageNode": ImageNode }), []);
               textAlign: "center",
             }}
           >
-            <text style = {{fontSize: "50px", padding: "30px", }}>Controls </text>
-            <text style = {{textAlign: "center", fontSize: "20px", position: "relative", top: "40px"}}>
-              <br/>
-              <b>Traffic limits:</b> where a road displays "5/10", for example, this indicates that the road has a limit of 10 people, and you are currently sending 5 people down it. <br/><br/><br/>
-              <b>To edit the number you are sending down a road: </b>click on the road, and then use the slider. <br/> <br/><br/>
-              <b> To submit your suggestion: </b>Click <i>Submit and Move On.</i><br/> <br/><br/>
+            <text style={{ fontSize: "50px", padding: "30px" }}>Controls </text>
+            <text
+              style={{
+                textAlign: "center",
+                fontSize: "20px",
+                position: "relative",
+                top: "40px",
+              }}
+            >
+              <br />
+              <b>Traffic limits:</b> where a road displays "5/10", for example,
+              this indicates that the road has a limit of 10 people, and you are
+              currently sending 5 people down it. <br />
+              <br />
+              <br />
+              <b>To edit the number you are sending down a road: </b>click on
+              the road, and then use the slider. <br /> <br />
+              <br />
+              <b> To submit your suggestion: </b>Click{" "}
+              <i>Submit and Move On.</i>
+              <br /> <br />
+              <br />
               Remember you <b>must</b> submit before the timer runs out.
             </text>
           </div>
-          </div>
+        </div>
       </div>
     </MainWrapper>
   );
