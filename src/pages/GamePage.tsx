@@ -1,5 +1,3 @@
-import { getAuth } from "firebase/auth";
-import { useEffect, useState, useMemo, useCallback } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,31 +26,23 @@ const GamePage = () => {
   //--------------------------------------------------------------------------------------------------------------
   //it will fetch the data of the currently signed in candidate, once when the page opens
 
-
   //GEORGE: use the following states varaibles to query the database. They will be of the signed in candidate. userId is unique.
-  const [email,setEmail] = useState<string|null>("")
-  const [fullName,setName] = useState<string|null>("")
-  const [userId,setUserId] = useState<string>("") 
+  const [email, setEmail] = useState<string | null>("");
+  const [fullName, setName] = useState<string | null>("");
+  const [userId, setUserId] = useState<string>("");
 
   const auth = getAuth();
 
-  useEffect(() => {onAuthStateChanged(auth, (user) =>{  //I think the useEffect here is needed to prevent infinite loops where the page re-renders, causing the emails and names to be set again, which causes another re-render  etc
-    if (user){
-      setEmail(user.email);
-      setName(user.displayName);
-      setUserId(user.uid);  //uniquely identifies users.
-      console.log(user.uid)
-      console.log(user.email)
-      console.log(user.displayName)
-      
-    }
-    })
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      //I think the useEffect here is needed to prevent infinite loops where the page re-renders, causing the emails and names to be set again, which causes another re-render  etc
+      if (user) {
+        setEmail(user.email);
+        setName(user.displayName);
+        setUserId(user.uid); //uniquely identifies users.
+      }
+    });
   }, []);
-
-
-
-
-  
 
   //----------------------------------------------------------------------------------------------------------------------
   const navigate = useNavigate();
@@ -71,11 +61,11 @@ const GamePage = () => {
     );
   };
 
-
   // Game State
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
   const [nodes, setNodes] = useState<Node[]>([]); //a state to store the array of nodes.
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
+  const [round, setRound] = useState<Round1>();
 
   //IDEA: function below should map over the array of flows until it finds the entry matching thisid. It then returns the flow associated with this entry.
   // function findFlow(thisid: String) {
@@ -112,14 +102,12 @@ const GamePage = () => {
   // ^^Might be solveable by having two different useEffects: one which just runs on start up, in which we initialise all the flows to 0 as below and use setFlows  ...
   // and a separate one which watches flows and purely updates the labels of the edges if flows changes (without calling setFlows inside the function)
 
-
   useEffect(() => {
     let nodesTemp = [];
 
     const round1 = new Round1();
-    round1.genRandom();
+    round1.genRandom(5, 3, 2, 2, 5, 10);
 
-    round1.getGraph(); //this is where the graph is actually generated
     const adjacency = round1.getA();
     // const ANoCap = round1.getANoCap();
 
@@ -159,9 +147,8 @@ const GamePage = () => {
           type: "Round1Edge",
           data: {
             id: myid,
-            getFlow: () => (
-              flows.find((f) => f.id.localeCompare(myid))?.flow || 0
-            ),
+            getFlow: () =>
+              flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
             setFlow: setFlows,
             capacity: capacity,
           },
@@ -169,11 +156,11 @@ const GamePage = () => {
         initialEdgesTemp.push(temp);
       }
     }
+    setRound(round1);
     setFlows(flowsTemp);
     setEdges(initialEdgesTemp);
   }, []);
 
-  console.log(flows);
   /*
   //@ts-ignore
   //const nodes = nodesTemp;
@@ -284,22 +271,25 @@ const GamePage = () => {
 				`}
         </div>
         <div style={{ flexGrow: 1 }}></div>
-        <ActionButton 
-          text="Submit and Move On" 
+        <ActionButton
+          text="Submit and Move On"
           onClick={() => {
-            const flows: number[][][] = [] // placeholder until we can read from sliders
-            const score = round1.getScore(flows, round1.getGraph())
-            fetch ('/api/attempt', {
-              method: 'POST',
+            if (!round) return;
+            console.log(round);
+            const flows: number[][][] = []; // placeholder until we can read from sliders
+            const score = round.getScore(flows, round.getGraph());
+            console.log(score);
+            fetch("/api/attempt", {
+              method: "POST",
               body: JSON.stringify({
                 score: score,
                 email: email,
-                seed: round1.makeSeed()
-              })
-            })
+                seed: round.makeSeed(),
+              }),
+            });
             navigate("/goodbye");
-          }} 
-          backcolor = "rgba(80, 180, 80, 1)"
+          }}
+          backcolor="rgba(80, 180, 80, 1)"
         />
         <ActionButton
           text="Log out"
