@@ -198,7 +198,7 @@ const initialNodes = initialNodesTemp;
               method: 'POST',
               body: JSON.stringify({
                 score: score,
-                email: email,
+                uid: userId,
                 seed: round1.makeSeed()
               })
             })

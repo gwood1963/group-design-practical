@@ -38,7 +38,7 @@ const AdminLogIn = () => {
         console.log("Current user ID")
         console.log(userID)
 
-        const isAdmin = await fetch(`/api/isadmin/${email}`).then(res => res.json())
+        const isAdmin = await fetch(`/api/isadmin/${userID}`).then(res => res.json())
         if (!isAdmin) {
           auth.signOut()
           setError("Oh no! It seems you are not a registered admin. If you think this is a mistake, please contact miranda.conn@some.ox.ac.uk")

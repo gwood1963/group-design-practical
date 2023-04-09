@@ -19,18 +19,18 @@ router.delete("/delete", async (req, res, next) => {
 })
 
 router.put('/register', async (req, res, next) => {
-    const {email, name} = req.body;
-    await register(email, name);
+    const {email, name, uid} = req.body;
+    await register(email, name, uid);
 })
 
 router.post('/attempt', async (req, res, next) => {
-    const {email, score, seed} = req.body;
-    await addAttempt(email, seed, score);
+    const {uid, score, seed} = req.body;
+    await addAttempt(uid, seed, score);
 })
 
-router.get('/isadmin/:email', async (req, res, next) => {
-    const email = req.params.email;
-    res.json(await isAdmin(email));
+router.get('/isadmin/:uid', async (req, res, next) => {
+    const uid = req.params.uid;
+    res.json(await isAdmin(uid));
 })
 
 export default router;
