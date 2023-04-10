@@ -326,8 +326,7 @@ const GamePage = () => {
           onClick={() => {
             if (!round) return;
             console.log(round);
-            const flows: number[][][] = []; // placeholder until we can read from sliders
-            const score = round.getScore(flows, round.getGraph());
+            const score = round.getScoreFromArr(flows.map(f => f.flow), round.getGraph());
             console.log(score);
             fetch("/api/attempt", {
               method: "POST",
