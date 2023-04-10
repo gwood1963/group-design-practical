@@ -11,6 +11,7 @@ import Round1Edge from "../components/Round1Edge";
 //import SliderEdge from '../components/SliderEdge';
 import ImageNode from "../components/ImageNode";
 import { Round1 } from "../game/Round1";
+import FeedbackModal from "../components/FeedbackModal";
 const edgeTypes: EdgeTypes = {
   Round1Edge: Round1Edge,
 };
@@ -48,6 +49,7 @@ const GamePage = () => {
   const [collapseButton, collapseState] = useState("+");
   const [instructBoxSize, setBoxSize] = useState("10%");
   const [instructBoxColor, setBoxColor] = useState(blueGradient);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const toggleCollapse = () => {
     collapseState((state) => (state === "-" ? "+" : "-"));
     setBoxSize((state) => (state === "10%" ? "50%" : "10%"));
@@ -75,7 +77,6 @@ const GamePage = () => {
   /** ---------------------------------------------------- */
 
   /** ---------- David's Addition, looks very weird compared to my console output */
-
 
   useEffect(() => {
     let nodesTemp = [];
@@ -298,230 +299,248 @@ const GamePage = () => {
 
   /**------------------------------------------------------------------------------------------------------------ */
 
+  const submitScore = () => {
+    fetch("/api/attempt", {
+      method: "POST",
+      body: JSON.stringify({
+        score: round?.getScore([[[]]], round.getGraph()),
+        uid: userId,
+        seed: round?.makeSeed(),
+      }),
+    });
+    navigate("/goodbye");
+  };
+
   return (
-    <MainWrapper flexDirection="column">
-      <div className="navBar">
-        <div
-          id="Timer"
-          style={{
-            margin: "1rem",
-            padding: "0.5rem",
-            color: "white",
-            border: "2px solid rgba(118, 50, 50, 1)",
-            backgroundColor: "rgba(170, 70, 70, 1)",
-            borderRadius: "5px",
-            fontWeight: "bold",
-            fontSize: "14px",
-          }}
-        >
-          Time Remaining:{" "}
-          {`${Math.floor(time / 60)
-            .toString()
-            .padStart(2, "0")}:${(time % 60).toString().padStart(2, "0")}
+    <>
+      <FeedbackModal
+        open={feedbackOpen}
+        setOpen={setFeedbackOpen}
+        // score={round?.getScore([[[]]], round.getGraph())}
+        score={round?.getScore([[[]]], round.getGraph())}
+        submit={submitScore}
+      />
+      <MainWrapper flexDirection="column">
+        <div className="navBar">
+          <div
+            id="Timer"
+            style={{
+              margin: "1rem",
+              padding: "0.5rem",
+              color: "white",
+              border: "2px solid rgba(118, 50, 50, 1)",
+              backgroundColor: "rgba(170, 70, 70, 1)",
+              borderRadius: "5px",
+              fontWeight: "bold",
+              fontSize: "14px",
+            }}
+          >
+            Time Remaining:{" "}
+            {`${Math.floor(time / 60)
+              .toString()
+              .padStart(2, "0")}:${(time % 60).toString().padStart(2, "0")}
 				`}
+          </div>
+          <div style={{ flexGrow: 1 }}></div>
+          <ActionButton
+            text="Submit and Move On"
+            onClick={() => {
+              if (!round) return;
+              console.log(round);
+              const flows: number[][][] = []; // placeholder until we can read from sliders
+              setFeedbackOpen(true);
+            }}
+            backcolor="rgba(80, 180, 80, 1)"
+          />
+          <ActionButton
+            text="Log out"
+            onClick={() => {
+              auth.signOut();
+              navigate("/signup");
+            }}
+            backcolor="rgba(0,0,0,0)"
+          />
         </div>
-        <div style={{ flexGrow: 1 }}></div>
-        <ActionButton
-          text="Submit and Move On"
-          onClick={() => {
-            if (!round) return;
-            console.log(round);
-            const flows: number[][][] = []; // placeholder until we can read from sliders
-            const score = round.getScore(flows, round.getGraph());
-            console.log(score);
-            fetch("/api/attempt", {
-              method: "POST",
-              body: JSON.stringify({
-                score: score,
-                uid: userId,
-                seed: round.makeSeed()
-              })
-            });
-            navigate("/goodbye");
-          }}
-          backcolor="rgba(80, 180, 80, 1)"
-        />
-        <ActionButton
-          text="Log out"
-          onClick={() => {
-            auth.signOut();
-            navigate("/signup");
-          }}
-          backcolor="rgba(0,0,0,0)"
-        />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          height: "90%",
-          width: "100%",
-          position: "relative",
-          top: "3%",
-        }}
-      >
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            flexGrow: 1,
-            margin: "1rem",
+            flexDirection: "row",
+            height: "90%",
+            width: "100%",
+            position: "relative",
+            top: "3%",
           }}
         >
           <div
-            id="PuzzleBox"
             style={{
-              width: "100%",
-              height: "90%",
-              marginBottom: "1rem",
-              borderRadius: "5px",
-              background:
-                "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
-            }}
-          >
-            {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
-
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              panOnDrag={true}
-              edgeTypes={edgeTypes}
-              nodeTypes={nodeTypes}
-              fitView
-            >
-              <Controls />
-              <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-            </ReactFlow>
-          </div>
-          <div
-            id="InstructionBox"
-            style={{
-              width: "100%",
-              borderRadius: "5px",
-              background: instructBoxColor,
-              height: instructBoxSize,
+              display: "flex",
+              flexDirection: "column",
+              flexGrow: 1,
+              margin: "1rem",
             }}
           >
             <div
-              id="InstructionText"
+              id="PuzzleBox"
               style={{
-                alignItems: "center",
-                padding: "5px",
-                height: "100%",
                 width: "100%",
-                textAlign: "left",
+                height: "90%",
+                marginBottom: "1rem",
+                borderRadius: "5px",
+                background:
+                  "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
               }}
             >
-              {collapseButton === "-" && (
-                <div
-                  style={{
-                    fontSize: "18px",
-                    position: "relative",
-                    width: "100%",
-                  }}
-                >
-                  <b>A company owner has two offices in this city. </b>{" "}
-                  Currently all of her employees are in the West Office. <br />
-                  However, she needs to move{" "}
-                  <b>
-                    as many employees as possible to the East Office within the
-                    next 10 minutes{" "}
-                  </b>{" "}
-                  for a conference.
-                  <br /> <br />
-                  Unfontunatly, the City Council has imposed some{" "}
-                  <b>strict traffic restrictions</b>, limiting the number of
-                  people the company is to allowed to send down any <br /> given
-                  road in the city within a 10 minute period. <br />
-                  <br />
-                  She has asked you for your help. You need to{" "}
-                  <b>
-                    suggest how many people she sends down each road, in order
-                    to get as many emploeyees from the
-                    <br /> West to East Office as possible, without breaking the
-                    traffic restrictions.
-                  </b>{" "}
-                  <br />
-                  <br />
-                  When you think your suggestion gets as many people to the East
-                  Office as possible, press{" "}
-                  <i>
-                    <b>Submit and Move On.</b>
-                  </i>
-                </div>
-              )}
-              {collapseButton === "+" && (
-                <div
-                  style={{
-                    fontSize: "35px",
-                    position: "relative",
-                    top: "15%",
-                    left: "5%",
-                    color: "",
-                  }}
-                >
-                  <i>Click [+] to view </i>
-                  <b>Instructions</b>{" "}
-                </div>
-              )}
+              {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
+
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                panOnDrag={true}
+                edgeTypes={edgeTypes}
+                nodeTypes={nodeTypes}
+                fitView
+              >
+                <Controls />
+                <Background
+                  variant={BackgroundVariant.Dots}
+                  gap={12}
+                  size={1}
+                />
+              </ReactFlow>
+            </div>
+            <div
+              id="InstructionBox"
+              style={{
+                width: "100%",
+                borderRadius: "5px",
+                background: instructBoxColor,
+                height: instructBoxSize,
+              }}
+            >
+              <div
+                id="InstructionText"
+                style={{
+                  alignItems: "center",
+                  padding: "5px",
+                  height: "100%",
+                  width: "100%",
+                  textAlign: "left",
+                }}
+              >
+                {collapseButton === "-" && (
+                  <div
+                    style={{
+                      fontSize: "18px",
+                      position: "relative",
+                      width: "100%",
+                    }}
+                  >
+                    <b>A company owner has two offices in this city. </b>{" "}
+                    Currently all of her employees are in the West Office.{" "}
+                    <br />
+                    However, she needs to move{" "}
+                    <b>
+                      as many employees as possible to the East Office within
+                      the next 10 minutes{" "}
+                    </b>{" "}
+                    for a conference.
+                    <br /> <br />
+                    Unfontunatly, the City Council has imposed some{" "}
+                    <b>strict traffic restrictions</b>, limiting the number of
+                    people the company is to allowed to send down any <br />{" "}
+                    given road in the city within a 10 minute period. <br />
+                    <br />
+                    She has asked you for your help. You need to{" "}
+                    <b>
+                      suggest how many people she sends down each road, in order
+                      to get as many emploeyees from the
+                      <br /> West to East Office as possible, without breaking
+                      the traffic restrictions.
+                    </b>{" "}
+                    <br />
+                    <br />
+                    When you think your suggestion gets as many people to the
+                    East Office as possible, press{" "}
+                    <i>
+                      <b>Submit and Move On.</b>
+                    </i>
+                  </div>
+                )}
+                {collapseButton === "+" && (
+                  <div
+                    style={{
+                      fontSize: "35px",
+                      position: "relative",
+                      top: "15%",
+                      left: "5%",
+                      color: "",
+                    }}
+                  >
+                    <i>Click [+] to view </i>
+                    <b>Instructions</b>{" "}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+              }}
+            >
+              <ActionButton text={collapseButton} onClick={toggleCollapse} />
             </div>
           </div>
           <div
+            id="ControlsBox"
             style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
+              width: "20%",
+              margin: "1rem",
+              borderRadius: "5px",
+              background:
+                "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
             }}
           >
-            <ActionButton text={collapseButton} onClick={toggleCollapse} />
-          </div>
-        </div>
-        <div
-          id="ControlsBox"
-          style={{
-            width: "20%",
-            margin: "1rem",
-            borderRadius: "5px",
-            background:
-              "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
-          }}
-        >
-          <div
-            id="ControlText"
-            style={{
-              alignItems: "center",
-              padding: "10px",
-              textAlign: "center",
-            }}
-          >
-            <text style={{ fontSize: "50px", padding: "30px" }}>Controls </text>
-            <text
+            <div
+              id="ControlText"
               style={{
+                alignItems: "center",
+                padding: "10px",
                 textAlign: "center",
-                fontSize: "20px",
-                position: "relative",
-                top: "40px",
               }}
             >
-              <br />
-              <b>Traffic limits:</b> where a road displays "5/10", for example,
-              this indicates that the road has a limit of 10 people, and you are
-              currently sending 5 people down it. <br />
-              <br />
-              <br />
-              <b>To edit the number you are sending down a road: </b>click on
-              the road, and then use the slider. <br /> <br />
-              <br />
-              <b> To submit your suggestion: </b>Click{" "}
-              <i>Submit and Move On.</i>
-              <br /> <br />
-              <br />
-              Remember you <b>must</b> submit before the timer runs out.
-            </text>
+              <text style={{ fontSize: "50px", padding: "30px" }}>
+                Controls{" "}
+              </text>
+              <text
+                style={{
+                  textAlign: "center",
+                  fontSize: "20px",
+                  position: "relative",
+                  top: "40px",
+                }}
+              >
+                <br />
+                <b>Traffic limits:</b> where a road displays "5/10", for
+                example, this indicates that the road has a limit of 10 people,
+                and you are currently sending 5 people down it. <br />
+                <br />
+                <br />
+                <b>To edit the number you are sending down a road: </b>click on
+                the road, and then use the slider. <br /> <br />
+                <br />
+                <b> To submit your suggestion: </b>Click{" "}
+                <i>Submit and Move On.</i>
+                <br /> <br />
+                <br />
+                Remember you <b>must</b> submit before the timer runs out.
+              </text>
+            </div>
           </div>
         </div>
-      </div>
-    </MainWrapper>
+      </MainWrapper>
+    </>
   );
 };
 
