@@ -90,6 +90,37 @@ export const isAdmin = async (uid: string) => {
     return result
 }
 
+export const getProblem = async () => {
+    const attemptCap = 5 // low value for testing
+    var poolConnection = await connect(connection)
+    const active = await poolConnection.request().input('cap', attemptCap)
+        .query(`select Seed from [dbo].[Problems] where IsActive = 1 and NumPlayed < @cap`)
+        .then(res => res.recordset)
+    if (active.length === 0) {
+        await poolConnection.request()
+            .query(`update [dbo].[Problems] set IsActive = 0 where ProblemID = (
+                select top 1 ProblemID from [dbo].[Problems] where IsActive = 1
+            )`)
+        return "NONE"
+    } else {
+        const i = Math.floor(Math.random() * active.length)
+        return active[i].Seed
+    }
+}
+
+export const addProblem = async (seed: string) => {
+    var poolConnection = await connect(connection)
+    const duplicates = await poolConnection.request().input('seed', seed)
+        .query(`select * from [dbo].[Problems] where Seed = @seed`)
+        .then(res => res.recordset)
+    if (duplicates.length === 0) {
+        await poolConnection.request().input('seed', seed)
+            .query(`insert into [dbo].[Problems] (Seed) values (@seed)`)
+        return true
+    }
+    return false
+}
+
 interface Scores {
     AttemptID: number,
     RawScore: number,
@@ -104,7 +135,7 @@ const updatePercentiles = async (problemID: number) => {
         .input('problem', problemID)
         .query(
             `select AttemptID, RawScore, Percentile from [dbo].[Attempts] 
-            where PromlemID = @problem order by RawScore`
+            where ProblemID = @problem order by RawScore`
         ).then(res => res.recordset)
 
     // calculate new percentiles
