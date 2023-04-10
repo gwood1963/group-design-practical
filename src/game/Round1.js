@@ -94,7 +94,7 @@ export class Round1 {
     convertFlowsArrayToAdjList(flowArr) {
         //Check cardinality
         var edgeCount = 0;
-        for (var i = 0; i < this.theANoCap; i++) {
+        for (var i = 0; i < this.theANoCap.length; i++) {
             edgeCount += this.theANoCap[i].length;
         }
         if (edgeCount != flowArr.length) console.log("the parameter does not have |E| entries");
@@ -105,7 +105,7 @@ export class Round1 {
             var temp = [];
             for (var k = 0; k < this.theA[i].length; k++) {
                 var j = this.theA[i][k][0];
-                temp.push([j, flows[index]]);
+                temp.push([j, flowArr[index]]);
                 index++;
             }
             flows.push(temp);
@@ -140,7 +140,7 @@ export class Round1 {
         for (var i = 0; i < flows.length; i++) {
             checkBalance.push(0);
         }
-        for (var i = 1; i < flows.length - 1; i++) {
+        for (var i = 0; i < flows.length - 1; i++) {
             for (var k = 0; k < flows[i].length; k++) {
                 var j = flows[i][k][0];
                 checkBalance[i] -= flows[i][k][1];
@@ -148,7 +148,7 @@ export class Round1 {
             }
         }
         var unbalance = 0;
-        for (var i = 0; i < checkBalance.length; i++) {
+        for (var i = 1; i < checkBalance.length - 1; i++) {
             unbalance += Math.abs(checkBalance[i]);
         }
         //At this point unbalance is equal to the absolute sum of the flow in - flow out of each node that is not s or t
@@ -179,7 +179,7 @@ export class Round1 {
         for (var i = 0; i < flows.length; i++) {
             checkBalance.push(0);
         }
-        for (var i = 1; i < flows.length - 1; i++) {
+        for (var i = 0; i < flows.length - 1; i++) {
             for (var k = 0; k < flows[i].length; k++) {
                 var j = flows[i][k][0];
                 checkBalance[i] -= flows[i][k][1];
@@ -187,7 +187,7 @@ export class Round1 {
             }
         }
         var unbalance = 0;
-        for (var i = 0; i < checkBalance.length; i++) {
+        for (var i = 1; i < checkBalance.length - 1; i++) {
             unbalance += Math.abs(checkBalance[i]);
         }
         //At this point unbalance is equal to the absolute sum of the flow in - flow out of each node that is not s or t
@@ -197,6 +197,7 @@ export class Round1 {
 
         const submittedFlow = this.maxFlowEngine.maxFlow(flowGraph);
         const maxFlow = this.maxFlowEngine.maxFlow(this.theGraph);
+        console.log(checkBalance)
 
         const score = Math.max(0, (submittedFlow - unbalance) / maxFlow);
 

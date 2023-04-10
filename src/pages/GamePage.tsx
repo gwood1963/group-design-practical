@@ -78,62 +78,86 @@ const GamePage = () => {
 
 
   useEffect(() => {
-    let nodesTemp = [];
+    (async () => {
+      const round1 = new Round1()
+      const seed = await fetch("/api/getproblem").then(res => res.json())
+      if (seed !== "NONE") { // read active problem from database
+        round1.readSeed(seed)
+        console.log('Problem loaded from database')
+      } else { // generate new problem
+        let added = false
+        while (!added) { // ensures we're not duplicating an existing problem
+          round1.genRandom(5, 3, 2, 2, 5, 10);
+          const seed = round1.makeSeed()
+          console.log(seed)
+          added = await fetch("/api/addproblem", {
+            method: "PUT",
+            body: JSON.stringify({
+              seed: seed
+            }),
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json'
+            }
+          }).then(res => res.json())
+        }
+        console.log('New problem generated.')
+      }
+    
+      let nodesTemp = []
 
-    const round1 = new Round1();
-    round1.genRandom(5, 3, 2, 2, 5, 10);
+      const adjacency = round1.getA();
+      // const ANoCap = round1.getANoCap();
 
-    const adjacency = round1.getA();
-    // const ANoCap = round1.getANoCap();
+      const nodeCount = round1.getN();
 
-    const nodeCount = round1.getN();
+      let coords = round1.getCoords(500, 300); //gives the coordinates of the nodes
 
-    let coords = round1.getCoords(500, 300); //gives the coordinates of the nodes
-
-    // Generate nodes
-    for (let i = 0; i < nodeCount; i++) {
-      const node = {
-        id: `${i}`,
-        type: "ImageNode",
-        position: { x: coords[i][0], y: coords[i][1] },
-        data: {
-          label: "",
-          image: "/church.svg",
-          color: "black",
-        },
-      };
-      nodesTemp.push(node);
-    }
-    setNodes(nodesTemp);
-
-    let flowsTemp = [];
-    let initialEdgesTemp: Edge[] = [];
-    for (let i = 0; i < nodeCount; i++) {
-      for (let k = 0; k < adjacency[i].length; k++) {
-        let j = adjacency[i][k][0];
-        const myid = "e" + i + "-" + j;
-        flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
-        const capacity = String(adjacency[i][k][1]); //need to hook up to actual capacity array
-        const temp = {
-          id: myid,
-          source: `${i}`,
-          target: `${j}`,
-          animated: true,
-          type: "Round1Edge",
+      // Generate nodes
+      for (let i = 0; i < nodeCount; i++) {
+        const node = {
+          id: `${i}`,
+          type: "ImageNode",
+          position: { x: coords[i][0], y: coords[i][1] },
           data: {
-            id: myid,
-            getFlow: () =>
-              flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
-            setFlow: setFlows,
-            capacity: capacity,
+            label: "",
+            image: "/church.svg",
+            color: "black",
           },
         };
-        initialEdgesTemp.push(temp);
+        nodesTemp.push(node);
       }
-    }
-    setRound(round1);
-    setFlows(flowsTemp);
-    setEdges(initialEdgesTemp);
+      setNodes(nodesTemp);
+
+      let flowsTemp = [];
+      let initialEdgesTemp: Edge[] = [];
+      for (let i = 0; i < nodeCount; i++) {
+        for (let k = 0; k < adjacency[i].length; k++) {
+          let j = adjacency[i][k][0];
+          const myid = "e" + i + "-" + j;
+          flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
+          const capacity = String(adjacency[i][k][1]); //need to hook up to actual capacity array
+          const temp = {
+            id: myid,
+            source: `${i}`,
+            target: `${j}`,
+            animated: true,
+            type: "Round1Edge",
+            data: {
+              id: myid,
+              getFlow: () =>
+                flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
+              setFlow: setFlows,
+              capacity: capacity,
+            },
+          };
+          initialEdgesTemp.push(temp);
+        }
+      }
+      setRound(round1);
+      setFlows(flowsTemp);
+      setEdges(initialEdgesTemp);
+    })()
   }, []);
 
   /*
@@ -326,6 +350,7 @@ const GamePage = () => {
           onClick={() => {
             if (!round) return;
             console.log(round);
+            console.log(flows);
             const score = round.getScoreFromArr(flows.map(f => f.flow), round.getGraph());
             console.log(score);
             fetch("/api/attempt", {
@@ -334,7 +359,11 @@ const GamePage = () => {
                 score: score,
                 uid: userId,
                 seed: round.makeSeed()
-              })
+              }),
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+              }
             });
             navigate("/goodbye");
           }}
