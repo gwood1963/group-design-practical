@@ -219,11 +219,15 @@ tbody td:hover:before {
 /**GAME DISPLAY */
 
 .edgebutton {
-  pointer-events: all
+  pointer-events: all;
+  font-size: 12
 }
+
+
 
 .slidecontainer {
   text-align: center;
+  z-index: 200;
 }
 
 /* The slider itself */
@@ -231,7 +235,12 @@ tbody td:hover:before {
   pointer-events: all
 }
 
+.react-flow_node {
+  z-index: -1
+}
+
 /* Mouse-over effects */
 .slider:hover {
   opacity: 1; /* Fully shown on mouse-over */
 }
+
