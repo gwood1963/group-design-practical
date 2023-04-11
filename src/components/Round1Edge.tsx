@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { EdgeProps, getBezierPath, EdgeLabelRenderer } from "reactflow";
+import { EdgeProps, getBezierPath, EdgeLabelRenderer , getSmoothStepPath, getSimpleBezierPath} from "reactflow";
 
 const Round1Edge: FC<EdgeProps> = ({
   id,
@@ -21,9 +21,11 @@ const Round1Edge: FC<EdgeProps> = ({
     targetPosition,
   });
   const [sliderToggle, sliderState] = useState("false");
+  const [z, setz] = useState<number>(1);
   const [flow, setFlow] = useState(0);
   const toggleCollapse = () => {
     sliderState((state) => (state === "true" ? "false" : "true"));
+    setz((z) => (z === 1 ? 200 : 1)) 
   };
   const getSliderValue = (event: any = 0) => {
     const newFlow = event.target.value;
@@ -44,12 +46,12 @@ const Round1Edge: FC<EdgeProps> = ({
         style={{ stroke: "rgb(5, 16, 46)", strokeWidth: "5px" }}
       />
       <EdgeLabelRenderer>
-        <div
+        <div id = "edgeLabel"
           style={{
             position: "absolute",
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`, 
             background: "#ffcc00",
-            padding: 5,
+            padding: 3,
             borderRadius: 5,
             fontSize: 16,
             fontWeight: 700,
@@ -57,11 +59,12 @@ const Round1Edge: FC<EdgeProps> = ({
             borderColor: "rgb(5, 16, 46)",
             borderWidth: "1px",
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
+            zIndex: String(z),
           }}
           className="nodrag nopan slidecontainer"
         >
           {sliderToggle === "true" && (
-            <div>
+            <div >
               0{" "}
               <input
                 type="range"
@@ -74,7 +77,7 @@ const Round1Edge: FC<EdgeProps> = ({
               {data.capacity}
             </div>
           )}
-          <button className="edgebutton" onClick={toggleCollapse}>
+          <button className="edgebutton" onClick = {toggleCollapse}>
             {flow}/{data.capacity}
           </button>
         </div>
