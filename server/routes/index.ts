@@ -1,5 +1,5 @@
 import express from "express";
-import {getRecentScores, invite, deleteSelected, register, addAttempt, isAdmin} from "../database";
+import {getRecentScores, invite, deleteSelected, register, addAttempt, isAdmin, getProblem, addProblem} from "../database";
 
 var router = express.Router();
 
@@ -31,6 +31,16 @@ router.post('/attempt', async (req, res, next) => {
 router.get('/isadmin/:uid', async (req, res, next) => {
     const uid = req.params.uid;
     res.json(await isAdmin(uid));
+})
+
+router.get('/getproblem', async (req, res, next) => {
+    res.json(await getProblem());
+})
+
+router.put('/addproblem', async (req, res, next) => {
+    const {seed} = req.body;
+    const added = await addProblem(seed);
+    res.json(added);
 })
 
 export default router;

@@ -79,62 +79,111 @@ const GamePage = () => {
   /** ---------- David's Addition, looks very weird compared to my console output */
 
   useEffect(() => {
-    let nodesTemp = [];
+    (async () => {
+      const round1 = new Round1();
+      const seed = await fetch("/api/getproblem").then((res) => res.json());
+      if (seed !== "NONE") {
+        // read active problem from database
+        round1.readSeed(seed);
+        console.log("Problem loaded from database");
+      } else {
+        // generate new problem
+        let added = false;
+        while (!added) {
+          // ensures we're not duplicating an existing problem
+          round1.genRandom(5, 3, 2, 2, 5, 10);
+          const seed = round1.makeSeed();
+          console.log(seed);
+          added = await fetch("/api/addproblem", {
+            method: "PUT",
+            body: JSON.stringify({
+              seed: seed,
+            }),
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }).then((res) => res.json());
+        }
+        console.log("New problem generated.");
+      }
 
-    const round1 = new Round1();
-    round1.genRandom(5, 3, 2, 2, 5, 10);
+      let nodesTemp = [];
 
-    const adjacency = round1.getA();
-    // const ANoCap = round1.getANoCap();
+      const adjacency = round1.getA();
+      // const ANoCap = round1.getANoCap();
 
-    const nodeCount = round1.getN();
+      const nodeCount = round1.getN();
 
-    let coords = round1.getCoords(500, 300); //gives the coordinates of the nodes
+      let coords = round1.getCoords(500, 300); //gives the coordinates of the nodes
 
-    // Generate nodes
-    for (let i = 0; i < nodeCount; i++) {
-      const node = {
-        id: `${i}`,
-        type: "ImageNode",
-        position: { x: coords[i][0], y: coords[i][1] },
-        data: {
-          label: "",
-          image: "/church.svg",
-          color: "black",
-        },
-      };
-      nodesTemp.push(node);
-    }
-    setNodes(nodesTemp);
+      // Generate nodes
+      for (let i = 0; i < nodeCount; i++) {
+        var myLabel = "";
+        var myColor = "black";
+        if (i == 0) {
+          myLabel = "West Office";
+          myColor = "green";
+        } else if (i == nodeCount - 1) {
+          myLabel = "East Office";
+          myColor = "red";
+        }
 
-    let flowsTemp = [];
-    let initialEdgesTemp: Edge[] = [];
-    for (let i = 0; i < nodeCount; i++) {
-      for (let k = 0; k < adjacency[i].length; k++) {
-        let j = adjacency[i][k][0];
-        const myid = "e" + i + "-" + j;
-        flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
-        const capacity = String(adjacency[i][k][1]); //need to hook up to actual capacity array
-        const temp = {
-          id: myid,
-          source: `${i}`,
-          target: `${j}`,
-          animated: true,
-          type: "Round1Edge",
+        var myImage = "/building2trees.svg";
+        var randomImage = Math.random();
+        if (randomImage > 0.6666) {
+          myImage = "/skyscraper.svg";
+        } else if (randomImage > 0.45) {
+          myImage = "/factory.svg";
+        } else if (randomImage > 0.333) {
+          myImage = "/church.svg";
+        }
+
+        const node = {
+          id: `${i}`,
+          zIndex: -1, //in front of edges but behind labels
+          type: "ImageNode",
+          position: { x: coords[i][0], y: coords[i][1] },
           data: {
-            id: myid,
-            getFlow: () =>
-              flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
-            setFlow: setFlows,
-            capacity: capacity,
+            label: myLabel,
+            image: myImage,
+            color: myColor,
           },
         };
-        initialEdgesTemp.push(temp);
+        nodesTemp.push(node);
       }
-    }
-    setRound(round1);
-    setFlows(flowsTemp);
-    setEdges(initialEdgesTemp);
+      setNodes(nodesTemp);
+
+      let flowsTemp = [];
+      let initialEdgesTemp: Edge[] = [];
+      for (let i = 0; i < nodeCount; i++) {
+        for (let k = 0; k < adjacency[i].length; k++) {
+          let j = adjacency[i][k][0];
+          const myid = "e" + i + "-" + j;
+          flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
+          const capacity = String(adjacency[i][k][1]); //need to hook up to actual capacity array
+          const temp = {
+            id: myid,
+            source: `${i}`,
+            target: `${j}`,
+            animated: true,
+            type: "Round1Edge",
+            zIndex: 0,
+            data: {
+              id: myid,
+              getFlow: () =>
+                flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
+              setFlow: setFlows,
+              capacity: capacity,
+            },
+          };
+          initialEdgesTemp.push(temp);
+        }
+      }
+      setRound(round1);
+      setFlows(flowsTemp);
+      setEdges(initialEdgesTemp);
+    })();
   }, []);
 
   /*
@@ -300,10 +349,15 @@ const GamePage = () => {
   /**------------------------------------------------------------------------------------------------------------ */
 
   const submitScore = () => {
+    if (!round) return;
+    const score = round?.getScoreFromArr(
+      flows.map((f) => f.flow),
+      round?.getGraph()
+    );
     fetch("/api/attempt", {
       method: "POST",
       body: JSON.stringify({
-        score: round?.getScore([[[]]], round.getGraph()),
+        score: score,
         uid: userId,
         seed: round?.makeSeed(),
       }),
@@ -317,8 +371,10 @@ const GamePage = () => {
       <FeedbackModal
         open={feedbackOpen}
         setOpen={setFeedbackOpen}
-        // score={round?.getScore([[[]]], round.getGraph())}
-        score={round?.getScore([[[]]], round.getGraph())}
+        score={round?.getScoreFromArr(
+          flows.map((f) => f.flow),
+          round?.getGraph()
+        )}
         submit={submitScore}
       />
       <MainWrapper flexDirection="column">
@@ -375,168 +431,186 @@ const GamePage = () => {
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              flexGrow: 1,
-              margin: "1rem",
+              flexDirection: "row",
+              height: "100%",
+              width: "100%",
+              position: "relative",
+              top: "3%",
             }}
           >
             <div
-              id="PuzzleBox"
               style={{
-                width: "100%",
-                height: "90%",
-                marginBottom: "1rem",
-                borderRadius: "5px",
-                background:
-                  "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
-              }}
-            >
-              {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
-
-              <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                panOnDrag={true}
-                edgeTypes={edgeTypes}
-                nodeTypes={nodeTypes}
-                fitView
-              >
-                <Controls />
-                <Background
-                  variant={BackgroundVariant.Dots}
-                  gap={12}
-                  size={1}
-                />
-              </ReactFlow>
-            </div>
-            <div
-              id="InstructionBox"
-              style={{
-                width: "100%",
-                borderRadius: "5px",
-                background: instructBoxColor,
-                height: instructBoxSize,
+                display: "flex",
+                flexDirection: "column",
+                flexGrow: 1,
+                margin: "1rem",
               }}
             >
               <div
-                id="InstructionText"
+                id="PuzzleBox"
                 style={{
-                  alignItems: "center",
-                  padding: "5px",
-                  height: "100%",
                   width: "100%",
-                  textAlign: "left",
+                  height: "90%",
+                  marginBottom: "1rem",
+                  borderRadius: "5px",
+                  background:
+                    "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
                 }}
               >
-                {collapseButton === "-" && (
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      position: "relative",
-                      width: "100%",
-                    }}
-                  >
-                    <b>A company owner has two offices in this city. </b>{" "}
-                    Currently all of her employees are in the West Office.{" "}
-                    <br />
-                    However, she needs to move{" "}
-                    <b>
-                      as many employees as possible to the East Office within
-                      the next 10 minutes{" "}
-                    </b>{" "}
-                    for a conference.
-                    <br /> <br />
-                    Unfontunatly, the City Council has imposed some{" "}
-                    <b>strict traffic restrictions</b>, limiting the number of
-                    people the company is to allowed to send down any <br />{" "}
-                    given road in the city within a 10 minute period. <br />
-                    <br />
-                    She has asked you for your help. You need to{" "}
-                    <b>
-                      suggest how many people she sends down each road, in order
-                      to get as many emploeyees from the
-                      <br /> West to East Office as possible, without breaking
-                      the traffic restrictions.
-                    </b>{" "}
-                    <br />
-                    <br />
-                    When you think your suggestion gets as many people to the
-                    East Office as possible, press{" "}
-                    <i>
-                      <b>Submit and Move On.</b>
-                    </i>
-                  </div>
-                )}
-                {collapseButton === "+" && (
-                  <div
-                    style={{
-                      fontSize: "35px",
-                      position: "relative",
-                      top: "15%",
-                      left: "5%",
-                      color: "",
-                    }}
-                  >
-                    <i>Click [+] to view </i>
-                    <b>Instructions</b>{" "}
-                  </div>
-                )}
+                {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
+
+                <ReactFlow
+                  nodes={nodes}
+                  edges={edges}
+                  panOnDrag={true}
+                  edgeTypes={edgeTypes}
+                  nodeTypes={nodeTypes}
+                  fitView
+                >
+                  <Controls />
+                  <Background
+                    variant={BackgroundVariant.Dots}
+                    gap={12}
+                    size={1}
+                  />
+                </ReactFlow>
+              </div>
+              <div
+                id="InstructionBox"
+                style={{
+                  width: "100%",
+                  borderRadius: "5px",
+                  background: instructBoxColor,
+                  height: instructBoxSize,
+                }}
+              >
+                <div
+                  id="InstructionText"
+                  style={{
+                    alignItems: "center",
+                    padding: "5px",
+                    height: "100%",
+                    width: "100%",
+                    textAlign: "left",
+                  }}
+                >
+                  {collapseButton === "-" && (
+                    <div
+                      style={{
+                        fontSize: "18px",
+                        position: "relative",
+                        width: "100%",
+                      }}
+                    >
+                      <b>A company owner has two offices in this city. </b>{" "}
+                      Currently all of her employees are in the West Office.{" "}
+                      <br />
+                      However, she needs to move{" "}
+                      <b>
+                        as many employees as possible to the East Office within
+                        the next 10 minutes{" "}
+                      </b>{" "}
+                      for a conference.
+                      <br /> <br />
+                      Unfontunatly, the City Council has imposed some{" "}
+                      <b>strict traffic restrictions</b>, limiting the number of
+                      people the company is to allowed to send down any <br />{" "}
+                      given road in the city within a 10 minute period. <br />
+                      <br />
+                      She has asked you for your help. You need to{" "}
+                      <b>
+                        suggest how many people she sends down each road, in
+                        order to get as many emploeyees from the
+                        <br /> West to East Office as possible, without breaking
+                        the traffic restrictions.
+                      </b>{" "}
+                      <br />
+                      <br />
+                      When you think your suggestion gets as many people to the
+                      East Office as possible, press{" "}
+                      <i>
+                        <b>Submit and Move On.</b>
+                      </i>
+                    </div>
+                  )}
+                  {collapseButton === "+" && (
+                    <div
+                      style={{
+                        fontSize: "35px",
+                        position: "relative",
+                        top: "15%",
+                        left: "5%",
+                        color: "",
+                      }}
+                    >
+                      <i>Click [+] to view </i>
+                      <b>Instructions</b>{" "}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  fontSize: "30px",
+                  width: "10px",
+                }}
+              >
+                <ActionButton text={collapseButton} onClick={toggleCollapse} />
               </div>
             </div>
             <div
+              id="ControlsBox"
               style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
+                width: "20%",
+                margin: "1rem",
+                borderRadius: "5px",
+                background:
+                  "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
               }}
             >
-              <ActionButton text={collapseButton} onClick={toggleCollapse} />
-            </div>
-          </div>
-          <div
-            id="ControlsBox"
-            style={{
-              width: "20%",
-              margin: "1rem",
-              borderRadius: "5px",
-              background:
-                "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
-            }}
-          >
-            <div
-              id="ControlText"
-              style={{
-                alignItems: "center",
-                padding: "10px",
-                textAlign: "center",
-              }}
-            >
-              <text style={{ fontSize: "50px", padding: "30px" }}>
-                Controls{" "}
-              </text>
-              <text
+              <div
+                id="ControlText"
                 style={{
+                  alignItems: "center",
+                  padding: "10px",
                   textAlign: "center",
-                  fontSize: "20px",
-                  position: "relative",
-                  top: "40px",
                 }}
               >
-                <br />
-                <b>Traffic limits:</b> where a road displays "5/10", for
-                example, this indicates that the road has a limit of 10 people,
-                and you are currently sending 5 people down it. <br />
-                <br />
-                <br />
-                <b>To edit the number you are sending down a road: </b>click on
-                the road, and then use the slider. <br /> <br />
-                <br />
-                <b> To submit your suggestion: </b>Click{" "}
-                <i>Submit and Move On.</i>
-                <br /> <br />
-                <br />
-                Remember you <b>must</b> submit before the timer runs out.
-              </text>
+                <text style={{ fontSize: "50px", padding: "30px" }}>
+                  Controls{" "}
+                </text>
+                <text
+                  style={{
+                    textAlign: "center",
+                    fontSize: "20px",
+                    position: "relative",
+                    top: "40px",
+                  }}
+                >
+                  <br />
+                  One "road" is a segement connecting two buildings. <br />
+                  A building is only connected to a road from it's <br />
+                  left or right side.
+                  <br />
+                  <br />
+                  <b>Traffic limits:</b> where a road displays "5/10", for
+                  example, this indicates that the road has a limit of 10
+                  people, and you are currently sending 5 people down it. <br />
+                  <br />
+                  <br />
+                  <b>To edit the number you are sending down a road: </b>click
+                  on the white box, and then use the slider. <br /> <br />
+                  <br />
+                  <b> To submit your suggestion: </b>Click{" "}
+                  <i>Submit and Move On.</i>
+                  <br /> <br />
+                  <br />
+                  Remember you <b>must</b> submit before the timer runs out.
+                </text>
+              </div>
             </div>
           </div>
         </div>

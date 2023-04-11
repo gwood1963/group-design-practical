@@ -9,14 +9,14 @@ import indexRouter from "./routes/index";
 var app = express();
 
 // view engine setup
-app.set("views", path.join(__dirname, "..", "views")); // the .. is needed because this is compiled into /dist
+app.set("views", path.join(__dirname, "views")); // the .. is needed because this is compiled into /dist
 app.set("view engine", "jade");
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "..", "build"))); // the .. is needed because this is compiled into /dist
+app.use(express.static(path.join(__dirname, "build"))); // the .. is needed because this is compiled into /dist
 
 app.use("/api", indexRouter);
 app.get("*", (req, res) => {
