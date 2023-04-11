@@ -115,14 +115,23 @@ const GamePage = () => {
 
       // Generate nodes
       for (let i = 0; i < nodeCount; i++) {
+        var myLabel = ""; var myColor = "black"
+        if (i==0) {myLabel = "West Office"; myColor = "green"} 
+        else if (i== nodeCount-1)  {myLabel = "East Office"; myColor = "red"};
+
+        var myImage = "/building2trees.svg"
+        var randomImage = Math.random()
+        if (randomImage > 0.6666) {myImage = "/skyscraper.svg"} else if (randomImage > 0.45) {myImage = "/factory.svg"} else if (randomImage > 0.333) {myImage = "/church.svg"};
+
         const node = {
           id: `${i}`,
+          zIndex: -1, //in front of edges but behind labels
           type: "ImageNode",
           position: { x: coords[i][0], y: coords[i][1] },
           data: {
-            label: "",
-            image: "/church.svg",
-            color: "black",
+            label: myLabel,
+            image: myImage,
+            color: myColor,
           },
         };
         nodesTemp.push(node);
@@ -143,6 +152,7 @@ const GamePage = () => {
             target: `${j}`,
             animated: true,
             type: "Round1Edge",
+            zIndex: 0,
             data: {
               id: myid,
               getFlow: () =>
@@ -499,9 +509,11 @@ const GamePage = () => {
               position: "absolute",
               bottom: 0,
               left: 0,
+              fontSize: "30px",
+              width: "10px"
             }}
           >
-            <ActionButton text={collapseButton} onClick={toggleCollapse} />
+            <ActionButton text={collapseButton} onClick={toggleCollapse}/>
           </div>
         </div>
         <div
@@ -532,13 +544,18 @@ const GamePage = () => {
               }}
             >
               <br />
+              One "road" is a segement connecting two buildings. <br/>
+              A building is only connected to a road from it's <br/>
+              left or right side.
+              <br/>
+              <br/>
               <b>Traffic limits:</b> where a road displays "5/10", for example,
               this indicates that the road has a limit of 10 people, and you are
               currently sending 5 people down it. <br />
               <br />
               <br />
               <b>To edit the number you are sending down a road: </b>click on
-              the road, and then use the slider. <br /> <br />
+              the white box, and then use the slider. <br /> <br />
               <br />
               <b> To submit your suggestion: </b>Click{" "}
               <i>Submit and Move On.</i>
