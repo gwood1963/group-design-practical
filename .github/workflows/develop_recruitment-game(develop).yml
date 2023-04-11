@@ -3,6 +3,9 @@
 
 name: Build and deploy Node.js app to Azure Web App - recruitment-game
 
+env:
+  CI: false
+
 on:
   push:
     branches:
@@ -25,10 +28,11 @@ jobs:
         run: |
           npm install
           npm run build --if-present
-          # npm run test --if-present # this step is currently causing deployment errors as there are no tests to run
+          cd ./server
+          npm run build
       
       - name: Zip artifact for deployment
-        run: zip release.zip ./build/* -r
+        run: zip release.zip ./server/dist -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2

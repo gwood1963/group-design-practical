@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "npx tsc",
+    "build": "npx tsc && node copy.js",
     "start": "node dist/server.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\""
   },
