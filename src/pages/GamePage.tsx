@@ -308,6 +308,7 @@ const GamePage = () => {
         seed: round?.makeSeed(),
       }),
     });
+    auth.signOut();
     navigate("/goodbye");
   };
 
