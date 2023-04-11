@@ -33,7 +33,7 @@ jobs:
           npm run build
       
       - name: Zip artifact for deployment
-        run: zip release.zip ./server/dist -r
+        run: zip release.zip ./server/* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
