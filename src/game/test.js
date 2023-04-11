@@ -308,19 +308,47 @@ class Test {
     displayTest1() {
         var coords = this.display.getPositionsRandom(5, sampleA1ListNoCap, 100, 100);
         this.display.consoleDisplay(5, sampleA1ListNoCap, coords, 100, 100);
+        console.log("Coordinates with width 100 and height 100: ");
+        for (var i = 0; i < coords.length; i++) {
+            const x = coords[i][0];
+            const y = coords[i][1];
+            console.log("Node " + i + ":");
+            console.log("(" + x + ", " + y + ")");
+        }
     }
 
     displayTest2() {
-        var coords = this.display.getPositions(6, goodANoCap, 100, 100);
+        var coords = this.display.getPositionsRandom(6, goodANoCap, 100, 100);
         this.display.consoleDisplay(6, goodANoCap, coords, 100, 100);
+        console.log("Coordinates with width 100 and height 100: ");
+        for (var i = 0; i < coords.length; i++) {
+            const x = coords[i][0];
+            const y = coords[i][1];
+            console.log("Node " + i + ":");
+            console.log("(" + x + ", " + y + ")");
+        }
     }
     displayTest3() {
-        var coords = this.display.getPositions(4, simpleANoCap, 100, 100);
+        var coords = this.display.getPositionsRandom(4, simpleANoCap, 100, 100);
         this.display.consoleDisplay(4, simpleANoCap, coords, 100, 100);
+        console.log("Coordinates with width 100 and height 100: ");
+        for (var i = 0; i < coords.length; i++) {
+            const x = coords[i][0];
+            const y = coords[i][1];
+            console.log("Node " + i + ":");
+            console.log("(" + x + ", " + y + ")");
+        }
     }
     displayTest4() {
-        var coords = this.display.getPositions(4, clusterANoCap, 100, 100);
+        var coords = this.display.getPositionsRandom(4, clusterANoCap, 100, 100);
         this.display.consoleDisplay(4, clusterANoCap, coords, 100, 100);
+        console.log("Coordinates with width 100 and height 100: ");
+        for (var i = 0; i < coords.length; i++) {
+            const x = coords[i][0];
+            const y = coords[i][1];
+            console.log("Node " + i + ":");
+            console.log("(" + x + ", " + y + ")");
+        }
     }
     fullTest() {
         this.generate.generate(6, 6, 2, 2, 1, 10)
@@ -467,10 +495,10 @@ function testRound1() {
 //console.log(1 / 0)
 
 //runDisplayTest1();
-//runDisplayTest2();
+runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
 //runFullTest();
 //runFullTest2();
 
-testRound1();
+//testRound1();
