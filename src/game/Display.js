@@ -93,20 +93,40 @@ export class Display {
         //TODO: make s on left, t on right
         var bestCoords = []; // = coords;
         var bestCrossCount = 10000000;
+        const topOrder = this.topOrder(A); //from first to last in this array is the same as from left to right
         for (var iters = 0; iters < 1000; iters++) {
             //var crossCount = 0;
             //console.log("random")
-            var coords = this.generateInitialCoordsRandom(n, w, h);
-            var crossCount = this.crossCount(coords, A);
-            coords = this.adjustArea(n, coords, w, h);
+            var c = this.generateInitialCoordsRandom(n, w, h);
 
+            //console.log(coords);
+            //now the coordinates should be in topological order with respect to the nodes
+
+
+            c = this.adjustArea(n, c, w, h);
+
+            c = c.sort(([a, b], [c, d]) => a - c); //sort by x coordinates
+            //console.log(coords);
+            var topCoords = [];
+            for (var i = 0; i < n; i++) {
+                topCoords.push([]);
+            }
+            for (var i = 0; i < n; i++) {
+                var curr = topOrder[i]; //the ith node in topological order
+                topCoords[curr] = c[i];
+            }
+            var coords = [];
+            for (var i = 0; i < n; i++) {
+                coords.push(topCoords[i]);
+            }
+            var crossCount = this.crossCount(coords, A);
             if (crossCount < bestCrossCount) {
                 //bestCoords = coords; //need to opdate references
                 bestCoords = [];
                 for (var i = 0; i < n; i++) {
                     bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
                 }
-                console.log("updated coordinates");
+                //console.log("updated coordinates");
                 //console.log(bestCoords);
                 bestCrossCount = crossCount;
                 //console.log(bestCrossCount)
@@ -127,13 +147,14 @@ export class Display {
                         ]);
                     }
                     console.log("updated coordinates")
+                    console.log(c);
                     console.log(bestCoords);
                     bestCrossCount = crossCount;
                     console.log(bestCrossCount)
                 }
             }
         }
-        console.log("best crossing: ")
+        /* console.log("best crossing: ")
         console.log(bestCrossCount)
 
         console.log("graham scan: ");
@@ -141,7 +162,7 @@ export class Display {
         console.log(convexHull);
         console.log("Hull area: ");
         var area = this.hullArea(bestCoords);
-        console.log(area);
+        console.log(area); */
 
         /* console.log("modified graham scan: ");
         var modifiedConvexHull = this.modifiedGrahamScan(bestCoords, A);
@@ -152,6 +173,92 @@ export class Display {
 
         //bestCoords = this.adjustArea(n, bestCoords, w, h);
         return bestCoords;
+    }
+
+    /**
+     * @pre the graph has no cycles
+     * @param {Number[][]} A 
+     */
+    topOrder(A) {
+        //essentially same as in generate.js
+        //Idea: use BFS (Kahn's Algorithm for Topological Sorting)
+        /*
+        Lemma: If a directed graph has no cycles, then there must be at least one vertex
+        with no in-edges. 
+
+        Proof: pigeonhole principle or otherwise, pretty easy to show. 
+
+        algorithm idea: remove the nodes with no in-edges, and their associated edges. 
+        if we can repeat until empty, then there are no cycles and we have an ordering
+        otherwise there exist a cycle in the graph
+        */
+
+        const n = A.length;
+        var nodes = [];
+        var inDegs = [];
+        var topOrder = [];
+        var nodesLeft = n;
+        var iters = 0;
+        for (var i = 0; i < n; i++) {
+            nodes.push(1);
+        }
+
+        while (nodesLeft > 0 && iters < n) {
+            var zeroCount = 0;
+            inDegs = this.inDegrees(A, nodes);
+            /* console.log("nodes and indegrees");
+            console.log(nodes)
+            console.log(inDegs); */
+            for (var i = 0; i < n; i++) {
+                if (inDegs[i] == 0 && nodes[i] == 1) {
+                    nodes[i] = 0;
+                    topOrder.push(i);
+                    zeroCount++;
+                }
+            }
+            nodesLeft = 0;
+            for (var i = 0; i < n; i++) {
+                nodesLeft += nodes[i];
+            }
+            if (nodesLeft == 0) {
+                console.log("Topological Order: ");
+                console.log(topOrder);
+                return topOrder;
+            }
+            if (zeroCount == 0) {
+                console.log("error in topOrder");
+            }
+        }
+
+        console.log("error in topOrder");
+        return null;
+    }
+
+    /**
+     * Computer indegrees of nodes in A for the nodes indicated in nodes
+     * @param {Number[][]} A 
+     * @param {Number[]} nodes - degree n, 1 if included, 0 otherwise
+     */
+    inDegrees(A, nodes) {
+        var degs = [];
+        var n = A.length;
+        for (var i = 0; i < n; i++) {
+            degs.push(0);
+        }
+
+        for (var i = 0; i < n; i++) {
+            if (nodes[i] == 1) {
+                for (var k = 0; k < A[i].length; k++) {
+                    const j = A[i][k];
+                    degs[j]++;
+                    /* console.log("deg");
+                    console.log(degs);
+                    console.log(j); */
+                }
+            }
+        }
+
+        return degs;
     }
 
     /**
