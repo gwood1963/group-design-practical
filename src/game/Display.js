@@ -86,6 +86,7 @@ export class Display {
         var bestCoords = []; // = coords;
         var bestCrossCount = 10000000;
         const topOrder = this.topOrder(A); //from first to last in this array is the same as from left to right
+        const isTop = topOrder != null;
         for (var iters = 0; iters < 1000; iters++) {
             var coords = this.generateInitialCoordsRandom(n, w, h);
 
@@ -97,19 +98,23 @@ export class Display {
 
             /////////////////////////////////
 
-            coords = coords.sort(([a, b], [c, d]) => a - c); //sort by x coordinates
-            //console.log(coords);
-            var topCoords = [];
-            for (var i = 0; i < n; i++) {
-                topCoords.push([]);
-            }
-            for (var i = 0; i < n; i++) {
-                var curr = topOrder[i]; //the ith node in topological order
-                topCoords[curr] = coords[i];
-            }
-            var coords = [];
-            for (var i = 0; i < n; i++) {
-                coords.push(topCoords[i]);
+            if (isTop) {
+
+                coords = coords.sort(([a, b], [c, d]) => a - c); //sort by x coordinates
+                //console.log(coords);
+                var topCoords = [];
+                for (var i = 0; i < n; i++) {
+                    topCoords.push([]);
+                }
+                for (var i = 0; i < n; i++) {
+                    var curr = topOrder[i]; //the ith node in topological order
+                    topCoords[curr] = coords[i];
+                }
+                var coords = [];
+                for (var i = 0; i < n; i++) {
+                    coords.push(topCoords[i]);
+                }
+
             }
 
             /////////////////////////////////
@@ -223,12 +228,13 @@ export class Display {
             iters++;
         }
 
-        console.log("error in topOrder");
+        /* console.log("error in topOrder");
         var dummy = [];
         for (var i = 0; i < n; i++) {
             dummy.push(i);
         }
-        return dummy;
+        return dummy; */
+        return null;
     }
 
     /**
