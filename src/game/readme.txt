@@ -1,29 +1,20 @@
 
 To run test.js, use live server extension for VSCode, and run main.html using Live Server
 
-///////////////////////////////////// UPDATED 2/3 ////////////////////////////////////
+///////////////////////////////////// Round 1 ////////////////////////////////////
 
-Max flow and random generation work as desired, seed reading is not complete yet
+Works as desired, the GUI could use some work but not too important
 
-We will need to discuss seed format. 
- - possibly use seed in database, for example: 
- for user or admin, input "Microsoft1", on database side "Microsoft1" corresponds to a particular puzzle
- We don't need to have the seed itself store the info, but in database it should.
 
-//////////////////////////////////// Visualization ////////////////////////////////////
-1/4/23
+///////////////////////////////////// Round 2 ////////////////////////////////////
 
-I (David) will work on determining the positions of nodes for display. 
+Done: Created a way to generate a graph of n nodes with no edges
 
-The current system treats all nodes as positive particles, with edges acting as springs. 
-So we have an attraction force (spring constant) and a repulsion force (culomb's)
+TODO: 
 
-I will research angular resolution and preventing graphs that are too sharp next
-
-Idea: 
- - minimize crossing Number
- - Have the area/aspect ratio appropriate (use a function that takes params width and length)
- - minimize total length of edges
- - consider angular resolution maaybe.... preferably not have very sharp or flat angles
- - maybe use a force based system (each node repels from other nodes and the boundaries, but attract to connected nodes)
- 
+implement functions in Round2.js: 
+- Add roads (edges)
+- Delete roads (edges)
+- Keep track of cost 
+- implement circulation with demands
+- implement a way to convert circulations to flow networks and thus solve them 
