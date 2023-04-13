@@ -2,11 +2,11 @@
 This file serves to represent the backend needed for round 1
 */
 
-import { Graph } from './Graph.js'
-import { ReadSeed } from './ReadSeed.js'
-import { MaxFlowSolver } from './MaxFlowSolver.js'
+import { Graph } from './Graph.js';
+import { ReadSeed } from './ReadSeed.js';
+import { MaxFlowSolver } from './MaxFlowSolver.js';
 import { Generate } from './Generate.js';
-import { Display } from './Display.js'
+import { Display } from './Display.js';
 
 export class Round1 {
     theGraph = new Graph;
