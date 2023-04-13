@@ -33,14 +33,12 @@ or brute force of course will work (easier to implement)
 */
 
 export class Display {
-    wallRepelFactor = 1; //how "repelly" do we want the walls, can be changes later
-    forceScaling = 1; //maybe not used since it'll depend on size of canvas, it's essentially G, the gravitational constant
-    deltaT = 0.5; //Change in "time" between iterations, needed for calculating new pos based on force and prev pos
+    wallRepelFactor = 1; //currently unused //how "repelly" do we want the walls, can be changes later
+    forceScaling = 1; //currently unused //maybe not used since it'll depend on size of canvas, it's essentially G, the gravitational constant
+    deltaT = 0.5; //currently unused //Change in "time" between iterations, needed for calculating new pos based on force and prev pos
     maxIters = 20;
-    attraction = 0.0002; // / 100;
-    repulsion = 18; // / 100;
-    //dampening = 1;
-
+    attraction = 0.0002; //currently unused
+    repulsion = 18; //currently unused
     /**
      * Find optimal positions for the nodes to be displayed to minimize edge
      * crossing, total edge length, etc. while also taking up a fair amount
@@ -61,16 +59,11 @@ export class Display {
         var coords = this.generateInitialCoords(n, w, h);
         this.consoleDisplay(n, A, coords, w, h);
         var newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
-        //this.consoleDisplay(n, A, newCoords, w, h);
-        //var loss = this.loss(n, coords, newCoords, w, h);
 
         var iters = 0;
         while ( /* loss > 0.001 && */ iters < this.maxIters) {
             coords = newCoords;
             newCoords = this.getNextCoords(n, A, coords, velocities, w, h);
-            //loss = this.loss(n, coords, newCoords, w, h);
-            //console.log("iter: " + iters)
-            //this.consoleDisplay(n, A, coords, w, h);
             iters++;
         }
 
@@ -90,22 +83,21 @@ export class Display {
      */
     getPositionsRandom(n, A, w, h) {
         //var coords = this.generateInitialCoordsRandom(n, w, h);
-        //TODO: make s on left, t on right
         var bestCoords = []; // = coords;
         var bestCrossCount = 10000000;
         const topOrder = this.topOrder(A); //from first to last in this array is the same as from left to right
         for (var iters = 0; iters < 1000; iters++) {
-            //var crossCount = 0;
-            //console.log("random")
-            var c = this.generateInitialCoordsRandom(n, w, h);
+            var coords = this.generateInitialCoordsRandom(n, w, h);
 
             //console.log(coords);
             //now the coordinates should be in topological order with respect to the nodes
 
 
-            c = this.adjustArea(n, c, w, h);
+            coords = this.adjustArea(n, coords, w, h);
 
-            c = c.sort(([a, b], [c, d]) => a - c); //sort by x coordinates
+            /////////////////////////////////
+
+            coords = coords.sort(([a, b], [c, d]) => a - c); //sort by x coordinates
             //console.log(coords);
             var topCoords = [];
             for (var i = 0; i < n; i++) {
@@ -113,12 +105,15 @@ export class Display {
             }
             for (var i = 0; i < n; i++) {
                 var curr = topOrder[i]; //the ith node in topological order
-                topCoords[curr] = c[i];
+                topCoords[curr] = coords[i];
             }
             var coords = [];
             for (var i = 0; i < n; i++) {
                 coords.push(topCoords[i]);
             }
+
+            /////////////////////////////////
+
             var crossCount = this.crossCount(coords, A);
             if (crossCount < bestCrossCount) {
                 //bestCoords = coords; //need to opdate references
@@ -146,11 +141,11 @@ export class Display {
                             new Number(coords[i][1]),
                         ]);
                     }
-                    console.log("updated coordinates")
-                    console.log(c);
+                    /* console.log("updated coordinates");
+                    //console.log(c);
                     console.log(bestCoords);
                     bestCrossCount = crossCount;
-                    console.log(bestCrossCount)
+                    console.log(bestCrossCount) */
                 }
             }
         }
@@ -203,12 +198,9 @@ export class Display {
             nodes.push(1);
         }
 
-        while (nodesLeft > 0 && iters < n) {
+        while (nodesLeft > 0 && iters < n + 1) {
             var zeroCount = 0;
             inDegs = this.inDegrees(A, nodes);
-            /* console.log("nodes and indegrees");
-            console.log(nodes)
-            console.log(inDegs); */
             for (var i = 0; i < n; i++) {
                 if (inDegs[i] == 0 && nodes[i] == 1) {
                     nodes[i] = 0;
@@ -228,10 +220,15 @@ export class Display {
             if (zeroCount == 0) {
                 console.log("error in topOrder");
             }
+            iters++;
         }
 
         console.log("error in topOrder");
-        return null;
+        var dummy = [];
+        for (var i = 0; i < n; i++) {
+            dummy.push(i);
+        }
+        return dummy;
     }
 
     /**
@@ -251,9 +248,6 @@ export class Display {
                 for (var k = 0; k < A[i].length; k++) {
                     const j = A[i][k];
                     degs[j]++;
-                    /* console.log("deg");
-                    console.log(degs);
-                    console.log(j); */
                 }
             }
         }
@@ -282,12 +276,7 @@ end
 */
         const n = coords.length;
         var indexOfLowest = 0;
-        //console.log(coords);
         for (var i = 0; i < n; i++) {
-            /* console.log(indexOfLowest);
-            console.log(i);
-            console.log(coords[i]);
-            console.log(coords[indexOfLowest]); */
             if (coords[i][1] < coords[indexOfLowest][1]) {
                 indexOfLowest = i;
             } else if (coords[i][1] == coords[indexOfLowest][1]) {
@@ -312,7 +301,6 @@ end
         stack.push(indexOfLowest);
         for (var i = 0; i < sortedPoints.length; i++) {
             const p = sortedPoints[i][0];
-            //console.log(stack);
             //if we turn clockwise, pop from stack
             while (stack.length > 1 && this.counterClockWise(coords, stack[stack.length - 2], stack[stack.length - 1], p) >= 0) {
                 stack.pop();
@@ -337,10 +325,6 @@ end
                 for (var a = i + 1; a < n; a++) {
                     for (var r = 0; r < A[a].length; r++) {
                         var b = A[a][r];
-                        /* console.log(i);
-                        console.log(j);
-                        console.log(a);
-                        console.log(b); */
                         if (this.isCrossing(coords[i], coords[j], coords[a], coords[b]))
                             crossCount++;
                     }
@@ -551,9 +535,6 @@ end
         const by = coords[b][1];
         const cx = coords[c][0];
         const cy = coords[c][1];
-        /* console.log(a);
-        console.log(b);
-        console.log(c); */
         return (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);
     }
 
@@ -647,11 +628,9 @@ end
                     Math.pow(coords[i][0] - coords[j][0], 2) +
                     Math.pow(coords[i][1] - coords[j][1], 2)
                 );
-                //console.log("dist: " + dist)
                 closest = Math.min(closest, dist);
             }
         }
-        //console.log("spacing: " + closest)
         return closest;
     }
 
@@ -665,11 +644,6 @@ end
         //otherwise no cross
         //how to tell if 3 is above line?
         //is y3-y1 > m(x3-x1)? If yes then 3 is above the line.
-
-        /* console.log(p1);
-        console.log(p2);
-        console.log(p3);
-        console.log(p4); */
 
         const x1 = p1[0];
         const x2 = p2[0];
@@ -788,8 +762,6 @@ end
         //evaluate force for all of them, then using deltaT find new coords
         var newCoords = [];
 
-        /* console.log("velocities")
-            console.log(v) */
 
         for (var i = 0; i < n; i++) {
             var force = this.forceOnNode(i, n, A, coords, w, h); //assumed to be equal to acceleration
@@ -800,16 +772,8 @@ end
             v[i][0] += force[0] * this.deltaT;
             v[i][1] += force[1] * this.deltaT;
 
-            /* v[i][0] *= this.dampening;
-                  v[i][1] *= this.dampening; */
-            //console.log(force)
             newCoords.push([coords[i][0] + distanceX, coords[i][1] + distanceY]);
         }
-
-        /* console.log("new velocities")
-            console.log(v)
-            console.log("new coords")
-            console.log(newCoords) */
 
         return newCoords;
     }
@@ -851,23 +815,10 @@ end
         var lowerX = w / 6;
         var lowerY = h / 8;
 
-        /* function genX(w) {
-                return lowerX + w * Math.random() * 3 / 4;
-            }
-
-            function genY(h) {
-                return lowerY + h * Math.random() * 3 / 4;
-            } */
 
         var coords = [];
         coords.push([w / 8, lowerY + (h * Math.random() * 3) / 4]);
         for (var i = 1; i < n - 1; i++) {
-            /* var x = w / 2;
-                  var y = h / 2;
-                  while (x > w * 3 / 8 && x < w * 5 / 8 && y > h * 3 / 8 && y > h * 5 / 8) {
-                      x = lowerX + w * Math.random() * 3 / 4;
-                      y = lowerY + h * Math.random() * 3 / 4;
-                  } */
             var x = lowerX + (w * Math.random() * 2) / 3;
             var y = lowerY + (h * Math.random() * 3) / 4;
 
@@ -993,13 +944,6 @@ end
         temp.push(new Number(posChange[0]));
         temp.push(new Number(posChange[1]));
 
-        /* console.log(k + ": adjpos, allpos, adjForce, allForce, poschange")
-            console.log(adjPos)
-            console.log(allPos)
-            console.log(adjForce)
-            console.log(allForce)
-            console.log(posChange) */
-
         return temp;
     }
 
@@ -1015,18 +959,12 @@ end
         var interpolationCount = 20;
         var resolution = 30;
 
-        /* console.log("coords to draw: ")
-            console.log(coords);
-            console.log("A: ")
-            console.log(A) */
-
         var adjustedCoords = [];
         for (var i = 0; i < n; i++) {
             adjustedCoords.push([
                 Math.floor((resolution * coords[i][0]) / w),
                 Math.floor((resolution * coords[i][1]) / h),
             ]);
-            //adjustedCoords.push([Math.floor(3 * resolution * coords[i][0] / w), Math.floor(resolution * coords[i][1] / h)]);
         }
 
         var displayRows = [];
@@ -1034,18 +972,15 @@ end
             var temp = [];
             for (var j = 0; j < resolution; j++) {
                 temp.push("   ");
-                //temp.push();
             }
             displayRows.push(temp);
         }
 
         for (var i = 0; i < A.length; i++) {
-            //draw each edge... use + signs
+            //draw each edge
             for (var k = 0; k < A[i].length; k++) {
                 var j = A[i][k];
 
-                //console.log(i + "  " + j)
-                //interpolation
                 var iX = coords[i][0];
                 var iY = coords[i][1];
                 var jX = coords[j][0];
@@ -1055,22 +990,6 @@ end
                         (iX * a + jX * (interpolationCount - a)) / interpolationCount;
                     var interpolationY =
                         (iY * a + jY * (interpolationCount - a)) / interpolationCount;
-                    //console.log([Math.floor(resolution * interpolationX / w), Math.floor(resolution * interpolationY / h)])
-                    //var adjX = Math.floor(resolution * interpolationX / w)
-                    //var adjX = Math.floor(3 * resolution * interpolationX / w)
-                    //var adjY = Math.floor(resolution * interpolationX / h)
-                    /* if (adjX % 3 == 0) {
-                                  adjX = Math.floor(adjX / 3);
-                                  //displayRows[Math.floor(resolution * interpolationX / w)][Math.floor(resolution * interpolationY / h)] = '  .';
-                                  displayRows[Math.floor(resolution * interpolationX / w)][Math.floor(resolution * interpolationY / h)] = '.  ';
-                              } else if (adjX % 3 == 1) {
-                                  adjX = Math.floor(adjX / 3);
-                                  displayRows[Math.floor(resolution * interpolationX / w)][Math.floor(resolution * interpolationY / h)] = ' . ';
-                              } else if (adjX % 3 == 2) {
-                                  adjX = Math.floor(adjX / 3);
-                                  //displayRows[Math.floor(resolution * interpolationX / w)][Math.floor(resolution * interpolationY / h)] = '.  ';
-                                  displayRows[Math.floor(resolution * interpolationX / w)][Math.floor(resolution * interpolationY / h)] = '  .';
-                              } */
 
                     displayRows[Math.floor((resolution * interpolationX) / w)][
                         Math.floor((resolution * interpolationY) / h)
@@ -1078,28 +997,13 @@ end
                 }
             }
         }
-        //console.log(displayRows)
 
         for (var i = 0; i < n; i++) {
             var a = adjustedCoords[i][0];
             var b = adjustedCoords[i][1];
-            /* if (a % 3 == 0) {
-                      a = Math.floor(a / 3);
-                      displayRows[a][b] = '  ' + i;
-                      //displayRows[a][b] = i + '  ';
-                  } else if (a % 3 == 1) {
-                      a = Math.floor(a / 3);
-                      displayRows[a][b] = ' ' + i + ' ';
-                  } else if (a % 3 == 2) {
-                      a = Math.floor(a / 3);
-                      displayRows[a][b] = i + '  ';
-                      //displayRows[a][b] = '  ' + i;
-                  } */
 
             displayRows[a][b] = " " + i + " ";
         }
-        //console.log("displayRows: ")
-        //console.log(displayRows)
         for (var i = 0; i < resolution; i++) {
             var str = "";
             str = str + "row " + i;
