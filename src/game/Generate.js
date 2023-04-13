@@ -61,7 +61,7 @@ export class Generate {
         this.graph.setParams(n, adj);
 
         //check conditions, if not met, generate again
-        if (this.hasCycle(adj) || !this.isDirected(adj) || !this.isConnected(adj) || !this.allInHasOut(adj)) {
+        if (!this.isDirected(adj) || !this.isConnected(adj) || !this.allInHasOut(adj)) {
             this.generate(numNodes, numEdges, numFromS, numIntoT, minCap, maxCap);
         }
     }
@@ -99,85 +99,6 @@ export class Generate {
             if (arr.indexOf(r) === -1) arr.push(r); //if new number, add to array
         }
         return arr.sort((a, b) => a - b) //sort output
-    }
-
-    /**
-     * Checks if the graph has any cycles.
-     * This is crucial for when we display the graph, 
-     * as we want to display from left to right
-     * @param {Number[][][]} A 
-     */
-    hasCycle(A) {
-        //Idea: use BFS (Kahn's Algorithm for Topological Sorting)
-        /*
-        Lemma: If a directed graph has no cycles, then there must be at least one vertex
-        with no in-edges. 
-
-        Proof: pigeonhole principle or otherwise, pretty easy to show. 
-
-        algorithm idea: remove the nodes with no in-edges, and their associated edges. 
-        if we can repeat until empty, then there are no cycles and we have an ordering
-        otherwise there exist a cycle in the graph
-        */
-
-        const n = A.length;
-        var nodes = [];
-        var inDegs = [];
-        var topOrder = [];
-        var nodesLeft = n;
-        var iters = 0;
-        for (var i = 0; i < n; i++) {
-            nodes.push(1);
-        }
-
-        while (nodesLeft > 0 && iters < n) {
-            var zeroCount = 0;
-            inDegs = this.inDegrees(A, nodes);
-            for (var i = 0; i < n; i++) {
-                if (inDegs[i] == 0 && nodes[i] == 1) {
-                    nodes[i] = 0;
-                    topOrder.push(i);
-                    zeroCount++;
-                }
-            }
-            nodesLeft = 0;
-            for (var i = 0; i < n; i++) {
-                nodesLeft += nodes[i];
-            }
-            if (nodesLeft == 0) {
-                return false;
-            }
-            if (zeroCount == 0) {
-                return true;
-            }
-        }
-
-        console.log("error in hasCycle")
-        return true;
-    }
-
-    /**
-     * Computer indegrees of nodes in A for the nodes indicated in nodes
-     * @param {Number[][][]} A 
-     * @param {Number[]} nodes - degree n, 1 if included, 0 otherwise
-     */
-    inDegrees(A, nodes) {
-        var degs = [];
-        var n = A.length;
-        for (var i = 0; i < n; i++) {
-            degs.push(0);
-        }
-
-        for (var i = 0; i < n; i++) {
-            if (nodes[i] == 1) {
-                for (var k = 0; k < A[i].length; k++) {
-                    const j = A[i][k][0];
-                    degs[j]++;
-                }
-            }
-        }
-
-        return degs;
     }
 
     /**
