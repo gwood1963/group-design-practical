@@ -495,10 +495,10 @@ function testRound1() {
 //console.log(1 / 0)
 
 //runDisplayTest1();
-runDisplayTest2();
+//runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
-//runFullTest();
+runFullTest();
 //runFullTest2();
 
 //testRound1();
