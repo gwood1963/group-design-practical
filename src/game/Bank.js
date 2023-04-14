@@ -18,6 +18,20 @@ export class Bank {
         this.money = totalMoney;
     }
 
+    /**
+     * Set parameters
+     * @param {Number} rlc - Road Length Cost
+     * @param {Number} rwc - Road Width Cost
+     * @param {Number} rlu - Road Length Unit
+     * @param {Number} rwu - Road Width Unit
+     */
+    setParams(rlc, rwc, rlu, rwu) {
+        this.roadLengthCost = rlc;
+        this.roadWidthCost = rwc;
+        this.roadLengthUnit = rlu;
+        this.roadWidthUnit = rwu;
+    }
+
     setTotalMoney(money) {
         this.totalMoney = money;
         this.money = totalMoney;
@@ -27,9 +41,15 @@ export class Bank {
         return this.money;
     }
 
+    /**
+     * 
+     * @param {Number} width 
+     * @param {Number} length 
+     * @returns the (floor) cost of the road based on our parameters
+     */
     roadCost(width, length) {
         const cost = width * this.roadWidthCost / this.roadWidthUnit + length * this.roadLengthCost / this.roadLengthUnit;
-        return cost;
+        return Math.floor(cost);
     }
 
     /**

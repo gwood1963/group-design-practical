@@ -286,4 +286,12 @@ export class Round1 {
         this.bank.deleteRoad(roads[i][j][1]);
         return true;
     }
+
+    /**
+     * 
+     * @returns money remaining
+     */
+    moneyRemaining() {
+        return this.bank.moneyLeft();
+    }
 }

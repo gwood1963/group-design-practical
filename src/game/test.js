@@ -424,7 +424,7 @@ class Test {
         }
     }
     fullTest() {
-        this.generate.generate(6, 5, 2, 3, 1, 10)
+        this.generate.generate(6, 5, 3, 2, 1, 10)
         var randomG = this.generate.export();
         var randomA = randomG.getA();
         var n = randomA.length
