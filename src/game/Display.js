@@ -442,7 +442,7 @@ end
         }
         //indexOfLowest is the lowest y-coordinate and leftmost point, called P0
 
-        var sortedPoints = []; //(k, angle(k)) not including P0
+        /* var sortedPoints = []; //(k, angle(k)) not including P0
         const pX = coords[indexOfLowest][0];
         const pY = coords[indexOfLowest][1];
         for (var i = 0; i < n; i++) {
@@ -452,26 +452,33 @@ end
             const bastardizedAngle = x / Math.sqrt(x * x + y * y);
             sortedPoints.push([i, bastardizedAngle]);
         }
-        sortedPoints.sort(([a, b], [c, d]) => b - d);
+        sortedPoints.sort(([a, b], [c, d]) => b - d); */
         //sortedPoints is an array of points not P0 sorted by polar angle
 
 
-        var stack = [];
+        /* var stack = [];
         for (var i = 0; i < sortedPoints.length; i++) {
             stack.push(sortedPoints[i][0]);
-        }
+        } */
         //to go through these indices...
 
-        var boundary = [indexOfLowest];
-        while (stack.length > 0) {
+        indexOfLowest = 0;
+        var boundary = [];
+        var curr = indexOfLowest;
+        var prev = curr;
+        var next;
+        var iters = 0;
+        while (next != indexOfLowest && iters < 100) {
             console.log("in while");
-            console.log(stack.length);
-            console.log(stack);
-            const curr = boundary[boundary.length - 1];
-            const next = this.pointMostClockwiseFrom(coords, A, curr, stack);
+            console.log(boundary);
+            /* console.log(indexOfLowest);
+            console.log(prev);
+            console.log(next); */
+            next = this.pointClockwiseFrom(coords, A, curr, prev);
             boundary.push(next);
-            var nextIndex = stack.indexOf(next);
-            stack = stack.slice(nextIndex + 1);
+            prev = curr;
+            curr = next;
+            iters++; //safety measure
         }
         console.log("out while");
         //We know for sure that stack will run out as the entire shape is connected 
@@ -479,13 +486,22 @@ end
         return [boundary, coords];
     }
 
-    /**
+    contains(arr, val) {
+        var cont = false;
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] == val)
+                cont = true;
+        }
+        return cont;
+    }
+
+    /* /**
      * 
      * @param {Number[][]} coords 
      * @param {Number[][]} A
      * @param {Number} p 
      * @param {Number[]} s 
-     */
+     
     pointMostClockwiseFrom(coords, A, p, s) {
         //https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order
         //p is the current point
@@ -498,11 +514,20 @@ end
         var existPointInZeroToPi = false;
         var currPoint = s[0];
         var currBastadizedAngle = (coords[currPoint][0] - pX) / Math.sqrt((coords[currPoint][0] - pX) * (coords[currPoint][0] - pX) + (coords[currPoint][1] - pY) * (coords[currPoint][1] - pY));
+
         if (coords[currPoint][1] > 0) existPointInZeroToPi = true;
+
         for (var i = 1; i < s.length; i++) {
             const n = A[p];
             const m = A[s[i]];
-            if (n.indexOf(s[i]) < 0 && m.indexOf(p) < 0) continue;
+            /* if (s[i] != A.length) {
+                if (n.indexOf(s[i]) < 0 && m.indexOf(p) < 0)
+                    continue;
+            } else if (n.indexOf(s[i]) < 0)
+                continue;
+            if (n.indexOf(s[i]) < 0 && m.indexOf(p) < 0)
+                continue;
+            //if (!this.contains(n, s[i]) && !this.contains(m, p)) continue;
             const x = coords[s[i]][0] - pX;
             const y = coords[s[i]][1] - pY;
             const bastardizedAngle = x / Math.sqrt(x * x + y * y);
@@ -525,7 +550,57 @@ end
         }
 
         return currPoint;
+    } */
+
+    /**
+     * 
+     * @param {Number[][]} coords 
+     * @param {Number[][]} A
+     * @param {Number} p - current point
+     * @param {Number} q - previous point
+     */
+    pointClockwiseFrom(coords, A, p, q) {
+        //https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order
+        //p is the current point
+        //s is the stack of points to go through (after p)
+
+        var prevAngle = 0;
+        if (q != p) {
+            const qX = coords[q][0] - coords[p][0];
+            const qY = coords[q][1] - coords[p][1];
+
+            //previous angle (from p to q, p is pivot)
+            prevAngle = qY >= 0 ? Math.acos(qX / Math.sqrt(qX * qX + qY * qY)) : 2 * Math.PI - Math.acos(qX / Math.sqrt(qX * qX + qY * qY));
+        }
+
+        const pX = coords[p][0];
+        const pY = coords[p][1];
+
+        const stack = A[p]; //list of points to go through
+        console.log("curr and stack: ");
+        console.log(p);
+        console.log(stack);
+
+        //coords global variable in this case
+
+        var angles = []; //store angles in format (angle, node id)
+
+        for (var i = 1; i < stack.length; i++) {
+            const x = coords[stack[i]][0] - pX;
+            const y = coords[stack[i]][1] - pY;
+            const angle = y >= 0 ? Math.acos(x / Math.sqrt(x * x + y * y)) : 2 * Math.PI - Math.acos(x / Math.sqrt(x * x + y * y));
+
+
+            const adjustedAngle = angle < prevAngle ? angle + 2 * Math.PI - prevAngle : angle - prevAngle;
+            angles.push([adjustedAngle, stack[i]]);
+        }
+
+        angles.sort(([a, b], [c, d]) => a - c);
+        //angles are sorted in ascending order
+
+        return angles.length > 0 ? angles[0][1] : null; //lowest angle is most clockwise
     }
+
 
     /**
      * returns > 0 if c makes a counter clockwise turn from a, b, c
