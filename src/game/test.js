@@ -199,68 +199,6 @@ var clusterANoCap = [
     ]
 ]
 
-var bigA = [
-    [
-        [1, 10],
-        [2, 10],
-        [4, 4]
-    ],
-    [
-        [2, 2],
-        [3, 4],
-        [4, 8]
-    ],
-    [
-        [4, 9],
-        [6, 3]
-    ],
-    [
-        [5, 10]
-    ],
-    [
-        [3, 6],
-        [5, 10],
-        [6, 4]
-    ],
-    [
-        [2, 7],
-        [5, 7]
-    ],
-    []
-]
-
-var bigANoCap = [
-    [
-        1,
-        2,
-        4
-    ],
-    [
-        2,
-        3,
-        4
-    ],
-    [
-        4,
-        6
-    ],
-    [
-        5,
-    ],
-    [
-        3,
-        5,
-        6
-    ],
-    [
-        2,
-        5
-    ],
-    []
-]
-
-var bigGraph = new Graph(7, bigA);
-
 /*
 
 0 -> 1 -> 4
@@ -412,17 +350,6 @@ class Test {
             console.log("(" + x + ", " + y + ")");
         }
     }
-    displayTest5() {
-        var coords = this.display.getPositionsRandom(7, bigANoCap, 100, 100);
-        this.display.consoleDisplay(7, bigANoCap, coords, 100, 100);
-        console.log("Coordinates with width 100 and height 100: ");
-        for (var i = 0; i < coords.length; i++) {
-            const x = coords[i][0];
-            const y = coords[i][1];
-            console.log("Node " + i + ":");
-            console.log("(" + x + ", " + y + ")");
-        }
-    }
     fullTest() {
         this.generate.generate(6, 5, 3, 2, 1, 10)
         var randomG = this.generate.export();
@@ -522,12 +449,6 @@ function runDisplayTest4() {
     tester.displayTest4();
 }
 
-function runDisplayTest5() {
-    var tester = new Test;
-
-    tester.displayTest5();
-}
-
 function runFullTest() {
     var tester = new Test;
 
@@ -574,11 +495,10 @@ function testRound1() {
 //console.log(1 / 0)
 
 //runDisplayTest1();
-//runDisplayTest2();
+runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
-//runDisplayTest5();
-runFullTest();
+//runFullTest();
 //runFullTest2();
 
 //testRound1();
