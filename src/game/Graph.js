@@ -14,13 +14,16 @@ export class Graph {
     ]; // list of (j, capacity)'s in row i
 
     /**
-     * 
+     * If you want to instantiate a graph with no edges, simply use only one parameter numNodes
      * @param {Int} numNodes 
      * @param {Number[][][]} adjacencyList 
      */
     constructor(numNodes, adjacencyList) {
-        //this.nodes = nodes //maybe not needed, instead store numNodes?
         this.n = new Number(numNodes);
+        if (adjacencyList == undefined) {
+            this.deleteAllRoads();
+            return;
+        }
         var B = adjacencyList; //Adjacency List of elements of the form (j, capacity) in row i
         this.A = [];
         for (var i = 0; i < this.n; i++) {
@@ -29,6 +32,17 @@ export class Graph {
                 this.A[i].push([new Number(B[i][j][0]), new Number(B[i][j][1])]);
             }
         }
+    }
+
+    /**
+     * Empties A
+     */
+    deleteAllRoads() {
+        var B = [];
+        for (var i = 0; i < this.n; i++) {
+            B.push([]);
+        }
+        this.A = B;
     }
 
     duplicate(G) {

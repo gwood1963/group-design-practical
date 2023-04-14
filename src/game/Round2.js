@@ -1,5 +1,5 @@
 /*
-This file serves to represent the backend needed for round 1
+This file serves to represent the backend needed for round 2
 */
 
 import { Graph } from './Graph.js';
@@ -7,6 +7,7 @@ import { ReadSeed } from './ReadSeed.js';
 import { MaxFlowSolver } from './MaxFlowSolver.js';
 import { Generate } from './Generate.js';
 import { Display } from './Display.js';
+import { Bank } from './Bank.js';
 
 export class Round1 {
     theGraph = new Graph;
@@ -14,10 +15,13 @@ export class Round1 {
     theANoCap;
     theN;
     theCoords;
-    seedReader = new ReadSeed(1);
+    seedReader = new ReadSeed(2);
     maxFlowEngine = new MaxFlowSolver;
     generate = new Generate;
     display = new Display; //likely not needed in the end
+    bank = new Bank;
+
+    roads; //matrix of edges/roads (0 or 1, cost)
 
     readSeed(seed) {
         this.seedReader.readSeed(seed);
@@ -25,6 +29,16 @@ export class Round1 {
         this.theA = this.theGraph.getA();
         this.theANoCap = this.theGraph.getAWithoutCaps();
         this.theN = this.theGraph.dim();
+        const n = this.theN;
+        var r = [];
+        for (var i = 0; i < n; i++) {
+            var temp = [];
+            for (var j = 0; j < n; j++) {
+                temp.push([0, 0]);
+            }
+            r.push(temp);
+        }
+        this.roads = r;
     }
 
     makeSeed() {
@@ -51,6 +65,15 @@ export class Round1 {
         this.theANoCap = randomANoCap;
         var n = randomA.length;
         this.theN = n;
+        var r = [];
+        for (var i = 0; i < n; i++) {
+            var temp = [];
+            for (var j = 0; j < n; j++) {
+                temp.push([0, 0]);
+            }
+            r.push(temp);
+        }
+        this.roads = r;
     }
 
     getGraph() {
@@ -81,10 +104,30 @@ export class Round1 {
         this.theA = this.theGraph.getA();
         this.theANoCap = this.theGraph.getAWithoutCaps();
         this.theN = this.theGraph.dim();
+        const n = this.theN;
+        var r = [];
+        for (var i = 0; i < n; i++) {
+            var temp = [];
+            for (var j = 0; j < n; j++) {
+                temp.push([0, 0]);
+            }
+            r.push(temp);
+        }
+        this.roads = r;
     }
 
     loadGraph(graph) {
         this.theGraph = graph;
+        const n = graph.dim();
+        var r = [];
+        for (var i = 0; i < n; i++) {
+            var temp = [];
+            for (var j = 0; j < n; j++) {
+                temp.push([0, 0]);
+            }
+            r.push(temp);
+        }
+        this.roads = r;
     }
 
     /**
@@ -207,5 +250,48 @@ export class Round1 {
     getMaxFlow() {
         this.maxFlowEngine.setGraph(this.theGraph);
         return this.maxFlowEngine.maxFlow();
+    }
+
+    ////////////////////////////////////////////////////////////////
+
+    /**
+     * 
+     * @returns true if road is build and recorded, false if there is an error
+     */
+    addRoad(i, j, w, l) {
+        if (roads[i][j][0] == 1 || roads[j][i][0] == 1) {
+            console.log("already contains road from " + i + " to " + j);
+            return false;
+        }
+        if (this.bank.roadCost(w, l) > this.bank.moneyLeft()) {
+            console.log("insufficient funds");
+            return false;
+        }
+        const cost = this.bank.buildRoad(w, l);
+        roads[i][j][0] = 1;
+        roads[i][j][1] = cost;
+        return true;
+    }
+
+    /**
+     * Deletes a road and returns the money to the bank
+     * @returns true if successful, false if road didn't exist
+     */
+    deleteRoad(i, j) {
+        if (roads[i][j][0] == 0) {
+            console.log("no road exists to delete at " + i + " to " + j);
+            return false;
+        }
+        roads[i][j][0] = 0;
+        this.bank.deleteRoad(roads[i][j][1]);
+        return true;
+    }
+
+    /**
+     * 
+     * @returns money remaining
+     */
+    moneyRemaining() {
+        return this.bank.moneyLeft();
     }
 }

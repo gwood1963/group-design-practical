@@ -88,34 +88,50 @@ export class Display {
      */
     getPositionsRandom(n, A, w, h) {
         //var coords = this.generateInitialCoordsRandom(n, w, h);
-        //TODO: make s on left, t on right
         var bestCoords = []; // = coords;
         var bestCrossCount = 10000000;
+        const topOrder = this.topOrder(A); //from first to last in this array is the same as from left to right
+        const isTop = topOrder != null;
         for (var iters = 0; iters < 1000; iters++) {
-            var crossCount = 0;
-            //console.log("random")
             var coords = this.generateInitialCoordsRandom(n, w, h);
-            for (var i = 0; i < n; i++) {
-                for (var k = 0; k < A[i].length; k++) {
-                    var j = A[i][k];
-                    for (var a = i + 1; a < n; a++) {
-                        for (var r = 0; r < A[a].length; r++) {
-                            var b = A[a][r];
-                            if (this.isCrossing(coords[i], coords[j], coords[a], coords[b]))
-                                crossCount++;
-                        }
-                    }
-                }
-            }
+
+            //console.log(coords);
+            //now the coordinates should be in topological order with respect to the nodes
+
+
             coords = this.adjustArea(n, coords, w, h);
 
+            /////////////////////////////////
+
+            if (isTop) {
+
+                coords = coords.sort(([a, b], [c, d]) => a - c); //sort by x coordinates
+                //console.log(coords);
+                var topCoords = [];
+                for (var i = 0; i < n; i++) {
+                    topCoords.push([]);
+                }
+                for (var i = 0; i < n; i++) {
+                    var curr = topOrder[i]; //the ith node in topological order
+                    topCoords[curr] = coords[i];
+                }
+                var coords = [];
+                for (var i = 0; i < n; i++) {
+                    coords.push(topCoords[i]);
+                }
+
+            }
+
+            /////////////////////////////////
+
+            var crossCount = this.crossCount(coords, A);
             if (crossCount < bestCrossCount) {
                 //bestCoords = coords; //need to opdate references
                 bestCoords = [];
                 for (var i = 0; i < n; i++) {
                     bestCoords.push([new Number(coords[i][0]), new Number(coords[i][1])]);
                 }
-                console.log("updated coordinates");
+                //console.log("updated coordinates");
                 //console.log(bestCoords);
                 bestCrossCount = crossCount;
                 //console.log(bestCrossCount)
@@ -135,14 +151,15 @@ export class Display {
                             new Number(coords[i][1]),
                         ]);
                     }
-                    console.log("updated coordinates")
+                    /* console.log("updated coordinates");
+                    //console.log(c);
                     console.log(bestCoords);
                     bestCrossCount = crossCount;
-                    console.log(bestCrossCount)
+                    console.log(bestCrossCount) */
                 }
             }
         }
-        console.log("best crossing: ")
+        /* console.log("best crossing: ")
         console.log(bestCrossCount)
 
         console.log("graham scan: ");
@@ -150,10 +167,103 @@ export class Display {
         console.log(convexHull);
         console.log("Hull area: ");
         var area = this.hullArea(bestCoords);
-        console.log(area);
+        console.log(area); */
+
+        /* console.log("modified graham scan: ");
+        var modifiedConvexHull = this.modifiedGrahamScan(bestCoords, A);
+        console.log(modifiedConvexHull);
+        console.log("Modified hull area: ");
+        var area = this.modifiedHullArea(bestCoords, A);
+        console.log(area); */
 
         //bestCoords = this.adjustArea(n, bestCoords, w, h);
         return bestCoords;
+    }
+
+    /**
+     * @pre the graph has no cycles
+     * @param {Number[][]} A 
+     */
+    topOrder(A) {
+        //essentially same as in generate.js
+        //Idea: use BFS (Kahn's Algorithm for Topological Sorting)
+        /*
+        Lemma: If a directed graph has no cycles, then there must be at least one vertex
+        with no in-edges. 
+
+        Proof: pigeonhole principle or otherwise, pretty easy to show. 
+
+        algorithm idea: remove the nodes with no in-edges, and their associated edges. 
+        if we can repeat until empty, then there are no cycles and we have an ordering
+        otherwise there exist a cycle in the graph
+        */
+
+        const n = A.length;
+        var nodes = [];
+        var inDegs = [];
+        var topOrder = [];
+        var nodesLeft = n;
+        var iters = 0;
+        for (var i = 0; i < n; i++) {
+            nodes.push(1);
+        }
+
+        while (nodesLeft > 0 && iters < n + 1) {
+            var zeroCount = 0;
+            inDegs = this.inDegrees(A, nodes);
+            for (var i = 0; i < n; i++) {
+                if (inDegs[i] == 0 && nodes[i] == 1) {
+                    nodes[i] = 0;
+                    topOrder.push(i);
+                    zeroCount++;
+                }
+            }
+            nodesLeft = 0;
+            for (var i = 0; i < n; i++) {
+                nodesLeft += nodes[i];
+            }
+            if (nodesLeft == 0) {
+                console.log("Topological Order: ");
+                console.log(topOrder);
+                return topOrder;
+            }
+            if (zeroCount == 0) {
+                console.log("error in topOrder");
+            }
+            iters++;
+        }
+
+        /* console.log("error in topOrder");
+        var dummy = [];
+        for (var i = 0; i < n; i++) {
+            dummy.push(i);
+        }
+        return dummy; */
+        return null;
+    }
+
+    /**
+     * Computer indegrees of nodes in A for the nodes indicated in nodes
+     * @param {Number[][]} A 
+     * @param {Number[]} nodes - degree n, 1 if included, 0 otherwise
+     */
+    inDegrees(A, nodes) {
+        var degs = [];
+        var n = A.length;
+        for (var i = 0; i < n; i++) {
+            degs.push(0);
+        }
+
+        for (var i = 0; i < n; i++) {
+            if (nodes[i] == 1) {
+                for (var k = 0; k < A[i].length; k++) {
+                    const j = A[i][k];
+                    degs[j]++;
+                }
+            }
+        }
+
+        return degs;
     }
 
     /**
@@ -217,6 +327,290 @@ end
         return stack;
     }
 
+    /**
+     * returns number of edge crossings
+     * @param {Number[][]} coords 
+     * @param {Number[][]} A 
+     */
+    crossCount(coords, A) {
+        var crossCount = 0;
+        const n = coords.length;
+        for (var i = 0; i < n; i++) {
+            for (var k = 0; k < A[i].length; k++) {
+                var j = A[i][k];
+                for (var a = i + 1; a < n; a++) {
+                    for (var r = 0; r < A[a].length; r++) {
+                        var b = A[a][r];
+                        if (this.isCrossing(coords[i], coords[j], coords[a], coords[b]))
+                            crossCount++;
+                    }
+                }
+            }
+        }
+        return crossCount;
+    }
+
+    /**
+     * Adds coords for intersection points, and modifies edges to accomodate these extra nodes
+     * @param {Number[][]} coords 
+     * @param {Number[][]} A - no capacities
+     */
+    coordsWithIntersections(coords, A) {
+        const n = coords.length;
+        var newN = n;
+        var newCoords = [];
+        for (var i = 0; i < n; i++) {
+            newCoords.push(coords[i]);
+        }
+        var newA = [];
+        for (var i = 0; i < A.length; i++) {
+            var temp = [];
+            for (var k = 0; k < A[i].length; k++) {
+                temp.push(new Number(A[i][k]));
+            }
+            newA.push(temp);
+        }
+        /* var edgeEnumeration = [];
+        for (var i = 0; i < A.length; i++) {
+            for (var k = 0; k < A[i].length; k++) {
+                edgeEnumeration.push(i, A[i][k]);
+            }
+        } */
+
+        //O(n^3): while there are edge crossings, modify one intersection
+        //Invariant: n = dim(newCoords) = dim(newA)
+
+        while (this.crossCount(newCoords, newA) > 0) {
+            //find one intersection, and make a new node and update edges
+
+            var found = false;
+            for (var i = 0; i < newN && !found; i++) {
+                for (var k = 0; k < newA[i].length && !found; k++) {
+                    var j = newA[i][k];
+                    for (var a = i + 1; a < newN && !found; a++) {
+                        for (var r = 0; r < newA[a].length && !found; r++) {
+                            var b = newA[a][r];
+                            if (this.isCrossing(newCoords[i], newCoords[j], newCoords[a], newCoords[b])) {
+                                newCoords.push(this.intersection(newCoords[i], newCoords[j], newCoords[a], newCoords[b])); //add new coords
+                                newA.push(i, j, a, b); //add new edges
+                                newA[i].splice(k, 1); //remove old edges
+                                newA[a].splice(r, 1);
+                                newN++;
+                                found = true;
+                                break;
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return [newCoords, newA];
+    }
+
+    /**
+     * Returns an array of the coords of the convex hull
+     * @param {Number[][]} oldCoords 
+     */
+    modifiedGrahamScan(oldCoords, oldA) {
+        /* 
+let points be the list of points
+let stack = empty_stack()
+
+find the lowest y-coordinate and leftmost point, called P0
+sort points by polar angle with P0, if several points have the same polar angle then only keep the farthest
+
+for point in points:
+    # pop the last point from the stack if we turn clockwise to reach this point
+    while count stack > 1 and ccw(next_to_top(stack), top(stack), point) <= 0:
+        pop stack
+    push point to stack
+    //going counter clockwise from p0
+    //we push the most clockwise point from the current point that has an edge
+    //KEY POINTS: we have to create new points at the intersections of edges to accurately get this area
+end 
+*/
+        const coordsWithIntersections = this.coordsWithIntersections(oldCoords, oldA);
+        console.log("modifed coords: ");
+        console.log(coordsWithIntersections);
+        const coords = coordsWithIntersections[0];
+        const A = coordsWithIntersections[1];
+        /////////////////////////////////////////////////////////////////
+        const n = coords.length;
+        var indexOfLowest = 0;
+        //console.log(coords);
+        for (var i = 0; i < n; i++) {
+            /* console.log(indexOfLowest);
+            console.log(i);
+            console.log(coords[i]);
+            console.log(coords[indexOfLowest]); */
+            if (coords[i][1] < coords[indexOfLowest][1]) {
+                indexOfLowest = i;
+            } else if (coords[i][1] == coords[indexOfLowest][1]) {
+                indexOfLowest = coords[i][0] < coords[indexOfLowest][0] ? i : indexOfLowest;
+            }
+        }
+        //indexOfLowest is the lowest y-coordinate and leftmost point, called P0
+
+        /* var sortedPoints = []; //(k, angle(k)) not including P0
+        const pX = coords[indexOfLowest][0];
+        const pY = coords[indexOfLowest][1];
+        for (var i = 0; i < n; i++) {
+            if (i == indexOfLowest) continue;
+            const x = coords[i][0] - pX;
+            const y = coords[i][1] - pY;
+            const bastardizedAngle = x / Math.sqrt(x * x + y * y);
+            sortedPoints.push([i, bastardizedAngle]);
+        }
+        sortedPoints.sort(([a, b], [c, d]) => b - d); */
+        //sortedPoints is an array of points not P0 sorted by polar angle
+
+
+        /* var stack = [];
+        for (var i = 0; i < sortedPoints.length; i++) {
+            stack.push(sortedPoints[i][0]);
+        } */
+        //to go through these indices...
+
+        indexOfLowest = 0;
+        var boundary = [];
+        var curr = indexOfLowest;
+        var prev = curr;
+        var next;
+        var iters = 0;
+        while (next != indexOfLowest && iters < 100) {
+            console.log("in while");
+            console.log(boundary);
+            /* console.log(indexOfLowest);
+            console.log(prev);
+            console.log(next); */
+            next = this.pointClockwiseFrom(coords, A, curr, prev);
+            boundary.push(next);
+            prev = curr;
+            curr = next;
+            iters++; //safety measure
+        }
+        console.log("out while");
+        //We know for sure that stack will run out as the entire shape is connected 
+
+        return [boundary, coords];
+    }
+
+    contains(arr, val) {
+        var cont = false;
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] == val)
+                cont = true;
+        }
+        return cont;
+    }
+
+    /* /**
+     * 
+     * @param {Number[][]} coords 
+     * @param {Number[][]} A
+     * @param {Number} p 
+     * @param {Number[]} s 
+     
+    pointMostClockwiseFrom(coords, A, p, s) {
+        //https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order
+        //p is the current point
+        //s is the stack of points to go through (after p)
+
+        const pX = coords[p][0];
+        const pY = coords[p][1];
+
+        //coords global variable in this case
+        var existPointInZeroToPi = false;
+        var currPoint = s[0];
+        var currBastadizedAngle = (coords[currPoint][0] - pX) / Math.sqrt((coords[currPoint][0] - pX) * (coords[currPoint][0] - pX) + (coords[currPoint][1] - pY) * (coords[currPoint][1] - pY));
+
+        if (coords[currPoint][1] > 0) existPointInZeroToPi = true;
+
+        for (var i = 1; i < s.length; i++) {
+            const n = A[p];
+            const m = A[s[i]];
+            /* if (s[i] != A.length) {
+                if (n.indexOf(s[i]) < 0 && m.indexOf(p) < 0)
+                    continue;
+            } else if (n.indexOf(s[i]) < 0)
+                continue;
+            if (n.indexOf(s[i]) < 0 && m.indexOf(p) < 0)
+                continue;
+            //if (!this.contains(n, s[i]) && !this.contains(m, p)) continue;
+            const x = coords[s[i]][0] - pX;
+            const y = coords[s[i]][1] - pY;
+            const bastardizedAngle = x / Math.sqrt(x * x + y * y);
+
+            if (y < 0 && existPointInZeroToPi) continue;
+
+            if (y < 0) {
+                if (bastardizedAngle < currBastadizedAngle) {
+                    currPoint = s[i];
+                    currBastadizedAngle = bastardizedAngle;
+                }
+                continue;
+            }
+            //y > 0
+            if (bastardizedAngle > currBastadizedAngle) {
+                existPointInZeroToPi = true;
+                currPoint = s[i];
+                currBastadizedAngle = bastardizedAngle;
+            }
+        }
+
+        return currPoint;
+    } */
+
+    /**
+     * 
+     * @param {Number[][]} coords 
+     * @param {Number[][]} A
+     * @param {Number} p - current point
+     * @param {Number} q - previous point
+     */
+    pointClockwiseFrom(coords, A, p, q) {
+        //https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order
+        //p is the current point
+        //s is the stack of points to go through (after p)
+
+        var prevAngle = 0;
+        if (q != p) {
+            const qX = coords[q][0] - coords[p][0];
+            const qY = coords[q][1] - coords[p][1];
+
+            //previous angle (from p to q, p is pivot)
+            prevAngle = qY >= 0 ? Math.acos(qX / Math.sqrt(qX * qX + qY * qY)) : 2 * Math.PI - Math.acos(qX / Math.sqrt(qX * qX + qY * qY));
+        }
+
+        const pX = coords[p][0];
+        const pY = coords[p][1];
+
+        const stack = A[p]; //list of points to go through
+        console.log("curr and stack: ");
+        console.log(p);
+        console.log(stack);
+
+        //coords global variable in this case
+
+        var angles = []; //store angles in format (angle, node id)
+
+        for (var i = 1; i < stack.length; i++) {
+            const x = coords[stack[i]][0] - pX;
+            const y = coords[stack[i]][1] - pY;
+            const angle = y >= 0 ? Math.acos(x / Math.sqrt(x * x + y * y)) : 2 * Math.PI - Math.acos(x / Math.sqrt(x * x + y * y));
+
+
+            const adjustedAngle = angle < prevAngle ? angle + 2 * Math.PI - prevAngle : angle - prevAngle;
+            angles.push([adjustedAngle, stack[i]]);
+        }
+
+        angles.sort(([a, b], [c, d]) => a - c);
+        //angles are sorted in ascending order
+
+        return angles.length > 0 ? angles[0][1] : null; //lowest angle is most clockwise
+    }
+    
     /**
      * returns > 0 if c makes a counter clockwise turn from a, b, c
      * @param {Number[][]} coords 
