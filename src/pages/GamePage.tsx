@@ -116,7 +116,7 @@ const GamePage = () => {
       // Generate nodes
       for (let i = 0; i < nodeCount; i++) {
         var myLabel = ""; var myColor = "black"
-        if (i==0) {myLabel = "West Office"; myColor = "green"} 
+        if (i==0) {myLabel = "West Office, 60"; myColor = "green"} 
         else if (i== nodeCount-1)  {myLabel = "East Office"; myColor = "red"};
 
         var myImage = "/building2trees.svg"
@@ -354,6 +354,15 @@ const GamePage = () => {
             .padStart(2, "0")}:${(time % 60).toString().padStart(2, "0")}
 				`}
         </div>
+        <div style = {{ display: "flex", flexDirection: "column", justifyContent: "left"}}>
+          <div style = {{fontWeight: "bold", fontSize: "35px", color: "white"}}>
+            Get as many people from West to East as possible.
+          </div>
+          <div style = {{fontSize: "18px", color: "white", position: "relative"}}>
+            You must obey the traffic restrictions.
+          </div>
+      
+        </div>
         <div style={{ flexGrow: 1 }}></div>
         <ActionButton
           text="Submit and Move On"
@@ -470,16 +479,18 @@ const GamePage = () => {
                   Unfontunatly, the City Council has imposed some{" "}
                   <b>strict traffic restrictions</b>, limiting the number of
                   people the company is to allowed to send down any <br /> given
-                  road in the city within a 10 minute period. <br />
+                  road in the city within a 10 minute period.  <br />
+                  
                   <br />
                   She has asked you for your help. You need to{" "}
                   <b>
                     suggest how many people she sends down each road, in order
                     to get as many emploeyees from the
                     <br /> West to East Office as possible, without breaking the
-                    traffic restrictions.
+                    traffic restrictions. <br/>
+                    Further, on your route, the same number of people must leave any building as enter it.
+                    <br/>
                   </b>{" "}
-                  <br />
                   <br />
                   When you think your suggestion gets as many people to the East
                   Office as possible, press{" "}
@@ -544,9 +555,8 @@ const GamePage = () => {
               }}
             >
               <br />
-              One "road" is a segement connecting two buildings. <br/>
-              A building is only connected to a road from it's <br/>
-              left or right side.
+              One "road" is a segment connecting two buildings. <br/>
+              
               <br/>
               <br/>
               <b>Traffic limits:</b> where a road displays "5/10", for example,
