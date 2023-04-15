@@ -143,6 +143,18 @@ const Database01Page = () => {
                 <LinkButton target="/adminlogin" text="back button" image="/back.svg" backcolor = "rgba(0,0,0,0)"/>
 
                 <ImageActionButton text = "refresh" onClick = {() => {getScores()}} image="/refresh.svg" backcolor = "rgba(0,0,0,0)"/>
+                <ActionButton text = "Email selected" backcolor = "rgba(0,0,0,0)" onClick = {()=>{
+                    const emails = selectedFlatRows.map((row) => row.original.Email)
+                    const dummyAddress = "mailto:miranda.conn@some.ox.ac.uk"
+                    const subject = "?subject=An%20invitation%20to%20interview%20with%20Microsoft"
+                    const bcc = "&bcc=" + emails.join(", ")
+                    const location =  dummyAddress + subject + bcc
+                    console.log(location)
+
+                    window.open(location)
+
+
+                }}/>
                 {/**Invite Candidates button, with associated updates to databse and popup */}
                 <div className = "popup" onClick = {(_)=> {
                     var popup = document.getElementById("InvitePopup")!;
@@ -161,7 +173,7 @@ const Database01Page = () => {
                     });
                     getScores() //updates the database to show the change
                 }}>  
-                Invite Selected
+                Mark as invited
                 <span className = "popuptext" id = "InvitePopup"> None selected!</span>
                 </div>
 
