@@ -106,6 +106,10 @@ export class Round3 {
         for (var i = 0; i < n; i++) {
             B.push([]);
         }
+        var d = this.randomDemands(n, 5);
+        while (this.sumArray(d) != 0) {
+            d = this.randomDemands(n, 5);
+        }
         this.theGraph = new Graph(n, B);
         this.theCoords = this.display.genRandomEmpty(n, w, h);
         this.updateInfo();
@@ -119,6 +123,26 @@ export class Round3 {
             r.push(temp);
         }
         this.roads = r;
+    }
+
+    /**
+     * 
+     * @param {Number[]} arr 
+     * @returns sum of arr
+     */
+    sumArray(arr) {
+        var sum = 0;
+        for (var i = 0; i < n; i++) {
+            sum += arr[i];
+        }
+        return sum;
+    }
+
+    randomDemands(n, limit) {
+        var temp = [];
+        for (var i = 0; i < n; i++)
+            temp.push(Math.floor(Math.random() * (limit * 2 + 1) - limit));
+        return temp;
     }
 
     updateInfo() {
