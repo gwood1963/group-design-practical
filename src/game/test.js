@@ -429,6 +429,11 @@ class Test {
         this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
         console.log(round2.makeSeed());
     }
+
+    noFlowTest() {
+        const badGraph = new Graph(9, unconnectedA);
+        console.log(this.maxFlowSolver.maxFlow(badGraph));
+    }
 }
 
 
@@ -510,6 +515,12 @@ function runFullTest2() {
     tester.fullTest2();
 }
 
+function runNoFlowTest() {
+    var tester = new Test;
+
+    tester.noFlowTest();
+}
+
 function testRound1() {
     const round1 = new Round1;
     round1.genRandom(5, 3, 2, 2, 5, 10);
@@ -569,3 +580,5 @@ function runRound2RandomTest2() {
 runRound2SeedTest();
 //runRound2RandomTest();
 //runRound2RandomTest2();
+
+//runNoFlowTest();
