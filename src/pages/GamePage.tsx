@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
@@ -11,9 +11,46 @@ import Round1Edge from "../components/Round1Edge";
 //import SliderEdge from '../components/SliderEdge';
 import ImageNode from "../components/ImageNode";
 import { Round1 } from "../game/Round1";
+import NavBar from "../components/NavBar";
+import InstructionsBox from "../components/InstructionsBox";
 const edgeTypes: EdgeTypes = {
   Round1Edge: Round1Edge,
 };
+
+const instructionsContent = (
+  <div style={{ margin: "0.5rem" }}>
+    <p>
+      <b>A company owner has two offices in this city. </b>
+      Currently all of her employees are in the West Office. She needs to move{" "}
+      <b>
+        as many employees as possible to the East Office within the next 10
+        minutes
+      </b>{" "}
+      for a conference.
+    </p>
+    <p>
+      Unfortunately, the City Council has imposed some{" "}
+      <b>strict traffic restrictions</b>, limiting the number of people the
+      company is to allowed to send down any given road in the city within a 10
+      minute period.
+    </p>
+    <p>
+      She has asked you for your help. You need to{" "}
+      <b>suggest how many people she sends down each road</b>, in order to get
+      as many employees from the West to East Office as possible, without
+      breaking the traffic restrictions. Furthermore, on your route,{" "}
+      <b>the same number of people must leave any building as enter it</b>.
+    </p>
+    <p>
+      When you think your suggestion gets as many people to the East Office as
+      possible, press{" "}
+      <i>
+        <b>Submit and Move On.</b>
+      </i>
+    </p>
+    <br />
+  </div>
+);
 
 const GamePage = () => {
   //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
@@ -56,12 +93,12 @@ const GamePage = () => {
     );
   };
 
-  let start = 0;
   useEffect(() => {
-    start = Date.now() / 1000;
+    const start = Date.now() / 1000;
+    setTime(3000);
     const interval = setInterval(() => {
       setTime(3000 - Math.floor(Date.now() / 1000 - start));
-    }, 30000);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -76,35 +113,61 @@ const GamePage = () => {
 
   /** ---------- David's Addition, looks very weird compared to my console output */
 
+  const onSubmit = () => {
+    if (!round) return;
+    console.log(round);
+    console.log(flows);
+    const score = round.getScoreFromArr(
+      flows.map((f) => f.flow),
+      round.getGraph()
+    );
+    console.log(score);
+    fetch("/api/attempt", {
+      method: "POST",
+      body: JSON.stringify({
+        score: score,
+        uid: auth.currentUser?.uid,
+        seed: round.makeSeed(),
+      }),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+    navigate("/game2");
+  };
 
   useEffect(() => {
     (async () => {
-      const round1 = new Round1()
-      const seed = await fetch("/api/getproblem").then(res => res.json())
-      if (seed !== "NONE") { // read active problem from database
-        round1.readSeed(seed)
-        console.log('Problem loaded from database')
-      } else { // generate new problem
-        let added = false
-        while (!added) { // ensures we're not duplicating an existing problem
+      const round1 = new Round1();
+      const seed = await fetch("/api/getproblem").then((res) => res.json());
+      if (seed !== "NONE") {
+        // read active problem from database
+        round1.readSeed(seed);
+        console.log("Problem loaded from database");
+      } else {
+        // generate new problem
+        let added = false;
+        while (!added) {
+          // ensures we're not duplicating an existing problem
           round1.genRandom(5, 3, 2, 2, 5, 10);
-          const seed = round1.makeSeed()
-          console.log(seed)
+          const seed = round1.makeSeed();
+          console.log(seed);
           added = await fetch("/api/addproblem", {
             method: "PUT",
             body: JSON.stringify({
-              seed: seed
+              seed: seed,
             }),
             headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json'
-            }
-          }).then(res => res.json())
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }).then((res) => res.json());
         }
-        console.log('New problem generated.')
+        console.log("New problem generated.");
       }
-    
-      let nodesTemp = []
+
+      let nodesTemp = [];
 
       const adjacency = round1.getA();
       // const ANoCap = round1.getANoCap();
@@ -115,13 +178,25 @@ const GamePage = () => {
 
       // Generate nodes
       for (let i = 0; i < nodeCount; i++) {
-        var myLabel = ""; var myColor = "black"
-        if (i==0) {myLabel = "West Office, 60"; myColor = "green"} 
-        else if (i== nodeCount-1)  {myLabel = "East Office"; myColor = "red"};
+        var myLabel = "";
+        var myColor = "black";
+        if (i == 0) {
+          myLabel = "West Office, 60";
+          myColor = "green";
+        } else if (i == nodeCount - 1) {
+          myLabel = "East Office";
+          myColor = "red";
+        }
 
-        var myImage = "/building2trees.svg"
-        var randomImage = Math.random()
-        if (randomImage > 0.6666) {myImage = "/skyscraper.svg"} else if (randomImage > 0.45) {myImage = "/factory.svg"} else if (randomImage > 0.333) {myImage = "/church.svg"};
+        var myImage = "/building2trees.svg";
+        var randomImage = Math.random();
+        if (randomImage > 0.6666) {
+          myImage = "/skyscraper.svg";
+        } else if (randomImage > 0.45) {
+          myImage = "/factory.svg";
+        } else if (randomImage > 0.333) {
+          myImage = "/church.svg";
+        }
 
         const node = {
           id: `${i}`,
@@ -167,7 +242,7 @@ const GamePage = () => {
       setRound(round1);
       setFlows(flowsTemp);
       setEdges(initialEdgesTemp);
-    })()
+    })();
   }, []);
 
   /*
@@ -334,69 +409,7 @@ const GamePage = () => {
 
   return (
     <MainWrapper flexDirection="column">
-      <div className="navBar">
-        <div
-          id="Timer"
-          style={{
-            margin: "1rem",
-            padding: "0.5rem",
-            color: "white",
-            border: "2px solid rgba(118, 50, 50, 1)",
-            backgroundColor: "rgba(170, 70, 70, 1)",
-            borderRadius: "5px",
-            fontWeight: "bold",
-            fontSize: "14px",
-          }}
-        >
-          Time Remaining:{" "}
-          {`${Math.floor(time / 60)
-            .toString()
-            .padStart(2, "0")}:${(time % 60).toString().padStart(2, "0")}
-				`}
-        </div>
-        <div style = {{ display: "flex", flexDirection: "column", justifyContent: "left"}}>
-          <div style = {{fontWeight: "bold", fontSize: "35px", color: "white"}}>
-            Get as many people from West to East as possible.
-          </div>
-          <div style = {{fontSize: "18px", color: "white", position: "relative"}}>
-            You must obey the traffic restrictions.
-          </div>
-      
-        </div>
-        <div style={{ flexGrow: 1 }}></div>
-        <ActionButton
-          text="Submit and Move On"
-          onClick={() => {
-            if (!round) return;
-            console.log(round);
-            console.log(flows);
-            const score = round.getScoreFromArr(flows.map(f => f.flow), round.getGraph());
-            console.log(score);
-            fetch("/api/attempt", {
-              method: "POST",
-              body: JSON.stringify({
-                score: score,
-                uid: userId,
-                seed: round.makeSeed()
-              }),
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-              }
-            });
-            navigate("/goodbye");
-          }}
-          backcolor="rgba(80, 180, 80, 1)"
-        />
-        <ActionButton
-          text="Log out"
-          onClick={() => {
-            auth.signOut();
-            navigate("/signup");
-          }}
-          backcolor="rgba(0,0,0,0)"
-        />
-      </div>
+      <NavBar time={time} onSubmit={onSubmit} />
       <div
         style={{
           display: "flex",
@@ -440,92 +453,7 @@ const GamePage = () => {
               <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
           </div>
-          <div
-            id="InstructionBox"
-            style={{
-              width: "100%",
-              borderRadius: "5px",
-              background: instructBoxColor,
-              height: instructBoxSize,
-            }}
-          >
-            <div
-              id="InstructionText"
-              style={{
-                alignItems: "center",
-                padding: "5px",
-                height: "100%",
-                width: "100%",
-                textAlign: "left",
-              }}
-            >
-              {collapseButton === "-" && (
-                <div
-                  style={{
-                    fontSize: "18px",
-                    position: "relative",
-                    width: "100%",
-                  }}
-                >
-                  <b>A company owner has two offices in this city. </b>{" "}
-                  Currently all of her employees are in the West Office. <br />
-                  However, she needs to move{" "}
-                  <b>
-                    as many employees as possible to the East Office within the
-                    next 10 minutes{" "}
-                  </b>{" "}
-                  for a conference.
-                  <br /> <br />
-                  Unfontunatly, the City Council has imposed some{" "}
-                  <b>strict traffic restrictions</b>, limiting the number of
-                  people the company is to allowed to send down any <br /> given
-                  road in the city within a 10 minute period.  <br />
-                  
-                  <br />
-                  She has asked you for your help. You need to{" "}
-                  <b>
-                    suggest how many people she sends down each road, in order
-                    to get as many emploeyees from the
-                    <br /> West to East Office as possible, without breaking the
-                    traffic restrictions. <br/>
-                    Further, on your route, the same number of people must leave any building as enter it.
-                    <br/>
-                  </b>{" "}
-                  <br />
-                  When you think your suggestion gets as many people to the East
-                  Office as possible, press{" "}
-                  <i>
-                    <b>Submit and Move On.</b>
-                  </i>
-                </div>
-              )}
-              {collapseButton === "+" && (
-                <div
-                  style={{
-                    fontSize: "35px",
-                    position: "relative",
-                    top: "15%",
-                    left: "5%",
-                    color: "",
-                  }}
-                >
-                  <i>Click [+] to view </i>
-                  <b>Instructions</b>{" "}
-                </div>
-              )}
-            </div>
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              fontSize: "30px",
-              width: "10px"
-            }}
-          >
-            <ActionButton text={collapseButton} onClick={toggleCollapse}/>
-          </div>
+          <InstructionsBox content={instructionsContent} />
         </div>
         <div
           id="ControlsBox"
@@ -555,10 +483,9 @@ const GamePage = () => {
               }}
             >
               <br />
-              One "road" is a segment connecting two buildings. <br/>
-              
-              <br/>
-              <br/>
+              One "road" is a segment connecting two buildings. <br />
+              <br />
+              <br />
               <b>Traffic limits:</b> where a road displays "5/10", for example,
               this indicates that the road has a limit of 10 people, and you are
               currently sending 5 people down it. <br />
