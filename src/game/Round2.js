@@ -180,97 +180,38 @@ export class Round2 {
 
     }
 
-    getScoreFromArr(flowsArr, originalGraph) {
-        return this.getScore(this.convertFlowsArrayToAdjList(flowsArr), originalGraph);
-    }
-
-    getScoreFromArr(flowsArr) {
-        return this.getScore(this.convertFlowsArrayToAdjList(flowsArr));
+    /**
+     * Score calculation, currently is very simple: 
+     * 
+     * Score = submitted flow / best submitted flow
+     * (can be tweaked later)
+     * 
+     * Note: with each submission, we have to update everyone's score for 
+     * that particular puzzle
+     * @param {Number} currrentRecord - what the best submitted flow is
+     */
+    getScore(currrentRecord) {
+        const flow = this.maxFlowEngine.maxFlow(this.theGraph);
+        if (Math.max(flow, currrentRecord) == 0)
+            return 0; //don't divide by 0
+        return flow / Math.max(flow, currrentRecord);
     }
 
     /**
-     * Score calculation, currently is very simple: 
-     * first check that all edges that are not s or t havd flow in = flow out
-     * If not, let that be stored in variable unbalance
-     * check flow value, store that in variable submittedFlow
+     * Raw score calculation, currently is very simple: 
      * 
-     * Score = max((submittedFlow - unbalance)/maxFlow, 0)
+     * Score = submitted flow
      * (can be tweaked later)
-     * @param {Number[][][]} flows - flows in the same format as the adj list
-     * @param {Graph} originalGraph - the original graph with the capacities
-     */
-    getScore(flows, originalGraph) {
-        var checkBalance = [];
-        for (var i = 0; i < flows.length; i++) {
-            checkBalance.push(0);
-        }
-        for (var i = 0; i < flows.length - 1; i++) {
-            for (var k = 0; k < flows[i].length; k++) {
-                var j = flows[i][k][0];
-                checkBalance[i] -= flows[i][k][1];
-                checkBalance[j] += flows[i][k][1];
-            }
-        }
-        var unbalance = 0;
-        for (var i = 1; i < checkBalance.length - 1; i++) {
-            unbalance += Math.abs(checkBalance[i]);
-        }
-        //At this point unbalance is equal to the absolute sum of the flow in - flow out of each node that is not s or t
-
-        var flowGraph = new Graph;
-        flowGraph.setParams(flows.length, flows);
-
-        const submittedFlow = this.maxFlowEngine.maxFlow(flowGraph);
-        const maxFlow = this.maxFlowEngine.maxFlow(originalGraph);
-
-        const score = Math.max(0, (submittedFlow - unbalance) / maxFlow);
-
-        return score;
-    }
-
-    /**
-     * Score calculation, currently is very simple: 
-     * first check that all edges that are not s or t havd flow in = flow out
-     * If not, let that be stored in variable unbalance
-     * check flow value, store that in variable submittedFlow
      * 
-     * Score = max((submittedFlow - unbalance)/maxFlow, 0)
-     * (can be tweaked later)
-     * @param {Number[][][]} flows - flows in the same format as the adj list
      */
-    getScore(flows) { //Note: exactly the same as the alst one, just here for overloading purposes
-        var checkBalance = [];
-        for (var i = 0; i < flows.length; i++) {
-            checkBalance.push(0);
-        }
-        for (var i = 0; i < flows.length - 1; i++) {
-            for (var k = 0; k < flows[i].length; k++) {
-                var j = flows[i][k][0];
-                checkBalance[i] -= flows[i][k][1];
-                checkBalance[j] += flows[i][k][1];
-            }
-        }
-        var unbalance = 0;
-        for (var i = 1; i < checkBalance.length - 1; i++) {
-            unbalance += Math.abs(checkBalance[i]);
-        }
-        //At this point unbalance is equal to the absolute sum of the flow in - flow out of each node that is not s or t
-
-        var flowGraph = new Graph;
-        flowGraph.setParams(flows.length, flows);
-
-        const submittedFlow = this.maxFlowEngine.maxFlow(flowGraph);
-        const maxFlow = this.maxFlowEngine.maxFlow(this.theGraph);
-        console.log(checkBalance)
-
-        const score = Math.max(0, (submittedFlow - unbalance) / maxFlow);
-
-        return score;
+    getRawScore() {
+        const flow = this.maxFlowEngine.maxFlow(this.theGraph);
+        return flow;
     }
 
     getMaxFlow() {
-        this.maxFlowEngine.setGraph(this.theGraph);
-        return this.maxFlowEngine.maxFlow();
+        //this.maxFlowEngine.setGraph(this.theGraph);
+        return this.maxFlowEngine.maxFlow(this.theGraph);
     }
 
     ////////////////////////////////////////////////////////////////
