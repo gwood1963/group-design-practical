@@ -388,6 +388,16 @@ class Test {
         round2.readSeed(s);
         console.log(round2.getCoords());
         console.log(round2.getN());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+
+    }
+
+    round2RandomTest() {
+        const round2 = new Round2;
+        round2.genRandom(5, 100, 100);
+        console.log(round2.getCoords());
+        console.log(round2.getN());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
 
     }
 }
@@ -492,6 +502,11 @@ function runRound2SeedTest() {
     tester.round2SeedTest();
 }
 
+function runRound2RandomTest() {
+    var tester = new Test;
+    tester.round2RandomTest();
+}
+
 //console.log("hi");
 //runTest1();
 //runGenerationTest1();
@@ -517,4 +532,5 @@ function runRound2SeedTest() {
 //runFullTest2();
 
 //testRound1();
-runRound2SeedTest();
+//runRound2SeedTest();
+runRound2RandomTest();

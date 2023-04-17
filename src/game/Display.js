@@ -55,6 +55,7 @@ export class Display {
             if (this.nodeSpacing(n, c) > this.nodeSpacing(n, coords))
                 coords = c;
         }
+        console.log(coords);
         return coords;
     }
 

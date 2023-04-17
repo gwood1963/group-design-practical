@@ -34,7 +34,7 @@ export class Bank {
 
     setTotalMoney(money) {
         this.totalMoney = money;
-        this.money = totalMoney;
+        this.money = this.totalMoney;
     }
 
     moneyLeft() {
