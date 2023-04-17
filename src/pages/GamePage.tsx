@@ -268,8 +268,6 @@ const GamePage = () => {
                 "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
             }}
           >
-            {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
-
             <ReactFlow
               nodes={nodes}
               edges={edges}

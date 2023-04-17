@@ -1,6 +1,14 @@
-import { Background, BackgroundVariant, Controls, ReactFlow } from "reactflow";
+import {
+  Background,
+  BackgroundVariant,
+  Controls,
+  Edge,
+  Node,
+  ReactFlow,
+} from "reactflow";
 import MainWrapper from "../components/ContentWrapper";
 import ControlsBox from "../components/ControlsBox";
+import ImageNode from "../components/ImageNode";
 import InstructionsBox from "../components/InstructionsBox";
 import NavBar from "../components/NavBar";
 
@@ -64,6 +72,35 @@ const controlsContent = (
   </>
 );
 
+const dummyNodes: Node[] = [
+  {
+    id: "1",
+    zIndex: -1,
+    type: "ImageNode",
+    position: { x: 0, y: 50 },
+    data: {
+      label: "West Office",
+      image: "/skyscraper.svg",
+      color: "black",
+    },
+  },
+  {
+    id: "2",
+    zIndex: -1,
+    type: "ImageNode",
+    position: { x: 250, y: 50 },
+    data: {
+      label: "East Office",
+      image: "/skyscraper.svg",
+      color: "black",
+    },
+  },
+];
+
+const dummyEdges: Edge[] = [
+
+]
+
 const GamePage2 = () => {
   return (
     <MainWrapper flexDirection="column">
@@ -101,14 +138,12 @@ const GamePage2 = () => {
                 "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
             }}
           >
-            {/** HERE IS WHERE THE GAME DISPLAYING TAKES PLACE */}
-
             <ReactFlow
-              nodes={[]}
+              nodes={dummyNodes}
               edges={[]}
               panOnDrag={true}
               edgeTypes={undefined}
-              nodeTypes={undefined}
+              nodeTypes={{ ImageNode: ImageNode }}
               fitView
             >
               <Controls />

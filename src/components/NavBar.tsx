@@ -5,7 +5,7 @@ import ActionButton from "./ActionButton";
 type NavBarProps = {
   time: number;
   onSubmit: () => void;
-subtitle?: string;
+  subtitle?: string;
 };
 
 const NavBar = ({ time, onSubmit, subtitle }: NavBarProps) => {
@@ -44,7 +44,7 @@ const NavBar = ({ time, onSubmit, subtitle }: NavBarProps) => {
           Get as many people from West to East as possible.
         </div>
         <div style={{ fontSize: "18px", color: "white", position: "relative" }}>
-					{subtitle}
+          {subtitle}
         </div>
       </div>
       <div style={{ flexGrow: 1 }}></div>
