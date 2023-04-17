@@ -1,5 +1,6 @@
 import { Background, BackgroundVariant, Controls, ReactFlow } from "reactflow";
 import MainWrapper from "../components/ContentWrapper";
+import ControlsBox from "../components/ControlsBox";
 import InstructionsBox from "../components/InstructionsBox";
 import NavBar from "../components/NavBar";
 
@@ -41,10 +42,36 @@ const instructionsContent = (
   </div>
 );
 
+const controlsContent = (
+  <>
+    <p>One "road" is a segment connecting two buildings.</p>
+    <p>
+      To <b>create a road between two offices</b>, click on the first office,
+      then the second office. This will display a popup showing the types of
+      roads you may build, and the cost for each. Choose one of these to build
+      the road.
+    </p>
+    <p>
+      Click a road and the confirm delete button to <b>delete a road</b> and be
+      refunded the cost of the road.
+    </p>
+    <p>
+      <b> To submit your suggestion: </b>Click <i>Submit and Move On.</i>
+    </p>
+    <p>
+      Remember you <b>must</b> submit before the timer runs out.
+    </p>
+  </>
+);
+
 const GamePage2 = () => {
   return (
     <MainWrapper flexDirection="column">
-      <NavBar time={0} onSubmit={() => {}} />
+      <NavBar
+        time={0}
+        onSubmit={() => {}}
+        subtitle="You must stay within budget"
+      />
       <div
         style={{
           display: "flex",
@@ -90,53 +117,7 @@ const GamePage2 = () => {
           </div>
           <InstructionsBox content={instructionsContent} />
         </div>
-        <div
-          id="ControlsBox"
-          style={{
-            width: "20%",
-            margin: "1rem",
-            borderRadius: "5px",
-            background:
-              "linear-gradient(180deg, rgba(135,219,255,1) 0%, rgba(204,243,255,1) 100%)",
-          }}
-        >
-          <div
-            id="ControlText"
-            style={{
-              alignItems: "center",
-              padding: "10px",
-              textAlign: "center",
-            }}
-          >
-            <text style={{ fontSize: "50px", padding: "30px" }}>Controls </text>
-            <text
-              style={{
-                textAlign: "center",
-                fontSize: "20px",
-                position: "relative",
-                top: "40px",
-              }}
-            >
-              <br />
-              One "road" is a segment connecting two buildings. <br />
-              <br />
-              <br />
-              <b>Traffic limits:</b> where a road displays "5/10", for example,
-              this indicates that the road has a limit of 10 people, and you are
-              currently sending 5 people down it. <br />
-              <br />
-              <br />
-              <b>To edit the number you are sending down a road: </b>click on
-              the white box, and then use the slider. <br /> <br />
-              <br />
-              <b> To submit your suggestion: </b>Click{" "}
-              <i>Submit and Move On.</i>
-              <br /> <br />
-              <br />
-              Remember you <b>must</b> submit before the timer runs out.
-            </text>
-          </div>
-        </div>
+        <ControlsBox content={controlsContent} />
       </div>
     </MainWrapper>
   );
