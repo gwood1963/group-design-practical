@@ -417,6 +417,10 @@ class Test {
         console.log(round2.getN());
         console.log(round2.moneyRemaining());
         this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        round2.deleteRoad(2, 4);
+        round2.deleteRoad(3, 2);
+        console.log(round2.moneyRemaining());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
 
     }
 }

@@ -287,12 +287,12 @@ export class Round2 {
      * @returns true if successful, false if road didn't exist
      */
     deleteRoad(i, j) {
-        if (roads[i][j][0] == 0) {
+        if (this.roads[i][j][0] == 0) {
             console.log("no road exists to delete at " + i + " to " + j);
             return false;
         }
         this.roads[i][j][0] = 0;
-        this.bank.deleteRoad(roads[i][j][1]);
+        this.bank.deleteRoad(this.roads[i][j][1]);
         this.theGraph.deleteEdge(i, j);
         return true;
     }
