@@ -10,6 +10,7 @@ export class ReadSeed {
     graph;
     n = 0;
     round;
+    coords;
 
     /**
      * 
@@ -64,11 +65,57 @@ export class ReadSeed {
             var A = this.adjListFromArr(n, edges, capacities);
 
             this.graph = new Graph(n, A);
+        } else if (this.round == 2) {
+            var seed = s; //n%x0,y0%x1,y1%...%xn-1,yn-1%TotalMoney%
+            var recordedN = false;
+            var coords = [];
+            var n;
+            var i = 0;
+            var j = 0;
+
+            while (j < seed.length) {
+                if (recordedN) {
+                    if (seed[j] != '%') {} else { //j is at the next % sign
+                        //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
+                        var info = seed.substring(i + 1, j);
+                        var firstComma = seed.indexOf(','); //first occurrence of ','
+                        var a = parseInt(info.substring(0, firstComma));
+                        var b = parseInt(info.substring(firstComma - 1));
+                        /* console.log(a);
+                        console.log(b);
+                        console.log(c); */
+
+                        coords.push([a, b]);
+                        i = j;
+                    }
+                } else {
+                    if (seed[j] != '%') {} else {
+                        n = parseInt(seed.substring(0, j));
+                        this.n = n;
+                        i = j;
+                        recordedN = true;
+                    }
+                }
+                j++;
+            }
+            this.coords = coords;
+            var B = [];
+            for (var i = 0; i < n; i++) {
+                B.push([]);
+            }
+            //console.log("generating graph");
+            this.graph = new Graph(n, B);
+            /* console.log(this.graph);
+            console.log(this.coords); */
         }
     }
 
     getGraph() {
         return this.graph;
+    }
+
+    getCoords() {
+        return this.coords;
     }
 
     adjListFromArr(n, edges, capacities) {
