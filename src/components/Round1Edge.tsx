@@ -65,10 +65,10 @@ const Round1Edge: FC<EdgeProps> = ({
         >
           {sliderToggle === "true" && (
             <div >
-              0{" "}
+              {data.min}{" "}
               <input
                 type="range"
-                min="0"
+                min={data.min}
                 max={data.capacity}
                 value={flow}
                 className="slider"

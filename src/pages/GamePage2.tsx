@@ -5,12 +5,18 @@ import {
   Edge,
   Node,
   ReactFlow,
+  EdgeTypes,
 } from "reactflow";
+import { useEffect, useMemo, useState } from "react";
 import MainWrapper from "../components/ContentWrapper";
 import ControlsBox from "../components/ControlsBox";
 import ImageNode from "../components/ImageNode";
 import InstructionsBox from "../components/InstructionsBox";
 import NavBar from "../components/NavBar";
+import Round1Edge from "../components/Round1Edge";
+const edgeTypes: EdgeTypes = {
+  Round1Edge: Round1Edge,
+};
 
 const instructionsContent = (
   <div style={{ margin: "0.5rem" }}>
@@ -74,12 +80,23 @@ const controlsContent = (
 
 const dummyNodes: Node[] = [
   {
-    id: "1",
+    id: "0",
     zIndex: -1,
     type: "ImageNode",
     position: { x: 0, y: 50 },
     data: {
-      label: "West Office",
+      label: "index 0",
+      image: "/skyscraper.svg",
+      color: "black",
+    },
+  },
+  {
+    id: "1",
+    zIndex: -1,
+    type: "ImageNode",
+    position: { x: 250, y: 50 },
+    data: {
+      label: "index 1",
       image: "/skyscraper.svg",
       color: "black",
     },
@@ -88,9 +105,20 @@ const dummyNodes: Node[] = [
     id: "2",
     zIndex: -1,
     type: "ImageNode",
-    position: { x: 250, y: 50 },
+    position: { x: 125, y: 100 },
     data: {
-      label: "East Office",
+      label: "index 2",
+      image: "/skyscraper.svg",
+      color: "black",
+    },
+  },
+  {
+    id: "3",
+    zIndex: -1,
+    type: "ImageNode",
+    position: { x: 125, y: 0 },
+    data: {
+      label: "index 3",
       image: "/skyscraper.svg",
       color: "black",
     },
@@ -102,6 +130,52 @@ const dummyEdges: Edge[] = [
 ]
 
 const GamePage2 = () => {
+
+  const [nodes, setNodes] = useState<Node[]>(dummyNodes); //a state to store the array of nodes.
+  const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
+  const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
+
+  /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
+  /** ---------------------------------------------------- */
+  useMemo(() => {
+    (async () => {
+      let nodeCount = dummyNodes.length
+      let flowsTemp = [];
+      let initialEdgesTemp: Edge[] = [];
+      for (let i = 0; i < nodeCount; i++) {
+        for (let k = 0; k < nodeCount; k++) {
+          if (i != k && i < k) {
+            const myid = "e" + i + "-" + k;
+            flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
+            const capacity = 10;
+            const temp = {
+              id: myid,
+              source: `${i}`,
+              target: `${k}`,
+              animated: true,
+              type: "Round1Edge",
+              zIndex: 0,
+              data: {
+                id: myid,
+                getFlow: () =>
+                  flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
+                setFlow: setFlows,
+                min: -capacity,
+                capacity: capacity,
+              },
+            };
+            initialEdgesTemp.push(temp);
+            console.log(temp)
+          }
+        }
+      }
+      setFlows(flowsTemp);
+      setEdges(initialEdgesTemp);
+      console.log("initialEdgesTemp",initialEdgesTemp)
+      console.log("edges",edges)
+    })();
+  }, []);
+
   return (
     <MainWrapper flexDirection="column">
       <NavBar
@@ -139,10 +213,10 @@ const GamePage2 = () => {
             }}
           >
             <ReactFlow
-              nodes={dummyNodes}
-              edges={[]}
+              nodes={nodes}
+              edges={edges}
               panOnDrag={true}
-              edgeTypes={undefined}
+              edgeTypes={edgeTypes}
               nodeTypes={{ ImageNode: ImageNode }}
               fitView
             >

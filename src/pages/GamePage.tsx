@@ -8,7 +8,6 @@ import "reactflow/dist/style.css";
 import React from "react";
 import { Controls, Background, EdgeTypes, BackgroundVariant } from "reactflow";
 import Round1Edge from "../components/Round1Edge";
-//import SliderEdge from '../components/SliderEdge';
 import ImageNode from "../components/ImageNode";
 import { Round1 } from "../game/Round1";
 import NavBar from "../components/NavBar";
@@ -218,6 +217,7 @@ const GamePage = () => {
               getFlow: () =>
                 flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
               setFlow: setFlows,
+              min: 0,
               capacity: capacity,
             },
           };
