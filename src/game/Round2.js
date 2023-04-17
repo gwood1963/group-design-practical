@@ -268,8 +268,10 @@ export class Round1 {
             return false;
         }
         const cost = this.bank.buildRoad(w, l);
+        const cap = w;
         roads[i][j][0] = 1;
         roads[i][j][1] = cost;
+        this.theGraph.addEdge(i, j, cap);
         return true;
     }
 
@@ -284,6 +286,7 @@ export class Round1 {
         }
         roads[i][j][0] = 0;
         this.bank.deleteRoad(roads[i][j][1]);
+        this.theGraph.deleteEdge(i, j);
         return true;
     }
 

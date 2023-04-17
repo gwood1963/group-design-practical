@@ -35,6 +35,33 @@ export class Graph {
     }
 
     /**
+     * @pre edge from i to j does not exist in original graph
+     * @param {Number} i 
+     * @param {Number} j 
+     * @param {Number} cap 
+     */
+    addEdge(i, j, cap) {
+        this.A[i].push([j, cap]);
+        this.A[i].sort(([a, b], [c, d]) => a - c);
+    }
+
+    /**
+     * @pre edge frmo i to j exists
+     * Deletes edge from i to j
+     * @param {Number} i 
+     * @param {Number} j 
+     */
+    deleteEdge(i, j) {
+        var B = [];
+        for (var k = 0; k < this.A[i].length; k++) {
+            if (A[i][k][0] == j)
+                continue;
+            B.push(A[i][k]);
+        }
+        this.A[i] = B;
+    }
+
+    /**
      * Empties A
      */
     deleteAllRoads() {
