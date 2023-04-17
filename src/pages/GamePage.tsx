@@ -59,9 +59,10 @@ const GamePage = () => {
 
   useEffect(() => {
     const start = Date.now() / 1000;
+    setTime(3000);
     const interval = setInterval(() => {
       setTime(3000 - Math.floor(Date.now() / 1000 - start));
-    }, 30000);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 

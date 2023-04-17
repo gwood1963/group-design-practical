@@ -4,7 +4,7 @@ import NavBar from "../components/NavBar";
 const GamePage2 = () => {
   return (
     <MainWrapper flexDirection="column">
-			<NavBar time={0} onSubmit={() => {}}/>
+      <NavBar time={0} onSubmit={() => {}} />
       <></>
     </MainWrapper>
   );
