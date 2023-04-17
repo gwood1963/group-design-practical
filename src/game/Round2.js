@@ -27,9 +27,7 @@ export class Round2 {
         this.seedReader.readSeed(seed);
         this.theCoords = this.seedReader.getCoords();
         this.theGraph.duplicate(this.seedReader.getGraph());
-        this.theA = this.theGraph.getA();
-        this.theANoCap = this.theGraph.getAWithoutCaps();
-        this.theN = this.theGraph.dim();
+        this.updateInfo();
         const n = this.theN;
         var r = [];
         for (var i = 0; i < n; i++) {
@@ -46,6 +44,17 @@ export class Round2 {
         return this.seedReader.makeSeed(this.theGraph);
     }
 
+    /**
+     * Set parameters
+     * @param {Number} rlc - Road Length Cost
+     * @param {Number} rwc - Road Width Cost
+     * @param {Number} rlu - Road Length Unit
+     * @param {Number} rwu - Road Width Unit
+     */
+    setBankParams(rlc, rwc, rlu, rwu) {
+        this.bank.setParams(rlc, rwc, rlu, rwu);
+    }
+
     genRandom(n, w, h) {
         var B = [];
         for (var i = 0; i < n; i++) {
@@ -53,10 +62,23 @@ export class Round2 {
         }
         this.theGraph = new Graph(n, B);
         this.theCoords = this.display.genRandomEmpty(n, w, h);
+        this.updateInfo();
+        this.bank.setTotalMoney(5 * n);
+        var r = [];
+        for (var i = 0; i < n; i++) {
+            var temp = [];
+            for (var j = 0; j < n; j++) {
+                temp.push([0, 0]);
+            }
+            r.push(temp);
+        }
+        this.roads = r;
+    }
+
+    updateInfo() {
         this.theA = this.theGraph.getA();
         this.theANoCap = this.theGraph.getAWithoutCaps();
         this.theN = this.theGraph.dim();
-        this.bank.setTotalMoney(5 * n);
     }
 
     getGraph() {
@@ -64,14 +86,17 @@ export class Round2 {
     }
 
     getA() {
+        this.theA = this.theGraph.getA();
         return this.theA;
     }
 
     getANoCap() {
+        this.theANoCap = this.theGraph.getAWithoutCaps();
         return this.theANoCap;
     }
 
     getN() {
+        this.theN = this.theGraph.dim();
         return this.theN;
     }
 
@@ -84,9 +109,7 @@ export class Round2 {
         this.seedReader.readSeed(seed);
         this.theGraph = this.seedReader.getGraph();
         //console.log(this.theGraph);
-        this.theA = this.theGraph.getA();
-        this.theANoCap = this.theGraph.getAWithoutCaps();
-        this.theN = this.theGraph.dim();
+        this.updateInfo();
         this.theCoords = this.seedReader.getCoords();
         const n = this.theN;
         var r = [];
@@ -243,7 +266,7 @@ export class Round2 {
      * @returns true if road is build and recorded, false if there is an error
      */
     addRoad(i, j, w, l) {
-        if (roads[i][j][0] == 1 || roads[j][i][0] == 1) {
+        if (this.roads[i][j][0] == 1 || this.roads[j][i][0] == 1) {
             console.log("already contains road from " + i + " to " + j);
             return false;
         }
@@ -253,8 +276,8 @@ export class Round2 {
         }
         const cost = this.bank.buildRoad(w, l);
         const cap = w;
-        roads[i][j][0] = 1;
-        roads[i][j][1] = cost;
+        this.roads[i][j][0] = 1;
+        this.roads[i][j][1] = cost;
         this.theGraph.addEdge(i, j, cap);
         return true;
     }
@@ -268,7 +291,7 @@ export class Round2 {
             console.log("no road exists to delete at " + i + " to " + j);
             return false;
         }
-        roads[i][j][0] = 0;
+        this.roads[i][j][0] = 0;
         this.bank.deleteRoad(roads[i][j][1]);
         this.theGraph.deleteEdge(i, j);
         return true;

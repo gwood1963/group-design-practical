@@ -6,10 +6,10 @@ particularly for round 2
 export class Bank {
     totalMoney;
     money; //invariant 0 <= money <= totalMoney
-    roadLengthCost; //costs
-    roadWidthCost; //for capacities
-    roadLengthUnit; //unit length and width
-    roadWidthUnit;
+    roadLengthCost = 1; //costs
+    roadWidthCost = 1; //for capacities
+    roadLengthUnit = 1; //unit length and width
+    roadWidthUnit = 1;
 
 
 
@@ -38,6 +38,7 @@ export class Bank {
     }
 
     moneyLeft() {
+        //console.log(this.money);
         return this.money;
     }
 
@@ -48,7 +49,7 @@ export class Bank {
      * @returns the (floor) cost of the road based on our parameters
      */
     roadCost(width, length) {
-        const cost = width * this.roadWidthCost / this.roadWidthUnit + length * this.roadLengthCost / this.roadLengthUnit;
+        const cost = (width * this.roadWidthCost / this.roadWidthUnit) * (length * this.roadLengthCost / this.roadLengthUnit);
         return Math.floor(cost);
     }
 
@@ -59,7 +60,9 @@ export class Bank {
      */
     buildRoad(width, length) {
         const cost = this.roadCost(width, length);
-        this.money -= cost;
+        //console.log(cost);
+        this.money = this.money - cost;
+        //console.log(this.money);
         return cost;
     }
 
