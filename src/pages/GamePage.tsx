@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ActionButton from "../components/ActionButton";
 import MainWrapper from "../components/ContentWrapper";
@@ -12,9 +12,45 @@ import Round1Edge from "../components/Round1Edge";
 import ImageNode from "../components/ImageNode";
 import { Round1 } from "../game/Round1";
 import NavBar from "../components/NavBar";
+import InstructionsBox from "../components/InstructionsBox";
 const edgeTypes: EdgeTypes = {
   Round1Edge: Round1Edge,
 };
+
+const instructionsContent = (
+  <div style={{ margin: "0.5rem" }}>
+    <p>
+      <b>A company owner has two offices in this city. </b>
+      Currently all of her employees are in the West Office. She needs to move{" "}
+      <b>
+        as many employees as possible to the East Office within the next 10
+        minutes
+      </b>{" "}
+      for a conference.
+    </p>
+    <p>
+      Unfortunately, the City Council has imposed some{" "}
+      <b>strict traffic restrictions</b>, limiting the number of people the
+      company is to allowed to send down any given road in the city within a 10
+      minute period.
+    </p>
+    <p>
+      She has asked you for your help. You need to{" "}
+      <b>suggest how many people she sends down each road</b>, in order to get
+      as many employees from the West to East Office as possible, without
+      breaking the traffic restrictions. Furthermore, on your route,{" "}
+      <b>the same number of people must leave any building as enter it</b>.
+    </p>
+    <p>
+      When you think your suggestion gets as many people to the East Office as
+      possible, press{" "}
+      <i>
+        <b>Submit and Move On.</b>
+      </i>
+    </p>
+    <br />
+  </div>
+);
 
 const GamePage = () => {
   //ON ANY PAGE WHERE YOU NEED INFORMATION ABOUT THE SIGNED IN USER, COPY AND PASTE THE FOLLOWING SECTION AT THE TOP
@@ -417,92 +453,7 @@ const GamePage = () => {
               <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             </ReactFlow>
           </div>
-          <div
-            id="InstructionBox"
-            style={{
-              width: "100%",
-              borderRadius: "5px",
-              background: instructBoxColor,
-              height: instructBoxSize,
-            }}
-          >
-            <div
-              id="InstructionText"
-              style={{
-                alignItems: "center",
-                padding: "5px",
-                height: "100%",
-                width: "100%",
-                textAlign: "left",
-              }}
-            >
-              {collapseButton === "-" && (
-                <div
-                  style={{
-                    fontSize: "18px",
-                    position: "relative",
-                    width: "100%",
-                  }}
-                >
-                  <b>A company owner has two offices in this city. </b>{" "}
-                  Currently all of her employees are in the West Office. <br />
-                  However, she needs to move{" "}
-                  <b>
-                    as many employees as possible to the East Office within the
-                    next 10 minutes{" "}
-                  </b>{" "}
-                  for a conference.
-                  <br /> <br />
-                  Unfontunatly, the City Council has imposed some{" "}
-                  <b>strict traffic restrictions</b>, limiting the number of
-                  people the company is to allowed to send down any <br /> given
-                  road in the city within a 10 minute period. <br />
-                  <br />
-                  She has asked you for your help. You need to{" "}
-                  <b>
-                    suggest how many people she sends down each road, in order
-                    to get as many emploeyees from the
-                    <br /> West to East Office as possible, without breaking the
-                    traffic restrictions. <br />
-                    Further, on your route, the same number of people must leave
-                    any building as enter it.
-                    <br />
-                  </b>{" "}
-                  <br />
-                  When you think your suggestion gets as many people to the East
-                  Office as possible, press{" "}
-                  <i>
-                    <b>Submit and Move On.</b>
-                  </i>
-                </div>
-              )}
-              {collapseButton === "+" && (
-                <div
-                  style={{
-                    fontSize: "35px",
-                    position: "relative",
-                    top: "15%",
-                    left: "5%",
-                    color: "",
-                  }}
-                >
-                  <i>Click [+] to view </i>
-                  <b>Instructions</b>{" "}
-                </div>
-              )}
-            </div>
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              fontSize: "30px",
-              width: "10px",
-            }}
-          >
-            <ActionButton text={collapseButton} onClick={toggleCollapse} />
-          </div>
+          <InstructionsBox content={instructionsContent} />
         </div>
         <div
           id="ControlsBox"
