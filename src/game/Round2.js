@@ -9,7 +9,7 @@ import { Generate } from './Generate.js';
 import { Display } from './Display.js';
 import { Bank } from './Bank.js';
 
-export class Round1 {
+export class Round2 {
     theGraph = new Graph;
     theA;
     theANoCap;
@@ -25,6 +25,7 @@ export class Round1 {
 
     readSeed(seed) {
         this.seedReader.readSeed(seed);
+        this.theCoords = this.seedReader.getCoords();
         this.theGraph.duplicate(this.seedReader.getGraph());
         this.theA = this.theGraph.getA();
         this.theANoCap = this.theGraph.getAWithoutCaps();
@@ -45,16 +46,17 @@ export class Round1 {
         return this.seedReader.makeSeed(this.theGraph);
     }
 
-    genRandom(n) {
+    genRandom(n, w, h) {
         var B = [];
         for (var i = 0; i < n; i++) {
             B.push([]);
         }
         this.theGraph = new Graph(n, B);
-        this.theCoords = this.display.genRandomEmpty(n);
+        this.theCoords = this.display.genRandomEmpty(n, w, h);
         this.theA = this.theGraph.getA();
         this.theANoCap = this.theGraph.getAWithoutCaps();
         this.theN = this.theGraph.dim();
+        this.bank.setTotalMoney(5 * n);
     }
 
     getGraph() {
@@ -74,17 +76,18 @@ export class Round1 {
     }
 
     getCoords(w, h) {
-        var coords = this.display.getPositionsRandom(this.theN, this.theANoCap, w, h);
-        this.theCoords = coords;
         return this.theCoords;
     }
 
     readSeed(seed) {
+        //console.log(seed);
         this.seedReader.readSeed(seed);
-        this.loadGraph(this.seedReader.getGraph());
+        this.theGraph = this.seedReader.getGraph();
+        //console.log(this.theGraph);
         this.theA = this.theGraph.getA();
         this.theANoCap = this.theGraph.getAWithoutCaps();
         this.theN = this.theGraph.dim();
+        this.theCoords = this.seedReader.getCoords();
         const n = this.theN;
         var r = [];
         for (var i = 0; i < n; i++) {

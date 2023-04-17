@@ -8,6 +8,7 @@ import { ReadSeed } from './ReadSeed.js'
 import { MaxFlowSolver } from './MaxFlowSolver.js'
 import { Display } from './Display.js'
 import { Round1 } from './Round1.js'
+import { Round2 } from './Round2.js'
 
 //all capacities equal to 5 in this case
 //simple test
@@ -380,6 +381,15 @@ class Test {
         var coords = this.display.getPositionsRandom(5, randomANoCap, 100, 100)
         this.display.consoleDisplay(5, randomANoCap, coords, 100, 100)
     }
+
+    round2SeedTest() {
+        const s = "5%20,30%25,70%37,50%60,20%80,25%";
+        const round2 = new Round2;
+        round2.readSeed(s);
+        console.log(round2.getCoords());
+        console.log(round2.getN());
+
+    }
 }
 
 
@@ -477,6 +487,11 @@ function testRound1() {
     Round1_.theGraph.logInfo();
 }
 
+function runRound2SeedTest() {
+    var tester = new Test;
+    tester.round2SeedTest();
+}
+
 //console.log("hi");
 //runTest1();
 //runGenerationTest1();
@@ -498,7 +513,8 @@ function testRound1() {
 //runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
-runFullTest();
+//runFullTest();
 //runFullTest2();
 
 //testRound1();
+runRound2SeedTest();
