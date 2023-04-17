@@ -383,13 +383,19 @@ class Test {
     }
 
     round2SeedTest() {
-        const s = "5%20,30%25,70%37,50%60,20%80,25%";
+        const s = "5%50%1%2%3.34%4%20,30%25,70%37,50%60,20%80,25%";
         const round2 = new Round2;
         round2.readSeed(s);
         console.log(round2.getCoords());
         console.log(round2.getN());
         console.log(round2.moneyRemaining());
+        console.log(round2.getBankParams());
         this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        round2.addRoad(1, 2, 10, 10);
+        console.log(round2.moneyRemaining());
+        console.log(round2.getA());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        console.log(round2.makeSeed());
 
     }
 
@@ -400,7 +406,7 @@ class Test {
         console.log(round2.getN());
         console.log(round2.moneyRemaining());
         this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
-
+        console.log(round2.makeSeed());
     }
 
     round2RandomTest2() {
@@ -421,7 +427,7 @@ class Test {
         round2.deleteRoad(3, 2);
         console.log(round2.moneyRemaining());
         this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
-
+        console.log(round2.makeSeed());
     }
 }
 
@@ -560,6 +566,6 @@ function runRound2RandomTest2() {
 //runFullTest2();
 
 //testRound1();
-//runRound2SeedTest();
+runRound2SeedTest();
 //runRound2RandomTest();
-runRound2RandomTest2();
+//runRound2RandomTest2();

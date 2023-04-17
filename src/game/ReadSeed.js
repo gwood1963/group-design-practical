@@ -5,12 +5,14 @@ Currently not in use
 */
 
 import { Graph } from './Graph.js'
+import { Bank } from './Bank.js'
 
 export class ReadSeed {
     graph;
     n = 0;
     round;
     coords;
+    bank;
 
     /**
      * 
@@ -70,27 +72,47 @@ export class ReadSeed {
             var recordedN = false;
             var coords = [];
             var n;
+            var bankParams = [];
             var i = 0;
             var j = 0;
 
             while (j < seed.length) {
                 if (recordedN) {
-                    if (seed[j] != '%') {} else { //j is at the next % sign
-                        //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
-                        var info = seed.substring(i + 1, j);
-                        var firstComma = seed.indexOf(','); //first occurrence of ','
-                        var a = parseInt(info.substring(0, firstComma));
-                        var b = parseInt(info.substring(firstComma - 1));
-                        /* console.log(a);
-                        console.log(b);
-                        console.log(c); */
+                    if (bankParams.length >= 5) {
+                        //console.log("done");
+                        if (seed[j] != '%') {} else { //j is at the next % sign
+                            //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
+                            var info = seed.substring(i + 1, j);
+                            //console.log(info);
+                            var firstComma = info.indexOf(','); //first occurrence of ','
+                            //console.log(firstComma);
+                            var a = parseInt(info.substring(0, firstComma));
+                            var b = parseInt(info.substring(firstComma + 1));
+                            //console.log(info.substring(firstComma + 1));
+                            /* console.log(a);
+                            console.log(b);
+                            console.log(c); */
 
-                        coords.push([a, b]);
-                        i = j;
+                            coords.push([a, b]);
+                            i = j;
+                        }
+                    } else {
+                        if (seed[j] != '%') {} else { //j is at the next % sign
+                            //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
+                            var n = parseFloat(seed.substring(i + 1, j));
+                            //console.log(seed.substring(i, j));
+                            /* console.log(a);
+                            console.log(b);
+                            console.log(c); */
+
+                            bankParams.push(n);
+                            i = j;
+                        }
                     }
                 } else {
                     if (seed[j] != '%') {} else {
                         n = parseInt(seed.substring(0, j));
+                        //console.log(n);
                         this.n = n;
                         i = j;
                         recordedN = true;
@@ -100,18 +122,27 @@ export class ReadSeed {
             }
             this.coords = coords;
             var B = [];
-            for (var i = 0; i < n; i++) {
+            for (var i = 0; i < this.n; i++) {
                 B.push([]);
             }
             //console.log("generating graph");
-            this.graph = new Graph(n, B);
+            this.graph = new Graph(this.n, B);
             /* console.log(this.graph);
             console.log(this.coords); */
+            //console.log(bankParams);
+            this.bank = new Bank(bankParams[0]);
+            //console.log(this.bank);
+            this.bank.setParams(bankParams[1], bankParams[2], bankParams[3], bankParams[4]);
         }
     }
 
     getGraph() {
         return this.graph;
+    }
+
+    getBank() {
+        //console.log(this.bank);
+        return this.bank;
     }
 
     getCoords() {
@@ -166,7 +197,22 @@ export class ReadSeed {
             return seed;
         }
         return null;
+    }
 
+    /**
+     * Makes seed for round 2
+     * @param {Number} n 
+     * @param {Number[]} b - bank info
+     * @param {Number[][]} c - coords
+     */
+    makeSeed2(n, b, c) {
+        if (this.round != 2) return null;
+        var seed = "";
+        seed = seed + n + "%" + b[0] + "%" + b[1] + "%" + b[2] + "%" + b[3] + "%" + b[4] + "%";
+        for (var i = 0; i < c.length; i++) {
+            seed = seed + c[i][0] + ',' + c[i][1] + '%';
+        }
+        return seed;
     }
 
 }

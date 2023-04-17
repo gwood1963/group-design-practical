@@ -38,10 +38,14 @@ export class Round2 {
             r.push(temp);
         }
         this.roads = r;
+        this.setBank(this.seedReader.getBank());
     }
 
     makeSeed() {
-        return this.seedReader.makeSeed(this.theGraph);
+        const n = this.getN();
+        const bankInfo = this.bank.getParams();
+        const coords = this.getCoords();
+        return this.seedReader.makeSeed2(n, bankInfo, coords);
     }
 
     /**
@@ -53,6 +57,15 @@ export class Round2 {
      */
     setBankParams(rlc, rwc, rlu, rwu) {
         this.bank.setParams(rlc, rwc, rlu, rwu);
+    }
+
+    setBank(b) {
+        //console.log(b);
+        this.bank = b;
+    }
+
+    getBankParams() {
+        return this.bank.getParams();
     }
 
     genRandom(n, w, h) {
@@ -96,6 +109,7 @@ export class Round2 {
     }
 
     getN() {
+        //console.log(this.theGraph);
         this.theN = this.theGraph.dim();
         return this.theN;
     }
@@ -104,7 +118,7 @@ export class Round2 {
         return this.theCoords;
     }
 
-    readSeed(seed) {
+    /* readSeed(seed) {
         //console.log(seed);
         this.seedReader.readSeed(seed);
         this.theGraph = this.seedReader.getGraph();
@@ -121,7 +135,7 @@ export class Round2 {
             r.push(temp);
         }
         this.roads = r;
-    }
+    } */
 
     loadGraph(graph) {
         this.theGraph = graph;

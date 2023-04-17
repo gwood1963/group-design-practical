@@ -32,6 +32,16 @@ export class Bank {
         this.roadWidthUnit = rwu;
     }
 
+    getParams() {
+        var params = [];
+        params.push(this.totalMoney);
+        params.push(this.roadLengthCost);
+        params.push(this.roadWidthCost);
+        params.push(this.roadLengthUnit);
+        params.push(this.roadWidthUnit);
+        return params;
+    }
+
     setTotalMoney(money) {
         this.totalMoney = money;
         this.money = this.totalMoney;
