@@ -45,35 +45,16 @@ export class Round1 {
         return this.seedReader.makeSeed(this.theGraph);
     }
 
-    /**
-     * @require numNodes > 2 (s, t, and other nodes)
-     * @require numFromS, numIntoT <= n-2
-     * @param {Int} numNodes 
-     * @param {Int} numEdges - nodes excluding those from s or into t
-     * @param {Int} numFromS 
-     * @param {Int} numIntoT 
-     * @param {Int} minCap 
-     * @param {Int} maxCap 
-     */
-    genRandom(numNodes, numEdges, numFromS, numIntoT, minCap, maxCap) {
-        this.generate.generate(numNodes, numEdges, numFromS, numIntoT, minCap, maxCap);
-        var randomG = this.generate.export();
-        this.theGraph = randomG;
-        var randomA = randomG.getA();
-        this.theA = randomA;
-        var randomANoCap = randomG.getAWithoutCaps();
-        this.theANoCap = randomANoCap;
-        var n = randomA.length;
-        this.theN = n;
-        var r = [];
+    genRandom(n) {
+        var B = [];
         for (var i = 0; i < n; i++) {
-            var temp = [];
-            for (var j = 0; j < n; j++) {
-                temp.push([0, 0]);
-            }
-            r.push(temp);
+            B.push([]);
         }
-        this.roads = r;
+        this.theGraph = new Graph(n, B);
+        this.theCoords = this.display.genRandomEmpty(n);
+        this.theA = this.theGraph.getA();
+        this.theANoCap = this.theGraph.getAWithoutCaps();
+        this.theN = this.theGraph.dim();
     }
 
     getGraph() {

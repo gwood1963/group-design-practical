@@ -39,6 +39,25 @@ export class Display {
     maxIters = 20;
     attraction = 0.0002; //currently unused
     repulsion = 18; //currently unused
+
+    /**
+     * positions for n nodes, no edges
+     */
+    genRandomEmpty(n, w, h) {
+        var coords = this.generateInitialCoordsRandom(w, h);
+        coords = this.adjustArea(n, coords, w, h);
+        coords = coords.sort(([x, b], [y, d]) => x - y);
+
+        for (var i = 0; i < 5; i++) {
+            var c = this.generateInitialCoordsRandom(w, h);
+            c = this.adjustArea(n, c, w, h);
+            c = c.sort(([x, b], [y, d]) => x - y);
+            if (this.nodeSpacing(n, c) > this.nodeSpacing(n, coords))
+                coords = c;
+        }
+        return coords;
+    }
+
     /**
      * Find optimal positions for the nodes to be displayed to minimize edge
      * crossing, total edge length, etc. while also taking up a fair amount
