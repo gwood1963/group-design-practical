@@ -8,6 +8,7 @@ interface RecentScores {
     FirstName: string,
     Surname: string,
     Email: string,
+    AttemptDate: string,
     ProblemID: string,
     RawScore: number,
     Percentile: number,
@@ -19,12 +20,12 @@ export const getRecentScores = async () => {
     // Data can then be extracted by e.g. resultSet[0].UserID
     var poolConnection = await connect(connection);
     var resultSet: IRecordSet<RecentScores> = await poolConnection.request().query(
-        `select users.UserID UserID, FirstName, Surname, Email, ProblemID, RawScore, Percentile, Invited from [dbo].[Users] users
+        `select users.UserID UserID, FirstName, Surname, Email, AttemptDate, ProblemID, RawScore, Percentile, Invited from [dbo].[Users] users
         inner join [dbo].[Attempts] attempts on attempts.UserID=users.UserID
         join (select UserID, max(AttemptDate) most_recent from attempts group by UserID) t 
             on t.most_recent = attempts.AttemptDate and t.UserID = users.UserID
         where users.UserID != 0
-        order by users.UserID`
+        order by AttemptDate desc`
     ).then(res => res.recordset);
 
     return resultSet;

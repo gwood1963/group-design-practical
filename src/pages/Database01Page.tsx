@@ -16,6 +16,7 @@ interface Data {
     FirstName: string,
     Surname: string,
     Email: string,
+    AttemptDate: string,
     ProblemID: string,
     RawScore: number,
     Percentile: number,
@@ -60,6 +61,11 @@ const Database01Page = () => {
             Header: "Email",
             id: "Email",
             accessor: (row: Data) => row.Email
+        },
+        {
+            Header: "Attempt Date",
+            id: "AttemptDate",
+            accessor: (row: Data) => (new Date(row.AttemptDate)).toDateString()
         },
         {
             Header: "Problem ID",
