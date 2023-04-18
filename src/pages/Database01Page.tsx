@@ -1,6 +1,6 @@
 import fakeData from "./FAKEDATA.json";
 import * as React from "react";
-import { useTable, useRowSelect } from "react-table";
+import { useTable, useRowSelect, Column } from "react-table";
 import MainWrapper from "../components/ContentWrapper";
 import LinkButton from "../components/LinkButton";
 import ActionButton from "../components/ActionButton";
@@ -25,23 +25,27 @@ interface Data {
 
 
 const Database01Page = () => {
-    const [scores, setScores] = useState([]);
+    const [scores, setScores] = useState<Data[]>([]);
     const [time, setTime] = useState<number>(0);
+
+    const [sort, setSort] = useState('date');
     
-    const data: Data[] = React.useMemo(() => scores, [scores]);
+    const data: Data[] = React.useMemo(() => scores.sort((a, b) => (
+        sort === 'id' ? a.UserID - b.UserID : new Date(b.AttemptDate).getTime() - new Date(a.AttemptDate).getTime()
+    )), [scores, sort]);
     const skipResetRef =  React.useRef() //this is not needed for now, but will be used to control whether we want to refresh selected rows after certain actions.
 
     //Function for getting the live table data 
     async function getScores() {
         const result = await fetch("/api/database");
-        const json = await result.json();
+        const json: Data[] = await result.json();
         console.log(json);
         //@ts-ignore
         skipResetRef.current = true
         setScores(json);
     }
 
-    const columns= React.useMemo(() => [ 
+    const columns= React.useMemo<Column<Data>[]>(() => [ 
         {
             Header: "Candidate ID",
             id: "UserID",
@@ -65,7 +69,9 @@ const Database01Page = () => {
         {
             Header: "Attempt Date",
             id: "AttemptDate",
-            accessor: (row: Data) => (new Date(row.AttemptDate)).toDateString()
+            accessor: (row: Data) => new Date(row.AttemptDate),
+            //@ts-ignore
+            Cell: ({value}) => value.toDateString()
         },
         {
             Header: "Problem ID",
@@ -210,6 +216,15 @@ const Database01Page = () => {
                 Delete Selected
                 <span className = "popuptext" id = "DeletePopup"> None selected!</span>
                 </div>
+
+                {/**Sort toggle. */}
+                <ActionButton 
+                text = {"Sort by " + (sort === 'date' ? "Candidate ID" : "Attempt Date")} 
+                backcolor = "rgba(0,0,0,0)" 
+                onClick={() => {
+                    setSort(sort === 'date' ? 'id' : 'date');
+                }}
+                />
 
                 {/**Back button */}
                 <div style = {{position: "absolute", right: "5px"}}>
