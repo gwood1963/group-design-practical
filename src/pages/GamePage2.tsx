@@ -7,15 +7,25 @@ import {
   ReactFlow,
   EdgeTypes,
 } from "reactflow";
-import { useEffect, useMemo, useState } from "react";
+import {
+  MouseEvent,
+  MouseEventHandler,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import MainWrapper from "../components/ContentWrapper";
 import ControlsBox from "../components/ControlsBox";
 import ImageNode from "../components/ImageNode";
 import InstructionsBox from "../components/InstructionsBox";
 import NavBar from "../components/NavBar";
 import Round1Edge from "../components/Round1Edge";
+import Round2Edge from "../components/Round2Edge";
+import Modal from "react-modal";
+import BuildRoadModal from "../components/BuildRoadModal";
+
 const edgeTypes: EdgeTypes = {
-  Round1Edge: Round1Edge,
+  Round2Edge: Round2Edge,
 };
 
 const instructionsContent = (
@@ -125,26 +135,28 @@ const dummyNodes: Node[] = [
   },
 ];
 
-const dummyEdges: Edge[] = [
-
-]
+const dummyEdges: Edge[] = [];
 
 const GamePage2 = () => {
-
   const [nodes, setNodes] = useState<Node[]>(dummyNodes); //a state to store the array of nodes.
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
+
+  const [budget, setBudget] = useState(5000);
+
+  const [selectedNode, setSelectedNode] = useState<string[]>([]);
+  const [buildRoadModal, setBuildRoadModal] = useState(false);
 
   /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
   /** ---------------------------------------------------- */
   useMemo(() => {
     (async () => {
-      let nodeCount = dummyNodes.length
+      let nodeCount = dummyNodes.length;
       let flowsTemp = [];
       let initialEdgesTemp: Edge[] = [];
       for (let i = 0; i < nodeCount; i++) {
         for (let k = 0; k < nodeCount; k++) {
-          if (i != k && i < k) {
+          if (i !== k && i < k) {
             const myid = "e" + i + "-" + k;
             flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
             const capacity = 10;
@@ -153,7 +165,7 @@ const GamePage2 = () => {
               source: `${i}`,
               target: `${k}`,
               animated: true,
-              type: "Round1Edge",
+              type: "Round2Edge",
               zIndex: 0,
               data: {
                 id: myid,
@@ -162,19 +174,53 @@ const GamePage2 = () => {
                 setFlow: setFlows,
                 min: -capacity,
                 capacity: capacity,
+                visible: false,
               },
             };
             initialEdgesTemp.push(temp);
-            console.log(temp)
+            console.log(temp);
           }
         }
       }
       setFlows(flowsTemp);
       setEdges(initialEdgesTemp);
-      console.log("initialEdgesTemp",initialEdgesTemp)
-      console.log("edges",edges)
+      console.log("initialEdgesTemp", initialEdgesTemp);
+      console.log("edges", edges);
     })();
   }, []);
+
+  const selectNode = (_: React.MouseEvent, n: Node) => {
+    console.log(selectedNode);
+    if (selectedNode.length === 0) {
+      setSelectedNode([n.id]);
+    } else if (selectedNode.includes(n.id)) {
+    } else {
+      setSelectedNode((ns) => [...ns, n.id]);
+      setBuildRoadModal(true);
+    }
+  };
+
+  const buildRoad = (capacity: number) => {
+    setEdges((es) =>
+      es.map((e) =>
+        e.id === `e${selectedNode[0]}-${selectedNode[1]}` ||
+        e.id === `e${selectedNode[1]}-${selectedNode[0]}`
+          ? {
+              ...e,
+              data: {
+                ...e.data,
+                visible: !e.data.visible,
+                capacity: capacity,
+                min: -capacity,
+              },
+            }
+          : e
+      )
+    ); // toggles visiblity for the selected edge.
+    setBuildRoadModal(false);
+    setSelectedNode([]);
+    setBudget((b) => b - capacity * 10);
+  };
 
   return (
     <MainWrapper flexDirection="column">
@@ -183,6 +229,29 @@ const GamePage2 = () => {
         onSubmit={() => {}}
         subtitle="You must stay within budget"
       />
+      <Modal
+        isOpen={buildRoadModal}
+        style={{
+          content: {
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background:
+              "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
+            height: "200px",
+            width: "400px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          },
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.4)",
+          },
+        }}
+      >
+        <BuildRoadModal submit={buildRoad} />
+      </Modal>
       <div
         style={{
           display: "flex",
@@ -215,9 +284,9 @@ const GamePage2 = () => {
             <ReactFlow
               nodes={nodes}
               edges={edges}
-              panOnDrag={true}
               edgeTypes={edgeTypes}
               nodeTypes={{ ImageNode: ImageNode }}
+              onNodeClick={selectNode}
               fitView
             >
               <Controls />
