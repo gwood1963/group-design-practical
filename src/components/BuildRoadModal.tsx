@@ -1,8 +1,15 @@
 import { useState } from "react";
 import ActionButton from "./ActionButton";
 
-const BuildRoadModal = ({ submit }: { submit: (x: number) => void }) => {
+const BuildRoadModal = ({
+  submit,
+  budget,
+}: {
+  submit: (x: number) => void;
+  budget: number;
+}) => {
   const [capacity, setCapacity] = useState(1);
+  const [error, setError] = useState("");
 
   return (
     <>
@@ -31,7 +38,17 @@ const BuildRoadModal = ({ submit }: { submit: (x: number) => void }) => {
         <p>Road Capacity: {capacity}</p>
         <p>Road Cost: ${capacity * 10}</p>
       </div>
-      <ActionButton onClick={() => submit(capacity)} text="Build Road" />
+      {error !== "" ? <p style={{ color: "red" }}>{error}</p> : <></>}
+      <ActionButton
+        onClick={() => {
+          if (budget - 10 * capacity < 0) {
+            setError("You cannot afford this road!");
+            return;
+          }
+          submit(capacity);
+        }}
+        text="Build Road"
+      />
     </>
   );
 };

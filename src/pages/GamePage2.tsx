@@ -6,6 +6,7 @@ import {
   Node,
   ReactFlow,
   EdgeTypes,
+  NodeTypes,
 } from "reactflow";
 import {
   MouseEvent,
@@ -23,10 +24,6 @@ import Round1Edge from "../components/Round1Edge";
 import Round2Edge from "../components/Round2Edge";
 import Modal from "react-modal";
 import BuildRoadModal from "../components/BuildRoadModal";
-
-const edgeTypes: EdgeTypes = {
-  Round2Edge: Round2Edge,
-};
 
 const instructionsContent = (
   <div style={{ margin: "0.5rem" }}>
@@ -138,11 +135,19 @@ const dummyNodes: Node[] = [
 const dummyEdges: Edge[] = [];
 
 const GamePage2 = () => {
+  const edgeTypes: EdgeTypes = useMemo(
+    () => ({
+      Round2Edge: Round2Edge,
+    }),
+    []
+  );
+  const nodeTypes: NodeTypes = useMemo(() => ({ ImageNode: ImageNode }), []);
+
   const [nodes, setNodes] = useState<Node[]>(dummyNodes); //a state to store the array of nodes.
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
 
-  const [budget, setBudget] = useState(5000);
+  const [budget, setBudget] = useState(0);
 
   const [selectedNode, setSelectedNode] = useState<string[]>([]);
   const [buildRoadModal, setBuildRoadModal] = useState(false);
@@ -178,29 +183,49 @@ const GamePage2 = () => {
               },
             };
             initialEdgesTemp.push(temp);
-            console.log(temp);
           }
         }
       }
       setFlows(flowsTemp);
       setEdges(initialEdgesTemp);
-      console.log("initialEdgesTemp", initialEdgesTemp);
-      console.log("edges", edges);
     })();
   }, []);
 
   const selectNode = (_: React.MouseEvent, n: Node) => {
-    console.log(selectedNode);
     if (selectedNode.length === 0) {
+      // First node
       setSelectedNode([n.id]);
+      return;
     } else if (selectedNode.includes(n.id)) {
+      return;
+    }
+    console.log(selectedNode);
+    const edge = edges.find(
+      (e) =>
+        (e.source === selectedNode[0] && e.target === n.id) ||
+        (e.source === n.id && e.target === selectedNode[0])
+    );
+    console.log(edge);
+    if (edge && edge.data.visible) {
+      // delete road that already exists
+      setEdges((es) =>
+        es.map((e) =>
+          e.id === edge.id ? { ...e, data: { ...e.data, visible: false } } : e
+        )
+      );
+      setBudget((b) => b + edge.data.capacity * 10);
+      setSelectedNode([]);
     } else {
+      // open road modal if it doesnt
       setSelectedNode((ns) => [...ns, n.id]);
       setBuildRoadModal(true);
     }
   };
 
   const buildRoad = (capacity: number) => {
+    if (budget - capacity * 10 < 0) {
+      return;
+    }
     setEdges((es) =>
       es.map((e) =>
         e.id === `e${selectedNode[0]}-${selectedNode[1]}` ||
@@ -227,10 +252,11 @@ const GamePage2 = () => {
       <NavBar
         time={0}
         onSubmit={() => {}}
-        subtitle="You must stay within budget"
+        subtitle={`Money remaining: $${budget}`}
       />
       <Modal
         isOpen={buildRoadModal}
+        ariaHideApp={false}
         style={{
           content: {
             top: "50%",
@@ -238,7 +264,7 @@ const GamePage2 = () => {
             transform: "translate(-50%, -50%)",
             background:
               "linear-gradient(180deg, rgba(170,170,170,1) 0%, rgba(243,243,243,1) 100%)",
-            height: "200px",
+            height: "300px",
             width: "400px",
             display: "flex",
             flexDirection: "column",
@@ -250,7 +276,7 @@ const GamePage2 = () => {
           },
         }}
       >
-        <BuildRoadModal submit={buildRoad} />
+        <BuildRoadModal submit={buildRoad} budget={budget} />
       </Modal>
       <div
         style={{
@@ -285,7 +311,7 @@ const GamePage2 = () => {
               nodes={nodes}
               edges={edges}
               edgeTypes={edgeTypes}
-              nodeTypes={{ ImageNode: ImageNode }}
+              nodeTypes={nodeTypes}
               onNodeClick={selectNode}
               fitView
             >
