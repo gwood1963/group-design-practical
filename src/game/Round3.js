@@ -247,7 +247,7 @@ export class Round3 {
      * that particular puzzle
      * @param {Number} currrentRecord - what the best submitted flow is
      */
-    getScore(currrentRecord) {
+    getAdjustedScore(currrentRecord) {
         const n = this.getN();
         const A = this.getA();
         var B = [];
@@ -285,7 +285,7 @@ export class Round3 {
      * (can be tweaked later)
      * 
      */
-    getRawScore() {
+    getScore() {
         const n = this.getN();
         const A = this.getA();
         var B = [];

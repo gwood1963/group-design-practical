@@ -114,7 +114,8 @@ export class Round2 {
         return this.theN;
     }
 
-    getCoords(w, h) {
+    //Note: width and height were fixed from when we generated a problem
+    getCoords() {
         return this.theCoords;
     }
 
@@ -190,7 +191,7 @@ export class Round2 {
      * that particular puzzle
      * @param {Number} currrentRecord - what the best submitted flow is
      */
-    getScore(currrentRecord) {
+    getAdjustedScore(currrentRecord) {
         const flow = this.maxFlowEngine.maxFlow(this.theGraph);
         if (Math.max(flow, currrentRecord) == 0)
             return 0; //don't divide by 0
@@ -204,7 +205,7 @@ export class Round2 {
      * (can be tweaked later)
      * 
      */
-    getRawScore() {
+    getScore() {
         const flow = this.maxFlowEngine.maxFlow(this.theGraph);
         return flow;
     }
