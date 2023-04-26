@@ -12,9 +12,8 @@ import UserTokenPage from "./pages/UserToken";
 import GamePage from "./pages/GamePage";
 import Database01Page from "./pages/Database01Page";
 import AdminLogIn from "./pages/AdminLogIn";
-import GameStart from "./pages/GameStart"
-
-
+import GameStart from "./pages/GameStart";
+import GamePage2 from "./pages/GamePage2";
 
 const router = createBrowserRouter([
   {
@@ -47,10 +46,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/gamestart",
-    element: <GameStart/>,
-
+    element: <GameStart />,
   },
-
+  {
+    path: "/game2",
+    element: <GamePage2 />,
+  },
 ]);
 
 const root = ReactDOM.createRoot(

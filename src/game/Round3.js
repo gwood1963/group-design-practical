@@ -1,5 +1,21 @@
 /*
-This file serves to represent the backend needed for round 2
+This file serves to represent the backend needed for round 3
+*/
+
+/*
+Idea: circultion.
+We have n nodes, each with demands from say -5 to 5
+build roads, same as roudn 2
+
+try to satisfy as much demand as possible
+
+score calculation: add nodes s and t with 
+s going into each neg demand node with cap -demand, 
+t going from each pos demand node with cap demand.
+
+calculate max flow of above
+
+return that as score
 */
 
 import { Graph } from './Graph.js';
@@ -9,13 +25,14 @@ import { Generate } from './Generate.js';
 import { Display } from './Display.js';
 import { Bank } from './Bank.js';
 
-export class Round2 {
+export class Round3 {
     theGraph = new Graph;
     theA;
     theANoCap;
     theN;
     theCoords;
-    seedReader = new ReadSeed(2);
+    theDemands;
+    seedReader = new ReadSeed(3);
     maxFlowEngine = new MaxFlowSolver;
     generate = new Generate;
     display = new Display; //likely not needed in the end
@@ -39,13 +56,19 @@ export class Round2 {
         }
         this.roads = r;
         this.setBank(this.seedReader.getBank());
+        this.setDemands(this.seedReader.getDemands());
     }
 
     makeSeed() {
         const n = this.getN();
         const bankInfo = this.bank.getParams();
+        const demands = this.getDemands();
         const coords = this.getCoords();
-        return this.seedReader.makeSeed2(n, bankInfo, coords);
+        /* console.log(n);
+        console.log(bankInfo);
+        console.log(demands);
+        console.log(coords); */
+        return this.seedReader.makeSeed3(n, bankInfo, demands, coords);
     }
 
     /**
@@ -68,10 +91,24 @@ export class Round2 {
         return this.bank.getParams();
     }
 
+    setDemands(d) {
+        if (d.length != this.getN())
+            console.log("error in demands length");
+        this.theDemands = d;
+    }
+
+    getDemands() {
+        return this.theDemands;
+    }
+
     genRandom(n, w, h) {
         var B = [];
         for (var i = 0; i < n; i++) {
             B.push([]);
+        }
+        var d = this.randomDemands(n, 5);
+        while (this.sumArray(d) != 0) {
+            d = this.randomDemands(n, 5);
         }
         this.theGraph = new Graph(n, B);
         this.theCoords = this.display.genRandomEmpty(n, w, h);
@@ -86,6 +123,26 @@ export class Round2 {
             r.push(temp);
         }
         this.roads = r;
+    }
+
+    /**
+     * 
+     * @param {Number[]} arr 
+     * @returns sum of arr
+     */
+    sumArray(arr) {
+        var sum = 0;
+        for (var i = 0; i < n; i++) {
+            sum += arr[i];
+        }
+        return sum;
+    }
+
+    randomDemands(n, limit) {
+        var temp = [];
+        for (var i = 0; i < n; i++)
+            temp.push(Math.floor(Math.random() * (limit * 2 + 1) - limit));
+        return temp;
     }
 
     updateInfo() {
@@ -191,7 +248,31 @@ export class Round2 {
      * @param {Number} currrentRecord - what the best submitted flow is
      */
     getScore(currrentRecord) {
-        const flow = this.maxFlowEngine.maxFlow(this.theGraph);
+        const n = this.getN();
+        const A = this.getA();
+        var B = [];
+        var tempS = [];
+        for (var i = 0; i < this.theDemands.length; i++) {
+            if (this.theDemands[i] < 0) { //add edge from s
+                tempS.push([i + 1, this.theDemands[i] * (-1)]);
+            }
+        }
+        B.push(tempS);
+
+        for (var i = 0; i < A.length; i++) {
+            B.push(A[i]);
+        }
+
+        var tempT = [];
+        for (var i = 0; i < this.theDemands.length; i++) {
+            if (this.theDemands[i] > 0) { //add edge from s
+                tempT.push([i + 1, this.theDemands[i]]);
+            }
+        }
+        B.push(tempT);
+
+        const scoreGraph = new Graph(n + 2, B);
+        const flow = this.maxFlowEngine.maxFlow(scoreGraph);
         if (Math.max(flow, currrentRecord) == 0)
             return 0; //don't divide by 0
         return flow / Math.max(flow, currrentRecord);
@@ -205,7 +286,43 @@ export class Round2 {
      * 
      */
     getRawScore() {
-        const flow = this.maxFlowEngine.maxFlow(this.theGraph);
+        const n = this.getN();
+        const A = this.getA();
+        var B = [];
+        var tempS = [];
+        for (var i = 0; i < this.theDemands.length; i++) {
+            if (this.theDemands[i] < 0) { //add edge from s
+                tempS.push([i + 1, this.theDemands[i] * (-1)]);
+            }
+        }
+        B.push(tempS);
+
+        for (var i = 0; i < A.length; i++) {
+            var temp = [];
+            for (var k = 0; k < A[i].length; k++) {
+                const j = A[i][k][0];
+                const c = A[i][k][1];
+                temp.push([j + 1, c]);
+            }
+            B.push(temp);
+        }
+
+        //var tempT = [];
+        for (var i = 0; i < this.theDemands.length; i++) {
+            if (this.theDemands[i] > 0) { //add edge from s
+                B[i + 1].push([n + 1, this.theDemands[i]]);
+            }
+        }
+        B.push([]);
+
+        for (var i = 0; i < B.length; i++) {
+            B[i].sort(([a, b], [c, d]) => a - c);
+        }
+
+
+        const scoreGraph = new Graph(n + 2, B);
+        console.log(scoreGraph);
+        const flow = this.maxFlowEngine.maxFlow(scoreGraph);
         return flow;
     }
 

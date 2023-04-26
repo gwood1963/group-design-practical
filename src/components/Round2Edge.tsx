@@ -1,7 +1,13 @@
 import React, { FC, useState } from "react";
-import { EdgeProps, getBezierPath, EdgeLabelRenderer , getSmoothStepPath, getSimpleBezierPath} from "reactflow";
+import {
+  EdgeProps,
+  getBezierPath,
+  EdgeLabelRenderer,
+  getSmoothStepPath,
+  getSimpleBezierPath,
+} from "reactflow";
 
-const Round1Edge: FC<EdgeProps> = ({
+const Round2Edge: FC<EdgeProps> = ({
   id,
   sourceX,
   sourceY,
@@ -25,7 +31,7 @@ const Round1Edge: FC<EdgeProps> = ({
   const [flow, setFlow] = useState(0);
   const toggleCollapse = () => {
     sliderState((state) => (state === "true" ? "false" : "true"));
-    setz((z) => (z === 1 ? 200 : 1)) 
+    setz((z) => (z === 1 ? 200 : 1));
   };
   const getSliderValue = (event: any = 0) => {
     const newFlow = event.target.value;
@@ -37,7 +43,7 @@ const Round1Edge: FC<EdgeProps> = ({
     );
   };
 
-  return (
+  return data.visible ? (
     <>
       <path
         id={id}
@@ -46,10 +52,11 @@ const Round1Edge: FC<EdgeProps> = ({
         style={{ stroke: "rgb(5, 16, 46)", strokeWidth: "5px" }}
       />
       <EdgeLabelRenderer>
-        <div id = "edgeLabel"
+        <div
+          id="edgeLabel"
           style={{
             position: "absolute",
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`, 
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             background: "#ffcc00",
             padding: 3,
             borderRadius: 5,
@@ -64,7 +71,7 @@ const Round1Edge: FC<EdgeProps> = ({
           className="nodrag nopan slidecontainer"
         >
           {sliderToggle === "true" && (
-            <div >
+            <div>
               {data.min}{" "}
               <input
                 type="range"
@@ -77,13 +84,15 @@ const Round1Edge: FC<EdgeProps> = ({
               {data.capacity}
             </div>
           )}
-          <button className="edgebutton" onClick = {toggleCollapse}>
+          <button className="edgebutton" onClick={toggleCollapse}>
             {flow}/{data.capacity}
           </button>
         </div>
       </EdgeLabelRenderer>
     </>
+  ) : (
+    <></>
   );
 };
 
-export default Round1Edge;
+export default Round2Edge;

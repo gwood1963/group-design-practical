@@ -39,6 +39,30 @@ export class Display {
     maxIters = 20;
     attraction = 0.0002; //currently unused
     repulsion = 18; //currently unused
+
+    /**
+     * positions for n nodes, no edges
+     */
+    genRandomEmpty(n, w, h) {
+        var coords = this.generateInitialCoordsRandom(n, w, h);
+        coords = this.adjustArea(n, coords, w, h);
+        coords = coords.sort(([x, b], [y, d]) => x - y);
+
+        for (var i = 0; i < 100; i++) {
+            var c = this.generateInitialCoordsRandom(n, w, h);
+            c = this.adjustArea(n, c, w, h);
+            c = c.sort(([x, b], [y, d]) => x - y);
+            //console.log(this.colinearality(c, w, h));
+            if (this.nodeSpacing(n, c) > this.nodeSpacing(n, coords) && this.colinearality(c, w, h) > this.colinearality(coords, w, h)) {
+                //console.log("replaced coords _________________________________");
+                coords = c;
+
+            }
+
+        }
+        return coords;
+    }
+
     /**
      * Find optimal positions for the nodes to be displayed to minimize edge
      * crossing, total edge length, etc. while also taking up a fair amount
@@ -87,7 +111,7 @@ export class Display {
         var bestCrossCount = 10000000;
         const topOrder = this.topOrder(A); //from first to last in this array is the same as from left to right
         const isTop = topOrder != null;
-        for (var iters = 0; iters < 1000; iters++) {
+        for (var iters = 0; iters < 10000; iters++) {
             var coords = this.generateInitialCoordsRandom(n, w, h);
 
             //console.log(coords);
@@ -134,7 +158,9 @@ export class Display {
             if (crossCount == bestCrossCount) {
                 //console.log("equal cross count")
                 //compare node spacing here
-                if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords)) {
+                if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords) && this.colinearality(coords, w, h) > this.colinearality(bestCoords, w, h)) {
+                    //console.log("new colinearity:");
+                    //console.log(this.colinearality(coords, w, h));
                     //if (this.hullArea(coords) > this.hullArea(bestCoords) && this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords)) {
                     //if (this.nodeSpacing(n, coords) > this.nodeSpacing(n, bestCoords) &&
                     //this.relativePositionLoss(n, A, coords) < this.relativePositionLoss(n, A, bestCoords)) {
@@ -672,6 +698,42 @@ end
         area = Math.abs(area / 2);
 
         return area;
+    }
+
+    /**
+     * Returns the smallest distance from any point to a line formed by any other two points relative to w, h
+     * @param {Number[][]} coords 
+     * @param {Number} w 
+     * @param {Number} h 
+     */
+    colinearality(coords, w, h) {
+        var dist = 1000000;
+        const n = coords.length;
+        for (var a = 0; a < n; a++) {
+            for (var i = 0; i < n; i++) {
+                for (var j = 0; j < n; j++) {
+                    if (a == i || a == j || i == j) {
+                        continue;
+                    }
+                    const x1 = coords[i][0] / w;
+                    const x2 = coords[j][0] / w;
+                    const x3 = coords[a][0] / w;
+                    const y1 = coords[i][1] / h;
+                    const y2 = coords[j][1] / h;
+                    const y3 = coords[a][1] / h;
+                    const m = (y2 - y1) / (x2 - x1);
+                    //y = mx + b
+                    const b = y2 - (m * x2);
+                    //mx - y + b = 0
+                    //for standard form ax + by + c = 0: 
+                    //dist from (x0, y0) to line is: 
+                    //|ax0 + by0 + c|/sqrt(a^2 + b^2)
+                    const d = Math.abs(m * x3 - y3 + b) / Math.sqrt(m * m + 1);
+                    dist = Math.min(d, dist);
+                }
+            }
+        }
+        return dist;
     }
 
     /**

@@ -5,11 +5,15 @@ Currently not in use
 */
 
 import { Graph } from './Graph.js'
+import { Bank } from './Bank.js'
 
 export class ReadSeed {
     graph;
     n = 0;
     round;
+    coords;
+    bank;
+    demands;
 
     /**
      * 
@@ -64,11 +68,173 @@ export class ReadSeed {
             var A = this.adjListFromArr(n, edges, capacities);
 
             this.graph = new Graph(n, A);
+        } else if (this.round == 2) {
+            var seed = s; //n%b0%b1%b2%b3%b4%x0,y0%x1,y1%...%xn-1,yn-1%TotalMoney% bi are bank params
+            var recordedN = false;
+            var coords = [];
+            var n;
+            var bankParams = [];
+            var i = 0;
+            var j = 0;
+
+            while (j < seed.length) {
+                if (recordedN) {
+                    if (bankParams.length >= 5) {
+                        //console.log("done");
+                        if (seed[j] != '%') {} else { //j is at the next % sign
+                            //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
+                            var info = seed.substring(i + 1, j);
+                            //console.log(info);
+                            var firstComma = info.indexOf(','); //first occurrence of ','
+                            //console.log(firstComma);
+                            var a = parseInt(info.substring(0, firstComma));
+                            var b = parseInt(info.substring(firstComma + 1));
+                            //console.log(info.substring(firstComma + 1));
+                            /* console.log(a);
+                            console.log(b);
+                            console.log(c); */
+
+                            coords.push([a, b]);
+                            i = j;
+                        }
+                    } else {
+                        if (seed[j] != '%') {} else { //j is at the next % sign
+                            //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
+                            var n = parseFloat(seed.substring(i + 1, j));
+                            //console.log(seed.substring(i, j));
+                            /* console.log(a);
+                            console.log(b);
+                            console.log(c); */
+
+                            bankParams.push(n);
+                            i = j;
+                        }
+                    }
+                } else {
+                    if (seed[j] != '%') {} else {
+                        n = parseInt(seed.substring(0, j));
+                        //console.log(n);
+                        this.n = n;
+                        i = j;
+                        recordedN = true;
+                    }
+                }
+                j++;
+            }
+            this.coords = coords;
+            var B = [];
+            for (var i = 0; i < this.n; i++) {
+                B.push([]);
+            }
+            //console.log("generating graph");
+            this.graph = new Graph(this.n, B);
+            /* console.log(this.graph);
+            console.log(this.coords); */
+            //console.log(bankParams);
+            this.bank = new Bank(bankParams[0]);
+            //console.log(this.bank);
+            this.bank.setParams(bankParams[1], bankParams[2], bankParams[3], bankParams[4]);
+        } else if (this.round == 3) {
+            var seed = s; //n%b0%b1%b2%b3%b4%x0,y0%x1,y1%...%xn-1,yn-1%TotalMoney% bi are bank params
+            var recordedN = false;
+            var coords = [];
+            var n;
+            var bankParams = [];
+            var demands = [];
+            var i = 0;
+            var j = 0;
+
+            while (j < seed.length) {
+                if (recordedN) {
+                    if (bankParams.length >= 5) {
+                        if (demands.length >= this.n) {
+                            //console.log("done");
+                            if (seed[j] != '%') {} else { //j is at the next % sign
+                                //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
+                                var info = seed.substring(i + 1, j);
+                                //console.log(info);
+                                var firstComma = info.indexOf(','); //first occurrence of ','
+                                //console.log(firstComma);
+                                var a = parseInt(info.substring(0, firstComma));
+                                var b = parseInt(info.substring(firstComma + 1));
+                                //console.log(info.substring(firstComma + 1));
+                                /* console.log(a);
+                                console.log(b);
+                                console.log(c); */
+
+                                coords.push([a, b]);
+                                i = j;
+                            }
+                        } else {
+                            if (seed[j] != '%') {} else { //j is at the next % sign
+                                //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
+                                var n = parseInt(seed.substring(i + 1, j));
+                                //console.log(seed.substring(i, j));
+                                /* console.log(a);
+                                console.log(b);
+                                console.log(c); */
+
+                                demands.push(n);
+                                i = j;
+                            }
+                        }
+                    } else {
+                        if (seed[j] != '%') {} else { //j is at the next % sign
+                            //seed.substring(i+1, j) is of form i,j,cap. Note: right now seed[i] is '%'
+                            var n = parseFloat(seed.substring(i + 1, j));
+                            //console.log(seed.substring(i, j));
+                            /* console.log(a);
+                            console.log(b);
+                            console.log(c); */
+
+                            bankParams.push(n);
+                            i = j;
+                        }
+                    }
+                } else {
+                    if (seed[j] != '%') {} else {
+                        n = parseInt(seed.substring(0, j));
+                        //console.log(n);
+                        this.n = n;
+                        i = j;
+                        recordedN = true;
+                    }
+                }
+                j++;
+            }
+            this.coords = coords;
+            var B = [];
+            for (var i = 0; i < this.n; i++) {
+                B.push([]);
+            }
+            //console.log("generating graph");
+            this.graph = new Graph(this.n, B);
+            /* console.log(this.graph);
+            console.log(this.coords); */
+            //console.log(bankParams);
+            this.bank = new Bank(bankParams[0]);
+            //console.log(this.bank);
+            this.bank.setParams(bankParams[1], bankParams[2], bankParams[3], bankParams[4]);
+            //console.log(demands);
+            this.demands = demands;
         }
     }
 
     getGraph() {
         return this.graph;
+    }
+
+    getBank() {
+        //console.log(this.bank);
+        return this.bank;
+    }
+
+    getCoords() {
+        return this.coords;
+    }
+
+    getDemands() {
+        return this.demands;
     }
 
     adjListFromArr(n, edges, capacities) {
@@ -119,7 +285,42 @@ export class ReadSeed {
             return seed;
         }
         return null;
+    }
 
+    /**
+     * Makes seed for round 2
+     * @param {Number} n 
+     * @param {Number[]} b - bank info
+     * @param {Number[][]} c - coords
+     */
+    makeSeed2(n, b, c) {
+        if (this.round != 2) return null;
+        var seed = "";
+        seed = seed + n + "%" + b[0] + "%" + b[1] + "%" + b[2] + "%" + b[3] + "%" + b[4] + "%";
+        for (var i = 0; i < c.length; i++) {
+            seed = seed + c[i][0] + ',' + c[i][1] + '%';
+        }
+        return seed;
+    }
+
+    /**
+     * Makes seed for round 3
+     * @param {Number} n 
+     * @param {Number[]} b - bank info
+     * @param {Number[]} d - demands
+     * @param {Number[][]} c - coords
+     */
+    makeSeed3(n, b, d, c) {
+        if (this.round != 3) return null;
+        var seed = "";
+        seed = seed + n + "%" + b[0] + "%" + b[1] + "%" + b[2] + "%" + b[3] + "%" + b[4] + "%";
+        for (var i = 0; i < d.length; i++) {
+            seed = seed + d[i] + '%';
+        }
+        for (var i = 0; i < c.length; i++) {
+            seed = seed + c[i][0] + ',' + c[i][1] + '%';
+        }
+        return seed;
     }
 
 }

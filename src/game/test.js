@@ -8,6 +8,8 @@ import { ReadSeed } from './ReadSeed.js'
 import { MaxFlowSolver } from './MaxFlowSolver.js'
 import { Display } from './Display.js'
 import { Round1 } from './Round1.js'
+import { Round2 } from './Round2.js'
+import { Round3 } from './Round3.js'
 
 //all capacities equal to 5 in this case
 //simple test
@@ -380,6 +382,103 @@ class Test {
         var coords = this.display.getPositionsRandom(5, randomANoCap, 100, 100)
         this.display.consoleDisplay(5, randomANoCap, coords, 100, 100)
     }
+
+    round2SeedTest() {
+        const s = "5%50%1%2%3.34%4%20,30%25,70%37,50%60,20%80,25%";
+        const round2 = new Round2;
+        round2.readSeed(s);
+        console.log(round2.getCoords());
+        console.log(round2.getN());
+        console.log(round2.moneyRemaining());
+        console.log(round2.getBankParams());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        round2.addRoad(1, 2, 10, 10);
+        console.log(round2.moneyRemaining());
+        console.log(round2.getA());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        console.log(round2.makeSeed());
+
+    }
+
+    round2RandomTest() {
+        const round2 = new Round2;
+        round2.genRandom(5, 100, 100);
+        console.log(round2.getCoords());
+        console.log(round2.getN());
+        console.log(round2.moneyRemaining());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        console.log(round2.makeSeed());
+    }
+
+    round2RandomTest2() {
+        const round2 = new Round2;
+        round2.setBankParams(1, 1, 1, 2);
+        round2.genRandom(5, 100, 100);
+        round2.addRoad(0, 3, 3, 4);
+        round2.addRoad(2, 4, 5, 2);
+        const A = round2.getA();
+        /* for (var i = 0; i < A.length; i++) {
+            console.log(A[i]);
+        } */
+        console.log(round2.getCoords());
+        console.log(round2.getN());
+        console.log(round2.moneyRemaining());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        round2.deleteRoad(2, 4);
+        round2.deleteRoad(3, 2);
+        console.log(round2.moneyRemaining());
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        console.log(round2.makeSeed());
+    }
+
+    noFlowTest() {
+        const badGraph = new Graph(9, unconnectedA);
+        console.log(this.maxFlowSolver.maxFlow(badGraph));
+    }
+
+    round3SeedTest() {
+        const s = "5%50%1%2%3.34%4%-2%3%2%0%-3%20,30%25,70%37,50%60,20%80,25%";
+        const round3 = new Round3;
+        round3.readSeed(s);
+        console.log(round3.getCoords());
+        console.log(round3.getN());
+        console.log(round3.moneyRemaining());
+        console.log(round3.getBankParams());
+        console.log(round3.getDemands());
+        this.display.consoleDisplay(round3.getN(), round3.getANoCap(), round3.getCoords(), 100, 100);
+        round3.addRoad(1, 2, 10, 10);
+        console.log(round3.moneyRemaining());
+        console.log(round3.getA());
+        this.display.consoleDisplay(round3.getN(), round3.getANoCap(), round3.getCoords(), 100, 100);
+        console.log(round3.makeSeed());
+    }
+
+    round3FullSeedTest() {
+        const s = "5%50%1%2%3.34%4%-2%3%2%0%-3%20,30%25,70%37,50%60,20%80,25%";
+        const round3 = new Round3;
+        round3.readSeed(s);
+        console.log(round3.getCoords());
+        console.log(round3.getN());
+        console.log(round3.moneyRemaining());
+        console.log(round3.getBankParams());
+        console.log(round3.getDemands());
+        this.display.consoleDisplay(round3.getN(), round3.getANoCap(), round3.getCoords(), 100, 100);
+
+        round3.addRoad(3, 1, 3, 1);
+        round3.addRoad(0, 2, 2, 1);
+        console.log(round3.moneyRemaining());
+        console.log(round3.getA());
+        console.log(round3.getRawScore());
+        this.display.consoleDisplay(round3.getN(), round3.getANoCap(), round3.getCoords(), 100, 100);
+
+        round3.addRoad(4, 1, 3, 1);
+        console.log(round3.moneyRemaining());
+        console.log(round3.getA());
+        console.log(round3.getRawScore());
+        this.display.consoleDisplay(round3.getN(), round3.getANoCap(), round3.getCoords(), 100, 100);
+
+        console.log(round3.makeSeed());
+    }
 }
 
 
@@ -461,6 +560,12 @@ function runFullTest2() {
     tester.fullTest2();
 }
 
+function runNoFlowTest() {
+    var tester = new Test;
+
+    tester.noFlowTest();
+}
+
 function testRound1() {
     const round1 = new Round1;
     round1.genRandom(5, 3, 2, 2, 5, 10);
@@ -475,6 +580,31 @@ function testRound1() {
     const Round1_ = new Round1;
     Round1_.readSeed(seed);
     Round1_.theGraph.logInfo();
+}
+
+function runRound2SeedTest() {
+    var tester = new Test;
+    tester.round2SeedTest();
+}
+
+function runRound2RandomTest() {
+    var tester = new Test;
+    tester.round2RandomTest();
+}
+
+function runRound2RandomTest2() {
+    var tester = new Test;
+    tester.round2RandomTest2();
+}
+
+function runRound3SeedTest() {
+    var tester = new Test;
+    tester.round3SeedTest();
+}
+
+function runRound3FullSeedTest() {
+    var tester = new Test;
+    tester.round3FullSeedTest();
 }
 
 //console.log("hi");
@@ -498,7 +628,15 @@ function testRound1() {
 //runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
-runFullTest();
+//runFullTest();
 //runFullTest2();
 
 //testRound1();
+//runRound2SeedTest();
+//runRound2RandomTest();
+//runRound2RandomTest2();
+
+//runNoFlowTest();
+
+//runRound3SeedTest();
+runRound3FullSeedTest();
