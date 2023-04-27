@@ -210,6 +210,40 @@ export class Round2 {
         return flow;
     }
 
+    /**
+     * Raw score calculation, currently is very simple: 
+     * 
+     * Score = submitted flow
+     * (can be tweaked later)
+     * @param {Number[]} flowsArr
+     * @param {Graph} originalGraph 
+     * @returns Score
+     */
+    getScoreFromArr(flowsArr, originalGraph) {
+        const flowsAdjList = this.convertFlowsArrayToAdjList(flowsArr);
+        const n = originalGraph.dim();
+        const scoreGraph = new Graph(n, flowsAdjList);
+        const flow = this.maxFlowEngine.maxFlow(scoreGraph);
+        return flow;
+    }
+
+    /**
+     * Raw score calculation, currently is very simple: 
+     * 
+     * Score = submitted flow
+     * (can be tweaked later)
+     * @param {Number[][][]} flowsAdjList
+     * @param {Graph} originalGraph 
+     * @returns Score
+     */
+    getScoreFromList(flowsAdjList, originalGraph) {
+        //const flowsAdjList = this.convertFlowsArrayToAdjList(flowsArr);
+        const n = originalGraph.dim();
+        const scoreGraph = new Graph(n, flowsAdjList);
+        const flow = this.maxFlowEngine.maxFlow(scoreGraph);
+        return flow;
+    }
+
     getMaxFlow() {
         //this.maxFlowEngine.setGraph(this.theGraph);
         return this.maxFlowEngine.maxFlow(this.theGraph);

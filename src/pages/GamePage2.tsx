@@ -1,3 +1,4 @@
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   Background,
   BackgroundVariant,
@@ -15,6 +16,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import MainWrapper from "../components/ContentWrapper";
 import ControlsBox from "../components/ControlsBox";
 import ImageNode from "../components/ImageNode";
@@ -134,8 +136,11 @@ const dummyNodes: Node[] = [
 ];
 
 const dummyEdges: Edge[] = [];
+  const auth = getAuth();
+  const GamePage2 = () => {
 
-const GamePage2 = () => {
+  const navigate = useNavigate();
+
   const edgeTypes: EdgeTypes = useMemo(
     () => ({
       Round2Edge: Round2Edge,
@@ -152,6 +157,37 @@ const GamePage2 = () => {
 
   const [selectedNode, setSelectedNode] = useState<string[]>([]);
   const [buildRoadModal, setBuildRoadModal] = useState(false);
+
+  
+
+  const [round, setRound] = useState<Round2>();
+
+  ////////////// sumbission stuffs
+  const onSubmit = () => {
+    if (!round) return; //what exactly does this do?
+    console.log(round);
+    console.log(flows);
+    const score = round.getScoreFromArr(
+      flows.map((f) => f.flow),
+      round.getGraph()
+    );
+    console.log(score);
+    fetch("/api/attempt", { //TODO define "/ape/attempt2"
+      method: "POST",
+      body: JSON.stringify({
+        score: score,
+        uid: auth.currentUser?.uid,
+        seed: round.makeSeed(),
+      }),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+    //navigate("/game3");
+    navigate("/goodbye");
+  };
+  /////////////////////
 
   /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
   /** ---------------------------------------------------- */
