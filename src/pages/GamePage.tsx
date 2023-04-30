@@ -96,7 +96,7 @@ const GamePage = () => {
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
   const [round, setRound] = useState<Round1>();
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!round) return;
     console.log(round);
     console.log(flows);
@@ -105,7 +105,7 @@ const GamePage = () => {
       round.getGraph()
     );
     console.log(score);
-    fetch("/api/attempt", {
+    const id = await fetch("/api/attempt", {
       method: "POST",
       body: JSON.stringify({
         score: score,
@@ -116,8 +116,8 @@ const GamePage = () => {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-    });
-    navigate("/game2");
+    }).then(res => res.json());
+    navigate("/game2", {state: id});
   };
 
   /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */

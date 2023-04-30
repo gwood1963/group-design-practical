@@ -16,7 +16,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import MainWrapper from "../components/ContentWrapper";
 import ControlsBox from "../components/ControlsBox";
 import ImageNode from "../components/ImageNode";
@@ -140,6 +140,7 @@ const dummyEdges: Edge[] = [];
 const GamePage2 = () => {
   const auth = getAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [time, setTime] = useState<number>(0);
   let start: number;
@@ -232,12 +233,11 @@ const GamePage2 = () => {
       round.getGraph()
     );
     console.log(score);
-    fetch("/api/attempt", {
-      //TODO define "/api/attempt2"
-      method: "POST",
+    fetch("/api/attempt2", {
+      method: "PUT",
       body: JSON.stringify({
         score: score,
-        uid: auth.currentUser?.uid,
+        attemptID: location.state,
         seed: round.makeSeed(),
       }),
       headers: {
