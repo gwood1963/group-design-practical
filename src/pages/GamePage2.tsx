@@ -88,52 +88,52 @@ const controlsContent = (
   </>
 );
 
-const dummyNodes: Node[] = [
-  {
-    id: "0",
-    zIndex: -1,
-    type: "ImageNode",
-    position: { x: 0, y: 50 },
-    data: {
-      label: "index 0",
-      image: "/skyscraper.svg",
-      color: "black",
-    },
-  },
-  {
-    id: "1",
-    zIndex: -1,
-    type: "ImageNode",
-    position: { x: 250, y: 50 },
-    data: {
-      label: "index 1",
-      image: "/skyscraper.svg",
-      color: "black",
-    },
-  },
-  {
-    id: "2",
-    zIndex: -1,
-    type: "ImageNode",
-    position: { x: 125, y: 100 },
-    data: {
-      label: "index 2",
-      image: "/skyscraper.svg",
-      color: "black",
-    },
-  },
-  {
-    id: "3",
-    zIndex: -1,
-    type: "ImageNode",
-    position: { x: 125, y: 0 },
-    data: {
-      label: "index 3",
-      image: "/skyscraper.svg",
-      color: "black",
-    },
-  },
-];
+// const dummyNodes: Node[] = [
+//   {
+//     id: "0",
+//     zIndex: -1,
+//     type: "ImageNode",
+//     position: { x: 0, y: 50 },
+//     data: {
+//       label: "index 0",
+//       image: "/skyscraper.svg",
+//       color: "black",
+//     },
+//   },
+//   {
+//     id: "1",
+//     zIndex: -1,
+//     type: "ImageNode",
+//     position: { x: 250, y: 50 },
+//     data: {
+//       label: "index 1",
+//       image: "/skyscraper.svg",
+//       color: "black",
+//     },
+//   },
+//   {
+//     id: "2",
+//     zIndex: -1,
+//     type: "ImageNode",
+//     position: { x: 125, y: 100 },
+//     data: {
+//       label: "index 2",
+//       image: "/skyscraper.svg",
+//       color: "black",
+//     },
+//   },
+//   {
+//     id: "3",
+//     zIndex: -1,
+//     type: "ImageNode",
+//     position: { x: 125, y: 0 },
+//     data: {
+//       label: "index 3",
+//       image: "/skyscraper.svg",
+//       color: "black",
+//     },
+//   },
+// ];
 
 const dummyEdges: Edge[] = [];
 
@@ -152,6 +152,55 @@ const GamePage2 = () => {
   );
   const nodeTypes: NodeTypes = useMemo(() => ({ ImageNode: ImageNode }), []);
 
+  useEffect(() => {
+    let round2 = new Round2();
+    round2.readSeed(
+      "5%500%1%2%3.34%4%-2%3%2%0%-3%20,30%25,70%37,50%60,20%80,25%"
+    );
+    setRound(round2);
+    let nodesTemp = [];
+    const nodeCount = round2.getN();
+    let coords = round2.getCoords().slice(5);
+    setBudget(round2.moneyRemaining());
+    // Generate nodes
+    console.log(round2);
+    for (let i = 0; i < nodeCount; i++) {
+      var myLabel = "";
+      var myColor = "black";
+      if (i == 0) {
+        myLabel = "West Office";
+        myColor = "green";
+      } else if (i == nodeCount - 1) {
+        myLabel = "East Office";
+        myColor = "red";
+      }
+
+      var myImage = "/building2trees.svg";
+      var randomImage = Math.random();
+      if (randomImage > 0.6666) {
+        myImage = "/skyscraper.svg";
+      } else if (randomImage > 0.45) {
+        myImage = "/factory.svg";
+      } else if (randomImage > 0.333) {
+        myImage = "/church.svg";
+      }
+
+      const node = {
+        id: `${i}`,
+        zIndex: -1, //in front of edges but behind labels
+        type: "ImageNode",
+        position: { x: coords[i][0] * 5, y: coords[i][1] * 5 },
+        data: {
+          label: myLabel,
+          image: myImage,
+          color: myColor,
+        },
+      };
+      nodesTemp.push(node);
+    }
+    setNodes(nodesTemp);
+  }, []);
+
   // Start the timer
   useEffect(() => {
     start = Date.now() / 1000;
@@ -162,11 +211,11 @@ const GamePage2 = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const [nodes, setNodes] = useState<Node[]>(dummyNodes); //a state to store the array of nodes.
+  const [nodes, setNodes] = useState<Node[]>([]); //a state to store the array of nodes.
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
 
-  const [budget, setBudget] = useState(1000);
+  const [budget, setBudget] = useState(0);
 
   const [selectedNode, setSelectedNode] = useState<string[]>([]);
   const [buildRoadModal, setBuildRoadModal] = useState(false);
@@ -183,7 +232,8 @@ const GamePage2 = () => {
       round.getGraph()
     );
     console.log(score);
-    fetch("/api/attempt", { //TODO define "/api/attempt2"
+    fetch("/api/attempt", {
+      //TODO define "/api/attempt2"
       method: "POST",
       body: JSON.stringify({
         score: score,
@@ -319,11 +369,12 @@ const GamePage2 = () => {
       //     initialEdgesTemp.push(temp);
       //   }
       // }
-      setRound(round2);
     
 
       */
-      let nodeCount = dummyNodes.length;
+
+      if (!round) return;
+      let nodeCount = round.getN();
       let flowsTemp = [];
       let initialEdgesTemp: Edge[] = [];
       for (let i = 0; i < nodeCount; i++) {
@@ -356,7 +407,7 @@ const GamePage2 = () => {
       setFlows(flowsTemp);
       setEdges(initialEdgesTemp);
     })();
-  }, []);
+  }, [round]);
 
   const selectNode = (_: React.MouseEvent, n: Node) => {
     if (selectedNode.length === 0) {
