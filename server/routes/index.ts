@@ -46,8 +46,8 @@ router.put('/addproblem', async (req, res, next) => {
 })
 
 router.put('/attempt2', async (req, res, next) => {
-    const {attemptID, score, seed} = req.body;
-    await addRound2Attempt(attemptID, score, seed)
+    const {attemptID, score, pid} = req.body;
+    await addRound2Attempt(attemptID, score, pid)
 })
 
 export default router;

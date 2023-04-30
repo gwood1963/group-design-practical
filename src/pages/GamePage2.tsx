@@ -153,18 +153,21 @@ const GamePage2 = () => {
   );
   const nodeTypes: NodeTypes = useMemo(() => ({ ImageNode: ImageNode }), []);
 
+  const [pid, setPID] = useState(0);
+
   useEffect(() => {
     (async () => {
       let round2 = new Round2();
-      const seed = await fetch("/api/getproblem/2").then(res => res.json());
+      const {seed, id} = await fetch("/api/getproblem/2").then(res => res.json());
       if (seed !== "NONE") {
         // read active problem from database
         round2.readSeed(seed);
+        setPID(id);
         console.log("Problem loaded from database");
       } else {
         // generate new problem
-        let added = false;
-        while (!added) {
+        let added = 0;
+        while (added === 0) {
           // ensures we're not duplicating an existing problem
           round2.genRandom(5, 500, 300);
           const seed = round2.makeSeed();
@@ -181,12 +184,13 @@ const GamePage2 = () => {
             },
           }).then((res) => res.json());
         }
+        setPID(added);
         console.log("New problem generated.");
       }
       setRound(round2);
       let nodesTemp = [];
       const nodeCount = round2.getN();
-      let coords = round2.getCoords().slice(5);
+      let coords = round2.getCoords();
       setBudget(round2.moneyRemaining());
       // Generate nodes
       console.log(round2);
@@ -259,12 +263,13 @@ const GamePage2 = () => {
       round.getGraph()
     );
     console.log(score);
+    console.log(round.makeSeed());
     fetch("/api/attempt2", {
       method: "PUT",
       body: JSON.stringify({
         score: score,
         attemptID: location.state,
-        seed: round.makeSeed(),
+        pid: pid,
       }),
       headers: {
         Accept: "application/json",

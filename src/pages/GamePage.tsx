@@ -125,7 +125,7 @@ const GamePage = () => {
   useEffect(() => {
     (async () => {
       const round1 = new Round1();
-      const seed = await fetch("/api/getproblem/1").then((res) => res.json());
+      const {seed} = await fetch("/api/getproblem/1").then((res) => res.json());
       if (seed !== "NONE") {
         // read active problem from database
         round1.readSeed(seed);

@@ -102,7 +102,7 @@ export const getProblem = async (round: number) => {
     var poolConnection = await connect(connection)
     const active = await poolConnection.request().input('cap', attemptCap)
         .input('round', round)
-        .query(`select Seed from [dbo].[Problems] where IsActive = 1 and NumPlayed < @cap and Round = @round`)
+        .query(`select Seed, ProblemID from [dbo].[Problems] where IsActive = 1 and NumPlayed < @cap and Round = @round`)
         .then(res => res.recordset)
     if (active.length === 0) {
         await poolConnection.request()
@@ -110,10 +110,10 @@ export const getProblem = async (round: number) => {
             .query(`update [dbo].[Problems] set IsActive = 0 where ProblemID = (
                 select top 1 ProblemID from [dbo].[Problems] where IsActive = 1 and Round = @round
             )`)
-        return "NONE"
+        return {seed: "NONE", id: 0}
     } else {
         const i = Math.floor(Math.random() * active.length)
-        return active[i].Seed
+        return {seed: active[i].Seed, id: active[i].ProblemID}
     }
 }
 
@@ -123,18 +123,17 @@ export const addProblem = async (seed: string, round: number) => {
         .query(`select * from [dbo].[Problems] where Seed = @seed and Round = @round`)
         .then(res => res.recordset)
     if (duplicates.length === 0) {
-        await poolConnection.request().input('seed', seed).input('round', round)
-            .query(`insert into [dbo].[Problems] (Seed, Round) values (@seed, @round)`)
-        return true
+        const id = await poolConnection.request().input('seed', seed).input('round', round)
+            .query(`insert into [dbo].[Problems] (Seed, Round) values (@seed, @round);
+                   select scope_identity() as id`)
+            .then(res => res.recordset[0].id)
+        return id
     }
-    return false
+    return 0
 }
 
-export const addRound2Attempt = async (attemptID: number, score: number, seed: string) => {
+export const addRound2Attempt = async (attemptID: number, score: number, problem: number) => {
     var poolConnection = await connect(connection);
-    const problem = await poolConnection.request().input('seed', seed)
-        .query('select ProblemID from [dbo].[Problems] where Seed = @seed and Round = 2')
-        .then(res => res.recordset[0].ProblemID)
     await poolConnection.request()
         .input('aid', attemptID).input('pid', problem).input('score', Float, score)
         .query(`update [dbo].[Attempts] 

@@ -198,25 +198,24 @@ export class Round2 {
      * @param {Number[]} flowArr - Array of flows
      */
     convertFlowsArrayToAdjList(flowArr) {
-        //Check cardinality
-        var edgeCount = 0;
-        for (var i = 0; i < this.theANoCap.length; i++) {
-            edgeCount += this.theANoCap[i].length;
-        }
-        if (edgeCount != flowArr.length) console.log("the parameter does not have |E| entries");
+        // //Check cardinality
+        // var edgeCount = 0;
+        // for (var i = 0; i < this.theANoCap.length; i++) {
+        //     edgeCount += this.theANoCap[i].length;
+        // }
+        // if (edgeCount != flowArr.length) console.log("the parameter does not have |E| entries");
 
         var flows = [];
         var index = 0;
         for (var i = 0; i < this.theN; i++) {
             var temp = [];
-            for (var k = 0; k < this.theA[i].length; k++) {
-                var j = this.theA[i][k][0];
+            for (var j = i+1; j < this.theN; j++) {
                 temp.push([j, flowArr[index]]);
                 index++;
             }
             flows.push(temp);
         }
-        if (edgeCount != index) console.log("error occured in conversion");
+        // if (edgeCount != index) console.log("error occured in conversion");
 
         return flows;
 
