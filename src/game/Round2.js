@@ -20,8 +20,17 @@ export class Round2 {
     generate = new Generate;
     display = new Display; //likely not needed in the end
     bank = new Bank;
+    width = 1000; //will be opdated later
+    len = 1000;
+    widthLengthSet = false;
 
     roads; //matrix of edges/roads (0 or 1, cost)
+
+    setCanvasSize(w, l) {
+        this.width = w;
+        this.len = l;
+        this.widthLengthSet = true;
+    }
 
     readSeed(seed) {
         this.seedReader.readSeed(seed);
@@ -255,7 +264,11 @@ export class Round2 {
      * 
      * @returns true if road is build and recorded, false if there is an error
      */
-    addRoad(i, j, w, l) {
+    addRoad(i, j) {
+        if (!this.widthLengthSet) return;
+
+        const w = this.width;
+        const l = this.len;
         if (this.roads[i][j][0] == 1 || this.roads[j][i][0] == 1) {
             console.log("already contains road from " + i + " to " + j);
             return false;

@@ -172,7 +172,7 @@ const dummyEdges: Edge[] = [];
       round.getGraph()
     );
     console.log(score);
-    fetch("/api/attempt", { //TODO define "/ape/attempt2"
+    fetch("/api/attempt", { //TODO define "/api/attempt2"
       method: "POST",
       body: JSON.stringify({
         score: score,
