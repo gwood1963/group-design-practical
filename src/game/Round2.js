@@ -20,8 +20,8 @@ export class Round2 {
     generate = new Generate;
     display = new Display; //likely not needed in the end
     bank = new Bank;
-    width = 1000; //will be opdated later
-    len = 1000;
+    width = 500; //will be opdated later
+    len = 300;
     widthLengthSet = false;
 
     roads; //matrix of edges/roads (0 or 1, cost)
@@ -65,7 +65,7 @@ export class Round2 {
                 y2 = this.theCoords[i][1];
         }
         this.setCanvasSize((x2 - x1) * 4 / 3, (y2 - y1) * 4 / 3); */
-        this.setCanvasSize(1000, 1000);
+        this.setCanvasSize(500, 500);
     }
 
     makeSeed() {
@@ -288,8 +288,8 @@ export class Round2 {
 
         const canvasWidth = this.width;
         const canvasLength = this.len;
-        const xDist = this.theCoords[j][0] - this.theCoords[i][0];
-        const yDist = this.theCoords[j][1] - this.theCoords[i][1];
+        const xDist = Math.abs(this.theCoords[j][0] - this.theCoords[i][0]);
+        const yDist = Math.abs(this.theCoords[j][1] - this.theCoords[i][1]);
         const w = 10 * xDist / canvasWidth;
         const l = 10 * yDist / canvasLength;
         if (this.roads[i][j][0] == 1 || this.roads[j][i][0] == 1) {
@@ -313,8 +313,8 @@ export class Round2 {
 
         const canvasWidth = this.width;
         const canvasLength = this.len;
-        const xDist = this.theCoords[j][0] - this.theCoords[i][0];
-        const yDist = this.theCoords[j][1] - this.theCoords[i][1];
+        const xDist = Math.abs(this.theCoords[j][0] - this.theCoords[i][0]);
+        const yDist = Math.abs(this.theCoords[j][1] - this.theCoords[i][1]);
         const w = 10 * xDist / canvasWidth;
         const l = 10 * yDist / canvasLength;
 
