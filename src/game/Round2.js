@@ -20,8 +20,32 @@ export class Round2 {
     generate = new Generate;
     display = new Display; //likely not needed in the end
     bank = new Bank;
-
+    /* width = 500; //will be opdated later
+    len = 300;
+    widthLengthSet = false;
+ */
     roads; //matrix of edges/roads (0 or 1, cost)
+
+    logInfo() {
+        console.log("n: ");
+        console.log(this.theN);
+        console.log("A: ");
+        console.log(this.theA);
+        console.log("Coords: ");
+        console.log(this.theCoords);
+        console.log("money left: ");
+        console.log(this.moneyRemaining());
+        console.log("roads: ");
+        console.log(this.roads);
+        console.log("bank: ");
+        console.log(this.bank);
+    }
+
+    /* setCanvasSize(w, l) {
+        this.width = w;
+        this.len = l;
+        this.widthLengthSet = true;
+    } */
 
     readSeed(seed) {
         this.seedReader.readSeed(seed);
@@ -39,6 +63,20 @@ export class Round2 {
         }
         this.roads = r;
         this.setBank(this.seedReader.getBank());
+        //this.bank.setTotalMoney()
+
+        /* var x1 = this.theCoords[0][0];
+        var x2 = this.theCoords[n - 1][0];
+        var y1 = Infinity;
+        var y2 = -Infinity;
+        for (var i = 0; i < n; i++) {
+            if (this.theCoords[i][1] < y1)
+                y1 = this.theCoords[i][1];
+            if (this.theCoords[i][1] > y2)
+                y2 = this.theCoords[i][1];
+        }
+        this.setCanvasSize((x2 - x1) * 4 / 3, (y2 - y1) * 4 / 3); */
+        //this.setCanvasSize(500, 500);
     }
 
     makeSeed() {
@@ -69,6 +107,7 @@ export class Round2 {
     }
 
     genRandom(n, w, h) {
+        //this.setCanvasSize(w, h);
         var B = [];
         for (var i = 0; i < n; i++) {
             B.push([]);
@@ -76,7 +115,9 @@ export class Round2 {
         this.theGraph = new Graph(n, B);
         this.theCoords = this.display.genRandomEmpty(n, w, h);
         this.updateInfo();
-        this.bank.setTotalMoney(5 * n);
+        const roughSize = Math.sqrt(w * w + h * h);
+        this.bank.setTotalMoney(Math.round(roughSize / 100) * 100);
+        this.setBankParams(1, 1, 4, 4);
         var r = [];
         for (var i = 0; i < n; i++) {
             var temp = [];
@@ -114,7 +155,8 @@ export class Round2 {
         return this.theN;
     }
 
-    getCoords(w, h) {
+    //Note: width and height were fixed from when we generated a problem
+    getCoords() {
         return this.theCoords;
     }
 
@@ -156,25 +198,24 @@ export class Round2 {
      * @param {Number[]} flowArr - Array of flows
      */
     convertFlowsArrayToAdjList(flowArr) {
-        //Check cardinality
-        var edgeCount = 0;
-        for (var i = 0; i < this.theANoCap.length; i++) {
-            edgeCount += this.theANoCap[i].length;
-        }
-        if (edgeCount != flowArr.length) console.log("the parameter does not have |E| entries");
+        // //Check cardinality
+        // var edgeCount = 0;
+        // for (var i = 0; i < this.theANoCap.length; i++) {
+        //     edgeCount += this.theANoCap[i].length;
+        // }
+        // if (edgeCount != flowArr.length) console.log("the parameter does not have |E| entries");
 
         var flows = [];
         var index = 0;
         for (var i = 0; i < this.theN; i++) {
             var temp = [];
-            for (var k = 0; k < this.theA[i].length; k++) {
-                var j = this.theA[i][k][0];
+            for (var j = i+1; j < this.theN; j++) {
                 temp.push([j, flowArr[index]]);
                 index++;
             }
             flows.push(temp);
         }
-        if (edgeCount != index) console.log("error occured in conversion");
+        // if (edgeCount != index) console.log("error occured in conversion");
 
         return flows;
 
@@ -190,7 +231,7 @@ export class Round2 {
      * that particular puzzle
      * @param {Number} currrentRecord - what the best submitted flow is
      */
-    getScore(currrentRecord) {
+    getAdjustedScore(currrentRecord) {
         const flow = this.maxFlowEngine.maxFlow(this.theGraph);
         if (Math.max(flow, currrentRecord) == 0)
             return 0; //don't divide by 0
@@ -204,8 +245,42 @@ export class Round2 {
      * (can be tweaked later)
      * 
      */
-    getRawScore() {
+    getScore() {
         const flow = this.maxFlowEngine.maxFlow(this.theGraph);
+        return flow;
+    }
+
+    /**
+     * Raw score calculation, currently is very simple: 
+     * 
+     * Score = submitted flow
+     * (can be tweaked later)
+     * @param {Number[]} flowsArr
+     * @param {Graph} originalGraph 
+     * @returns Score
+     */
+    getScoreFromArr(flowsArr, originalGraph) {
+        const flowsAdjList = this.convertFlowsArrayToAdjList(flowsArr);
+        const n = originalGraph.dim();
+        const scoreGraph = new Graph(n, flowsAdjList);
+        const flow = this.maxFlowEngine.maxFlow(scoreGraph);
+        return flow;
+    }
+
+    /**
+     * Raw score calculation, currently is very simple: 
+     * 
+     * Score = submitted flow
+     * (can be tweaked later)
+     * @param {Number[][][]} flowsAdjList
+     * @param {Graph} originalGraph 
+     * @returns Score
+     */
+    getScoreFromList(flowsAdjList, originalGraph) {
+        //const flowsAdjList = this.convertFlowsArrayToAdjList(flowsArr);
+        const n = originalGraph.dim();
+        const scoreGraph = new Graph(n, flowsAdjList);
+        const flow = this.maxFlowEngine.maxFlow(scoreGraph);
         return flow;
     }
 
@@ -218,9 +293,22 @@ export class Round2 {
 
     /**
      * 
+     * @param {Number} i - index of start
+     * @param {Number} j - index of end
+     * @param {Number} capacity - capacity of new edge
      * @returns true if road is build and recorded, false if there is an error
      */
-    addRoad(i, j, w, l) {
+    addRoad(i, j, capacity) {
+        //if (!this.widthLengthSet) return;
+
+        /* const canvasWidth = this.width;
+        const canvasLength = this.len; */
+        const xDist = Math.abs(this.theCoords[j][0] - this.theCoords[i][0]);
+        const yDist = Math.abs(this.theCoords[j][1] - this.theCoords[i][1]);
+        /* const w = 1000 * xDist / canvasWidth;
+        const l = 1000 * yDist / canvasLength; */
+        const w = capacity;
+        const l = Math.sqrt(xDist * xDist + yDist * yDist);
         if (this.roads[i][j][0] == 1 || this.roads[j][i][0] == 1) {
             console.log("already contains road from " + i + " to " + j);
             return false;
@@ -235,6 +323,29 @@ export class Round2 {
         this.roads[i][j][1] = cost;
         this.theGraph.addEdge(i, j, cap);
         return true;
+    }
+
+    roadCost(i, j, capacity) {
+        //if (!this.widthLengthSet) return;
+
+        /* const canvasWidth = this.width;
+        const canvasLength = this.len;
+        const xDist = Math.abs(this.theCoords[j][0] - this.theCoords[i][0]);
+        const yDist = Math.abs(this.theCoords[j][1] - this.theCoords[i][1]);
+        const w = 10 * xDist / canvasWidth;
+        const l = 10 * yDist / canvasLength; */
+
+        /* const canvasWidth = this.width;
+        const canvasLength = this.len; */
+        const xDist = Math.abs(this.theCoords[j][0] - this.theCoords[i][0]);
+        const yDist = Math.abs(this.theCoords[j][1] - this.theCoords[i][1]);
+        /* const w = 1000 * xDist / canvasWidth;
+        const l = 1000 * yDist / canvasLength; */
+        const w = capacity;
+        const l = Math.sqrt(xDist * xDist + yDist * yDist);
+
+        const cost = this.bank.roadCost(w, l);
+        return cost;
     }
 
     /**

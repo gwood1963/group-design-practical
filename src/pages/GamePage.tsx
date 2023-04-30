@@ -78,10 +78,11 @@ const GamePage = () => {
   const navigate = useNavigate();
 
   const [time, setTime] = useState<number>(0);
+  let start: number;
 
   // Start the timer
   useEffect(() => {
-    const start = Date.now() / 1000;
+    start = Date.now() / 1000;
     setTime(3000);
     const interval = setInterval(() => {
       setTime(3000 - Math.floor(Date.now() / 1000 - start));
@@ -95,7 +96,7 @@ const GamePage = () => {
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
   const [round, setRound] = useState<Round1>();
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!round) return;
     console.log(round);
     console.log(flows);
@@ -104,7 +105,7 @@ const GamePage = () => {
       round.getGraph()
     );
     console.log(score);
-    fetch("/api/attempt", {
+    const id = await fetch("/api/attempt", {
       method: "POST",
       body: JSON.stringify({
         score: score,
@@ -115,8 +116,8 @@ const GamePage = () => {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-    });
-    navigate("/game2");
+    }).then(res => res.json());
+    navigate("/game2", {state: id});
   };
 
   /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
@@ -124,7 +125,7 @@ const GamePage = () => {
   useEffect(() => {
     (async () => {
       const round1 = new Round1();
-      const seed = await fetch("/api/getproblem").then((res) => res.json());
+      const {seed} = await fetch("/api/getproblem/1").then((res) => res.json());
       if (seed !== "NONE") {
         // read active problem from database
         round1.readSeed(seed);
@@ -141,6 +142,7 @@ const GamePage = () => {
             method: "PUT",
             body: JSON.stringify({
               seed: seed,
+              round: 1
             }),
             headers: {
               Accept: "application/json",

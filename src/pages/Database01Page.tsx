@@ -17,10 +17,13 @@ interface Data {
     Surname: string,
     Email: string,
     AttemptDate: string,
-    ProblemID: string,
+    ProblemID: number,
     RawScore: number,
     Percentile: number,
-    Invited: boolean
+    Invited: boolean,
+    Problem2ID: number,
+    RawScore2: number,
+    Percentile2: number
 }
 
 
@@ -74,19 +77,44 @@ const Database01Page = () => {
             Cell: ({value}) => value.toDateString()
         },
         {
-            Header: "Problem ID",
-            id: "ProblemID",
-            accessor: (row:Data) => row.ProblemID
+            Header: "Round 1",
+            columns: [
+                {
+                    Header: "Problem ID",
+                    id: "ProblemID",
+                    accessor: (row:Data) => row.ProblemID
+                },
+                {
+                    Header: "Raw Score",
+                    id: "RawScore",
+                    accessor: (row: Data) => row.RawScore
+                },
+                {
+                    Header: "Percentile",
+                    id: "Percentile",
+                    accessor: (row: Data) => row.Percentile
+                }
+            ]
         },
         {
-            Header: "Raw Score",
-            id: "RawScore",
-            accessor: (row: Data) => row.RawScore
-        },
-        {
-            Header: "Percentile",
-            id: "Percentile",
-            accessor: (row: Data) => row.Percentile
+            Header: "Round 2",
+            columns: [
+                {
+                    Header: "Problem ID",
+                    id: "Problem2ID",
+                    accessor: (row:Data) => row.Problem2ID
+                },
+                {
+                    Header: "Raw Score",
+                    id: "RawScore2",
+                    accessor: (row: Data) => row.RawScore2
+                },
+                {
+                    Header: "Percentile",
+                    id: "Percentile2",
+                    accessor: (row: Data) => row.Percentile2
+                }
+            ]
         },
         {
             Header: "Invited?",

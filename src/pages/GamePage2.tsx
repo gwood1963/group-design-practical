@@ -1,3 +1,4 @@
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   Background,
   BackgroundVariant,
@@ -15,6 +16,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import MainWrapper from "../components/ContentWrapper";
 import ControlsBox from "../components/ControlsBox";
 import ImageNode from "../components/ImageNode";
@@ -22,6 +24,7 @@ import InstructionsBox from "../components/InstructionsBox";
 import NavBar from "../components/NavBar";
 import Round1Edge from "../components/Round1Edge";
 import Round2Edge from "../components/Round2Edge";
+import { Round2 } from "../game/Round2";
 import Modal from "react-modal";
 import BuildRoadModal from "../components/BuildRoadModal";
 
@@ -85,56 +88,63 @@ const controlsContent = (
   </>
 );
 
-const dummyNodes: Node[] = [
-  {
-    id: "0",
-    zIndex: -1,
-    type: "ImageNode",
-    position: { x: 0, y: 50 },
-    data: {
-      label: "index 0",
-      image: "/skyscraper.svg",
-      color: "black",
-    },
-  },
-  {
-    id: "1",
-    zIndex: -1,
-    type: "ImageNode",
-    position: { x: 250, y: 50 },
-    data: {
-      label: "index 1",
-      image: "/skyscraper.svg",
-      color: "black",
-    },
-  },
-  {
-    id: "2",
-    zIndex: -1,
-    type: "ImageNode",
-    position: { x: 125, y: 100 },
-    data: {
-      label: "index 2",
-      image: "/skyscraper.svg",
-      color: "black",
-    },
-  },
-  {
-    id: "3",
-    zIndex: -1,
-    type: "ImageNode",
-    position: { x: 125, y: 0 },
-    data: {
-      label: "index 3",
-      image: "/skyscraper.svg",
-      color: "black",
-    },
-  },
-];
+// const dummyNodes: Node[] = [
+//   {
+//     id: "0",
+//     zIndex: -1,
+//     type: "ImageNode",
+//     position: { x: 0, y: 50 },
+//     data: {
+//       label: "index 0",
+//       image: "/skyscraper.svg",
+//       color: "black",
+//     },
+//   },
+//   {
+//     id: "1",
+//     zIndex: -1,
+//     type: "ImageNode",
+//     position: { x: 250, y: 50 },
+//     data: {
+//       label: "index 1",
+//       image: "/skyscraper.svg",
+//       color: "black",
+//     },
+//   },
+//   {
+//     id: "2",
+//     zIndex: -1,
+//     type: "ImageNode",
+//     position: { x: 125, y: 100 },
+//     data: {
+//       label: "index 2",
+//       image: "/skyscraper.svg",
+//       color: "black",
+//     },
+//   },
+//   {
+//     id: "3",
+//     zIndex: -1,
+//     type: "ImageNode",
+//     position: { x: 125, y: 0 },
+//     data: {
+//       label: "index 3",
+//       image: "/skyscraper.svg",
+//       color: "black",
+//     },
+//   },
+// ];
 
 const dummyEdges: Edge[] = [];
 
 const GamePage2 = () => {
+  const auth = getAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [time, setTime] = useState<number>(0);
+  let start: number;
+
   const edgeTypes: EdgeTypes = useMemo(
     () => ({
       Round2Edge: Round2Edge,
@@ -143,7 +153,96 @@ const GamePage2 = () => {
   );
   const nodeTypes: NodeTypes = useMemo(() => ({ ImageNode: ImageNode }), []);
 
-  const [nodes, setNodes] = useState<Node[]>(dummyNodes); //a state to store the array of nodes.
+  const [pid, setPID] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      let round2 = new Round2();
+      const {seed, id} = await fetch("/api/getproblem/2").then(res => res.json());
+      if (seed !== "NONE") {
+        // read active problem from database
+        round2.readSeed(seed);
+        setPID(id);
+        console.log("Problem loaded from database");
+      } else {
+        // generate new problem
+        let added = 0;
+        while (added === 0) {
+          // ensures we're not duplicating an existing problem
+          round2.genRandom(5, 500, 300);
+          const seed = round2.makeSeed();
+          console.log(seed);
+          added = await fetch("/api/addproblem", {
+            method: "PUT",
+            body: JSON.stringify({
+              seed: seed,
+              round: 2
+            }),
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }).then((res) => res.json());
+        }
+        setPID(added);
+        console.log("New problem generated.");
+      }
+      setRound(round2);
+      let nodesTemp = [];
+      const nodeCount = round2.getN();
+      let coords = round2.getCoords();
+      setBudget(round2.moneyRemaining());
+      // Generate nodes
+      console.log(round2);
+      for (let i = 0; i < nodeCount; i++) {
+        var myLabel = "";
+        var myColor = "black";
+        if (i == 0) {
+          myLabel = "West Office";
+          myColor = "green";
+        } else if (i == nodeCount - 1) {
+          myLabel = "East Office";
+          myColor = "red";
+        }
+
+        var myImage = "/building2trees.svg";
+        var randomImage = Math.random();
+        if (randomImage > 0.6666) {
+          myImage = "/skyscraper.svg";
+        } else if (randomImage > 0.45) {
+          myImage = "/factory.svg";
+        } else if (randomImage > 0.333) {
+          myImage = "/church.svg";
+        }
+
+        const node = {
+          id: `${i}`,
+          zIndex: -1, //in front of edges but behind labels
+          type: "ImageNode",
+          position: { x: coords[i][0] * 5, y: coords[i][1] * 5 },
+          data: {
+            label: myLabel,
+            image: myImage,
+            color: myColor,
+          },
+        };
+        nodesTemp.push(node);
+      }
+      setNodes(nodesTemp);
+    })();
+  }, []);
+
+  // Start the timer
+  useEffect(() => {
+    start = Date.now() / 1000;
+    setTime(3000);
+    const interval = setInterval(() => {
+      setTime(3000 - Math.floor(Date.now() / 1000 - start));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const [nodes, setNodes] = useState<Node[]>([]); //a state to store the array of nodes.
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
 
@@ -152,11 +251,161 @@ const GamePage2 = () => {
   const [selectedNode, setSelectedNode] = useState<string[]>([]);
   const [buildRoadModal, setBuildRoadModal] = useState(false);
 
+  const [round, setRound] = useState<Round2>();
+
+  ////////////// sumbission stuffs
+  const onSubmit = () => {
+    if (!round) return;
+    console.log(round);
+    console.log(flows);
+    const score = round.getScoreFromArr(
+      flows.map((f) => f.flow),
+      round.getGraph()
+    );
+    console.log(score);
+    console.log(round.makeSeed());
+    fetch("/api/attempt2", {
+      method: "PUT",
+      body: JSON.stringify({
+        score: score,
+        attemptID: location.state,
+        pid: pid,
+      }),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+    navigate("/goodbye");
+  };
+  /////////////////////
+
   /**BELOW IS THE SET UP FOR THE PUZZLE DISPLAY */
   /** ---------------------------------------------------- */
   useMemo(() => {
     (async () => {
-      let nodeCount = dummyNodes.length;
+      /*
+
+      Copy and pasted from GamePage.tsx for round 1
+
+      Things to change: 
+      - Where are the seeds stored? in round 1 it was "/api/getproblem"
+      - how to make edges? Idea: predraw all edges in both directions, but have them hidden
+      - how to initialize money/budget? Probably use method Round2.moneyRemaining() 
+      on initialization as its initial value is the value in bank
+      - for scoring, use Round2.getScore() Note: score will be an integer
+      - Also note, when we build/delete a road, the backend (round2 object) keeps track of it.
+      To see the current money, use Round2.moneyRemaining()
+
+      - database stuffs: store seeds, scores, etc. (George, should be similar to round 1)
+
+
+      const round2 = new Round2();
+      const seed = await fetch("/api/getproblem").then((res) => res.json());
+      if (seed !== "NONE") {
+        // read active problem from database
+        round2.readSeed(seed);
+        console.log("Problem loaded from database");
+      } else {
+        // generate new problem
+        let added = false;
+        while (!added) {
+          // ensures we're not duplicating an existing problem
+          round2.genRandom(6, 500, 300);
+          const seed = round2.makeSeed();
+          console.log(seed);
+          added = await fetch("/api/addproblem", {
+            method: "PUT",
+            body: JSON.stringify({
+              seed: seed,
+            }),
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }).then((res) => res.json());
+        }
+        console.log("New problem generated.");
+      }
+
+      let nodesTemp = [];
+
+      const nodeCount = round2.getN();
+
+      let coords = round2.getCoords(); //gives the coordinates of the nodes
+
+      // Generate nodes
+      for (let i = 0; i < nodeCount; i++) {
+        var myLabel = "";
+        var myColor = "black";
+        if (i == 0) {
+          myLabel = "West Office, 60";
+          myColor = "green";
+        } else if (i == nodeCount - 1) {
+          myLabel = "East Office";
+          myColor = "red";
+        }
+
+        var myImage = "/building2trees.svg";
+        var randomImage = Math.random();
+        if (randomImage > 0.6666) {
+          myImage = "/skyscraper.svg";
+        } else if (randomImage > 0.45) {
+          myImage = "/factory.svg";
+        } else if (randomImage > 0.333) {
+          myImage = "/church.svg";
+        }
+
+        const node = {
+          id: `${i}`,
+          zIndex: -1, //in front of edges but behind labels
+          type: "ImageNode",
+          position: { x: coords[i][0], y: coords[i][1] },
+          data: {
+            label: myLabel,
+            image: myImage,
+            color: myColor,
+          },
+        };
+        nodesTemp.push(node);
+      }
+      setNodes(nodesTemp);
+
+      //likely not needed for round 2
+
+      // let flowsTemp = [];
+      // let initialEdgesTemp: Edge[] = [];
+      // for (let i = 0; i < nodeCount; i++) {
+      //   for (let k = 0; k < adjacency[i].length; k++) {
+      //     let j = adjacency[i][k][0];
+      //     const myid = "e" + i + "-" + j;
+      //     flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
+      //     const capacity = String(adjacency[i][k][1]); //need to hook up to actual capacity array
+      //     const temp = {
+      //       id: myid,
+      //       source: `${i}`,
+      //       target: `${j}`,
+      //       animated: true,
+      //       type: "Round2Edge",
+      //       zIndex: 0,
+      //       data: {
+      //         id: myid,
+      //         getFlow: () =>
+      //           flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
+      //         setFlow: setFlows,
+      //         min: 0,
+      //         capacity: capacity,
+      //       },
+      //     };
+      //     initialEdgesTemp.push(temp);
+      //   }
+      // }
+    
+
+      */
+
+      if (!round) return;
+      let nodeCount = round.getN();
       let flowsTemp = [];
       let initialEdgesTemp: Edge[] = [];
       for (let i = 0; i < nodeCount; i++) {
@@ -189,7 +438,7 @@ const GamePage2 = () => {
       setFlows(flowsTemp);
       setEdges(initialEdgesTemp);
     })();
-  }, []);
+  }, [round]);
 
   const selectNode = (_: React.MouseEvent, n: Node) => {
     if (selectedNode.length === 0) {
@@ -250,8 +499,8 @@ const GamePage2 = () => {
   return (
     <MainWrapper flexDirection="column">
       <NavBar
-        time={0}
-        onSubmit={() => {}}
+        time={time}
+        onSubmit={onSubmit}
         subtitle={`Money remaining: $${budget}`}
       />
       <Modal
@@ -313,6 +562,7 @@ const GamePage2 = () => {
               edgeTypes={edgeTypes}
               nodeTypes={nodeTypes}
               onNodeClick={selectNode}
+              disableKeyboardA11y={true}
               fitView
             >
               <Controls />
