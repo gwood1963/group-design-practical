@@ -398,6 +398,7 @@ class Test {
         console.log(round2.getA());
         this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
         console.log(round2.makeSeed());
+        round2.logInfo();
 
     }
 
