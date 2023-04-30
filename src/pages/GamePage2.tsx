@@ -154,52 +154,78 @@ const GamePage2 = () => {
   const nodeTypes: NodeTypes = useMemo(() => ({ ImageNode: ImageNode }), []);
 
   useEffect(() => {
-    let round2 = new Round2();
-    round2.readSeed(
-      "5%500%1%2%3.34%4%-2%3%2%0%-3%20,30%25,70%37,50%60,20%80,25%"
-    );
-    setRound(round2);
-    let nodesTemp = [];
-    const nodeCount = round2.getN();
-    let coords = round2.getCoords().slice(5);
-    setBudget(round2.moneyRemaining());
-    // Generate nodes
-    console.log(round2);
-    for (let i = 0; i < nodeCount; i++) {
-      var myLabel = "";
-      var myColor = "black";
-      if (i == 0) {
-        myLabel = "West Office";
-        myColor = "green";
-      } else if (i == nodeCount - 1) {
-        myLabel = "East Office";
-        myColor = "red";
+    (async () => {
+      let round2 = new Round2();
+      const seed = await fetch("/api/getproblem/2").then(res => res.json());
+      if (seed !== "NONE") {
+        // read active problem from database
+        round2.readSeed(seed);
+        console.log("Problem loaded from database");
+      } else {
+        // generate new problem
+        let added = false;
+        while (!added) {
+          // ensures we're not duplicating an existing problem
+          round2.genRandom(5, 500, 300);
+          const seed = round2.makeSeed();
+          console.log(seed);
+          added = await fetch("/api/addproblem", {
+            method: "PUT",
+            body: JSON.stringify({
+              seed: seed,
+              round: 2
+            }),
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }).then((res) => res.json());
+        }
+        console.log("New problem generated.");
       }
+      setRound(round2);
+      let nodesTemp = [];
+      const nodeCount = round2.getN();
+      let coords = round2.getCoords().slice(5);
+      setBudget(round2.moneyRemaining());
+      // Generate nodes
+      console.log(round2);
+      for (let i = 0; i < nodeCount; i++) {
+        var myLabel = "";
+        var myColor = "black";
+        if (i == 0) {
+          myLabel = "West Office";
+          myColor = "green";
+        } else if (i == nodeCount - 1) {
+          myLabel = "East Office";
+          myColor = "red";
+        }
 
-      var myImage = "/building2trees.svg";
-      var randomImage = Math.random();
-      if (randomImage > 0.6666) {
-        myImage = "/skyscraper.svg";
-      } else if (randomImage > 0.45) {
-        myImage = "/factory.svg";
-      } else if (randomImage > 0.333) {
-        myImage = "/church.svg";
+        var myImage = "/building2trees.svg";
+        var randomImage = Math.random();
+        if (randomImage > 0.6666) {
+          myImage = "/skyscraper.svg";
+        } else if (randomImage > 0.45) {
+          myImage = "/factory.svg";
+        } else if (randomImage > 0.333) {
+          myImage = "/church.svg";
+        }
+
+        const node = {
+          id: `${i}`,
+          zIndex: -1, //in front of edges but behind labels
+          type: "ImageNode",
+          position: { x: coords[i][0] * 5, y: coords[i][1] * 5 },
+          data: {
+            label: myLabel,
+            image: myImage,
+            color: myColor,
+          },
+        };
+        nodesTemp.push(node);
       }
-
-      const node = {
-        id: `${i}`,
-        zIndex: -1, //in front of edges but behind labels
-        type: "ImageNode",
-        position: { x: coords[i][0] * 5, y: coords[i][1] * 5 },
-        data: {
-          label: myLabel,
-          image: myImage,
-          color: myColor,
-        },
-      };
-      nodesTemp.push(node);
-    }
-    setNodes(nodesTemp);
+      setNodes(nodesTemp);
+    })();
   }, []);
 
   // Start the timer
