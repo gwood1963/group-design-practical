@@ -384,13 +384,14 @@ class Test {
     }
 
     round2SeedTest() {
-        const s = "5%50%1%2%3.34%4%20,30%25,70%37,50%60,20%80,25%";
+        const s = "5%500%1%2%3.34%4%20,30%25,70%37,50%60,20%80,25%";
         const round2 = new Round2;
         round2.readSeed(s);
         console.log(round2.getCoords());
         console.log(round2.getN());
         console.log(round2.moneyRemaining());
         console.log(round2.getBankParams());
+        console.log(round2.getCoords());
         this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
         round2.addRoad(1, 2, 10, 10);
         console.log(round2.moneyRemaining());
@@ -624,7 +625,7 @@ function runRound3FullSeedTest() {
 
 //console.log(1 / 0)
 
-//runDisplayTest1();
+//runDisplayTest1();    
 //runDisplayTest2();
 //runDisplayTest3();
 //runDisplayTest4();
@@ -632,11 +633,11 @@ function runRound3FullSeedTest() {
 //runFullTest2();
 
 //testRound1();
-//runRound2SeedTest();
+runRound2SeedTest();
 //runRound2RandomTest();
 //runRound2RandomTest2();
 
 //runNoFlowTest();
 
 //runRound3SeedTest();
-runRound3FullSeedTest();
+//runRound3FullSeedTest();

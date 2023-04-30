@@ -26,6 +26,10 @@ export class Round2 {
 
     roads; //matrix of edges/roads (0 or 1, cost)
 
+    logInfo() {
+
+    }
+
     setCanvasSize(w, l) {
         this.width = w;
         this.len = l;
@@ -48,8 +52,9 @@ export class Round2 {
         }
         this.roads = r;
         this.setBank(this.seedReader.getBank());
+        //this.bank.setTotalMoney()
 
-        var x1 = this.theCoords[0][0];
+        /* var x1 = this.theCoords[0][0];
         var x2 = this.theCoords[n - 1][0];
         var y1 = Infinity;
         var y2 = -Infinity;
@@ -59,7 +64,8 @@ export class Round2 {
             if (this.theCoords[i][1] > y2)
                 y2 = this.theCoords[i][1];
         }
-        this.setCanvasSize((x2 - x1) * 4 / 3, (y2 - y1) * 4 / 3);
+        this.setCanvasSize((x2 - x1) * 4 / 3, (y2 - y1) * 4 / 3); */
+        this.setCanvasSize(1000, 1000);
     }
 
     makeSeed() {
@@ -300,6 +306,20 @@ export class Round2 {
         this.roads[i][j][1] = cost;
         this.theGraph.addEdge(i, j, cap);
         return true;
+    }
+
+    roadCost(i, j) {
+        if (!this.widthLengthSet) return;
+
+        const canvasWidth = this.width;
+        const canvasLength = this.len;
+        const xDist = this.theCoords[j][0] - this.theCoords[i][0];
+        const yDist = this.theCoords[j][1] - this.theCoords[i][1];
+        const w = 10 * xDist / canvasWidth;
+        const l = 10 * yDist / canvasLength;
+
+        const cost = this.bank.roadCost(w, l);
+        return cost;
     }
 
     /**

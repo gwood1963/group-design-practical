@@ -14,8 +14,9 @@ export class Bank {
 
 
     constructor(totalMoney) {
-        this.totalMoney = totalMoney;
-        this.money = totalMoney;
+        this.setTotalMoney(totalMoney);
+        // this.totalMoney = totalMoney;
+        // this.money = totalMoney;
     }
 
     /**
