@@ -1,5 +1,5 @@
 import express from "express";
-import {getRecentScores, invite, deleteSelected, register, addAttempt, isAdmin, getProblem, addProblem} from "../database";
+import {getRecentScores, invite, deleteSelected, register, addAttempt, isAdmin, getProblem, addProblem, addRound2Attempt} from "../database";
 
 var router = express.Router();
 
@@ -25,7 +25,8 @@ router.put('/register', async (req, res, next) => {
 
 router.post('/attempt', async (req, res, next) => {
     const {uid, score, seed} = req.body;
-    await addAttempt(uid, seed, score);
+    const id = await addAttempt(uid, seed, score);
+    res.json(id);
 })
 
 router.get('/isadmin/:uid', async (req, res, next) => {
@@ -33,14 +34,20 @@ router.get('/isadmin/:uid', async (req, res, next) => {
     res.json(await isAdmin(uid));
 })
 
-router.get('/getproblem', async (req, res, next) => {
-    res.json(await getProblem());
+router.get('/getproblem/:round', async (req, res, next) => {
+    const round = req.params.round;
+    res.json(await getProblem(parseInt(round)));
 })
 
 router.put('/addproblem', async (req, res, next) => {
-    const {seed} = req.body;
-    const added = await addProblem(seed);
+    const {seed, round} = req.body;
+    const added = await addProblem(seed, round);
     res.json(added);
+})
+
+router.put('/attempt2', async (req, res, next) => {
+    const {attemptID, score, seed} = req.body;
+    await addRound2Attempt(attemptID, score, seed)
 })
 
 export default router;
