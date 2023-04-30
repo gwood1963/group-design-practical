@@ -404,20 +404,20 @@ class Test {
 
     round2RandomTest() {
         const round2 = new Round2;
-        round2.genRandom(5, 100, 100);
+        round2.genRandom(5, 500, 300);
         console.log(round2.getCoords());
         console.log(round2.getN());
         console.log(round2.moneyRemaining());
-        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 500, 300);
         console.log(round2.makeSeed());
     }
 
     round2RandomTest2() {
         const round2 = new Round2;
-        round2.setBankParams(1, 1, 1, 2);
-        round2.genRandom(5, 100, 100);
-        round2.addRoad(0, 3, 3, 4);
-        round2.addRoad(2, 4, 5, 2);
+        //round2.setBankParams(1, 1, 3, 3);
+        round2.genRandom(5, 500, 300);
+        round2.addRoad(0, 3, 7);
+        round2.addRoad(2, 4, 8);
         const A = round2.getA();
         /* for (var i = 0; i < A.length; i++) {
             console.log(A[i]);
@@ -425,11 +425,11 @@ class Test {
         console.log(round2.getCoords());
         console.log(round2.getN());
         console.log(round2.moneyRemaining());
-        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 500, 300);
         round2.deleteRoad(2, 4);
         round2.deleteRoad(3, 2);
         console.log(round2.moneyRemaining());
-        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 100, 100);
+        this.display.consoleDisplay(round2.getN(), round2.getANoCap(), round2.getCoords(), 500, 300);
         console.log(round2.makeSeed());
     }
 
@@ -634,9 +634,9 @@ function runRound3FullSeedTest() {
 //runFullTest2();
 
 //testRound1();
-runRound2SeedTest();
+//runRound2SeedTest();
 //runRound2RandomTest();
-//runRound2RandomTest2();
+runRound2RandomTest2();
 
 //runNoFlowTest();
 

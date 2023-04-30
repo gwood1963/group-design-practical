@@ -115,7 +115,9 @@ export class Round2 {
         this.theGraph = new Graph(n, B);
         this.theCoords = this.display.genRandomEmpty(n, w, h);
         this.updateInfo();
-        this.bank.setTotalMoney(5 * n);
+        const roughSize = Math.sqrt(w * w + h * h);
+        this.bank.setTotalMoney(Math.round(roughSize / 100) * 100);
+        this.setBankParams(1, 1, 4, 4);
         var r = [];
         for (var i = 0; i < n; i++) {
             var temp = [];
