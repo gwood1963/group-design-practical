@@ -78,10 +78,11 @@ const GamePage = () => {
   const navigate = useNavigate();
 
   const [time, setTime] = useState<number>(0);
+  let start: number;
 
   // Start the timer
   useEffect(() => {
-    const start = Date.now() / 1000;
+    start = Date.now() / 1000;
     setTime(3000);
     const interval = setInterval(() => {
       setTime(3000 - Math.floor(Date.now() / 1000 - start));

@@ -14,8 +14,9 @@ export class Bank {
 
 
     constructor(totalMoney) {
-        this.totalMoney = totalMoney;
-        this.money = totalMoney;
+        this.setTotalMoney(totalMoney);
+        // this.totalMoney = totalMoney;
+        // this.money = totalMoney;
     }
 
     /**
@@ -59,6 +60,8 @@ export class Bank {
      * @returns the (floor) cost of the road based on our parameters
      */
     roadCost(width, length) {
+        console.log(width);
+        console.log(length);
         const cost = (width * this.roadWidthCost / this.roadWidthUnit) * (length * this.roadLengthCost / this.roadLengthUnit);
         return Math.floor(cost);
     }
@@ -70,7 +73,7 @@ export class Bank {
      */
     buildRoad(width, length) {
         const cost = this.roadCost(width, length);
-        //console.log(cost);
+        console.log(cost);
         this.money = this.money - cost;
         //console.log(this.money);
         return cost;
