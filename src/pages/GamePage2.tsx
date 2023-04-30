@@ -136,10 +136,13 @@ const dummyNodes: Node[] = [
 ];
 
 const dummyEdges: Edge[] = [];
-  const auth = getAuth();
-  const GamePage2 = () => {
 
+const GamePage2 = () => {
+  const auth = getAuth();
   const navigate = useNavigate();
+
+  const [time, setTime] = useState<number>(0);
+  let start: number;
 
   const edgeTypes: EdgeTypes = useMemo(
     () => ({
@@ -149,22 +152,30 @@ const dummyEdges: Edge[] = [];
   );
   const nodeTypes: NodeTypes = useMemo(() => ({ ImageNode: ImageNode }), []);
 
+  // Start the timer
+  useEffect(() => {
+    start = Date.now() / 1000;
+    setTime(3000);
+    const interval = setInterval(() => {
+      setTime(3000 - Math.floor(Date.now() / 1000 - start));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const [nodes, setNodes] = useState<Node[]>(dummyNodes); //a state to store the array of nodes.
   const [edges, setEdges] = useState<Edge[]>([]); // a state to store the array of edges.
   const [flows, setFlows] = useState([{ id: "dummmy", flow: 5 }]); //Each edge is given an id. I intented to store flows as this array of id-flow pairs.
 
-  const [budget, setBudget] = useState(0);
+  const [budget, setBudget] = useState(1000);
 
   const [selectedNode, setSelectedNode] = useState<string[]>([]);
   const [buildRoadModal, setBuildRoadModal] = useState(false);
-
-  
 
   const [round, setRound] = useState<Round2>();
 
   ////////////// sumbission stuffs
   const onSubmit = () => {
-    if (!round) return; //what exactly does this do?
+    if (!round) return;
     console.log(round);
     console.log(flows);
     const score = round.getScoreFromArr(
@@ -184,7 +195,6 @@ const dummyEdges: Edge[] = [];
         "Content-Type": "application/json",
       },
     });
-    //navigate("/game3");
     navigate("/goodbye");
   };
   /////////////////////
@@ -407,8 +417,8 @@ const dummyEdges: Edge[] = [];
   return (
     <MainWrapper flexDirection="column">
       <NavBar
-        time={0}
-        onSubmit={() => {}}
+        time={time}
+        onSubmit={onSubmit}
         subtitle={`Money remaining: $${budget}`}
       />
       <Modal
