@@ -531,6 +531,7 @@ const GamePage2 = () => {
               edgeTypes={edgeTypes}
               nodeTypes={nodeTypes}
               onNodeClick={selectNode}
+              disableKeyboardA11y={true}
               fitView
             >
               <Controls />
