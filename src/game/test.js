@@ -437,7 +437,7 @@ class Test {
     }
 
     round3SeedTest() {
-        const s = "5%50%1%2%3.34%4%-2%3%2%0%-3%20,30%25,70%37,50%60,20%80,25%";
+        const s = "5%500%1%2%3.34%4%-2%3%2%0%-3%20,30%25,70%37,50%60,20%80,25%";
         const round3 = new Round3;
         round3.readSeed(s);
         console.log(round3.getCoords());
