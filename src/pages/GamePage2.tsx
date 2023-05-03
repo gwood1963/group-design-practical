@@ -158,7 +158,8 @@ const GamePage2 = () => {
   useEffect(() => {
     (async () => {
       let round2 = new Round2();
-      const {seed, id} = await fetch("/api/getproblem/2").then(res => res.json());
+      ///////////////////////////////////////////////////////////////
+      /* const {seed, id} = await fetch("/api/getproblem/2").then(res => res.json());
       if (seed !== "NONE") {
         // read active problem from database
         round2.readSeed(seed);
@@ -186,7 +187,8 @@ const GamePage2 = () => {
         }
         setPID(added);
         console.log("New problem generated.");
-      }
+      } */
+      round2.genRandom(7, 200, 100);
       setRound(round2);
       let nodesTemp = [];
       const nodeCount = round2.getN();
@@ -284,125 +286,6 @@ const GamePage2 = () => {
   /** ---------------------------------------------------- */
   useMemo(() => {
     (async () => {
-      /*
-
-      Copy and pasted from GamePage.tsx for round 1
-
-      Things to change: 
-      - Where are the seeds stored? in round 1 it was "/api/getproblem"
-      - how to make edges? Idea: predraw all edges in both directions, but have them hidden
-      - how to initialize money/budget? Probably use method Round2.moneyRemaining() 
-      on initialization as its initial value is the value in bank
-      - for scoring, use Round2.getScore() Note: score will be an integer
-      - Also note, when we build/delete a road, the backend (round2 object) keeps track of it.
-      To see the current money, use Round2.moneyRemaining()
-
-      - database stuffs: store seeds, scores, etc. (George, should be similar to round 1)
-
-
-      const round2 = new Round2();
-      const seed = await fetch("/api/getproblem").then((res) => res.json());
-      if (seed !== "NONE") {
-        // read active problem from database
-        round2.readSeed(seed);
-        console.log("Problem loaded from database");
-      } else {
-        // generate new problem
-        let added = false;
-        while (!added) {
-          // ensures we're not duplicating an existing problem
-          round2.genRandom(6, 500, 300);
-          const seed = round2.makeSeed();
-          console.log(seed);
-          added = await fetch("/api/addproblem", {
-            method: "PUT",
-            body: JSON.stringify({
-              seed: seed,
-            }),
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          }).then((res) => res.json());
-        }
-        console.log("New problem generated.");
-      }
-
-      let nodesTemp = [];
-
-      const nodeCount = round2.getN();
-
-      let coords = round2.getCoords(); //gives the coordinates of the nodes
-
-      // Generate nodes
-      for (let i = 0; i < nodeCount; i++) {
-        var myLabel = "";
-        var myColor = "black";
-        if (i == 0) {
-          myLabel = "West Office, 60";
-          myColor = "green";
-        } else if (i == nodeCount - 1) {
-          myLabel = "East Office";
-          myColor = "red";
-        }
-
-        var myImage = "/building2trees.svg";
-        var randomImage = Math.random();
-        if (randomImage > 0.6666) {
-          myImage = "/skyscraper.svg";
-        } else if (randomImage > 0.45) {
-          myImage = "/factory.svg";
-        } else if (randomImage > 0.333) {
-          myImage = "/church.svg";
-        }
-
-        const node = {
-          id: `${i}`,
-          zIndex: -1, //in front of edges but behind labels
-          type: "ImageNode",
-          position: { x: coords[i][0], y: coords[i][1] },
-          data: {
-            label: myLabel,
-            image: myImage,
-            color: myColor,
-          },
-        };
-        nodesTemp.push(node);
-      }
-      setNodes(nodesTemp);
-
-      //likely not needed for round 2
-
-      // let flowsTemp = [];
-      // let initialEdgesTemp: Edge[] = [];
-      // for (let i = 0; i < nodeCount; i++) {
-      //   for (let k = 0; k < adjacency[i].length; k++) {
-      //     let j = adjacency[i][k][0];
-      //     const myid = "e" + i + "-" + j;
-      //     flowsTemp.push({ id: myid, flow: 0 }); //this is for initialising the flows arrey
-      //     const capacity = String(adjacency[i][k][1]); //need to hook up to actual capacity array
-      //     const temp = {
-      //       id: myid,
-      //       source: `${i}`,
-      //       target: `${j}`,
-      //       animated: true,
-      //       type: "Round2Edge",
-      //       zIndex: 0,
-      //       data: {
-      //         id: myid,
-      //         getFlow: () =>
-      //           flows.find((f) => f.id.localeCompare(myid))?.flow || 0,
-      //         setFlow: setFlows,
-      //         min: 0,
-      //         capacity: capacity,
-      //       },
-      //     };
-      //     initialEdgesTemp.push(temp);
-      //   }
-      // }
-    
-
-      */
 
       if (!round) return;
       let nodeCount = round.getN();
@@ -462,7 +345,12 @@ const GamePage2 = () => {
           e.id === edge.id ? { ...e, data: { ...e.data, visible: false } } : e
         )
       );
-      setBudget((b) => b + edge.data.capacity * 10);
+      if (round == undefined) {return;}
+      const i = edge.source;
+      const j = edge.target;
+      const capacity = edge.data.capacity;
+      const cost = round.roadCost(i, j, capacity);
+      setBudget((b) => b + cost/* edge.data.capacity * 10 */);
       setSelectedNode([]);
     } else {
       // open road modal if it doesnt
@@ -472,7 +360,11 @@ const GamePage2 = () => {
   };
 
   const buildRoad = (capacity: number) => {
-    if (budget - capacity * 10 < 0) {
+    if (round == undefined) {return;}
+    const i = selectedNode[0];
+    const j = selectedNode[1];
+    const cost = round.roadCost(i, j, capacity)
+    if (budget - cost/* capacity * 10 */ < 0) {
       return;
     }
     setEdges((es) =>
@@ -493,7 +385,7 @@ const GamePage2 = () => {
     ); // toggles visiblity for the selected edge.
     setBuildRoadModal(false);
     setSelectedNode([]);
-    setBudget((b) => b - capacity * 10);
+    setBudget((b) => b - cost/* capacity * 10 */);
   };
 
   return (
@@ -525,7 +417,7 @@ const GamePage2 = () => {
           },
         }}
       >
-        <BuildRoadModal submit={buildRoad} budget={budget} />
+        <BuildRoadModal submit={buildRoad} budget={budget} round={round} i={parseInt(selectedNode[0])} j={parseInt(selectedNode[1])}/>
       </Modal>
       <div
         style={{
