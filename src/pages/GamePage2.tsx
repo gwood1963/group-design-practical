@@ -266,7 +266,8 @@ const GamePage2 = () => {
     );
     console.log(score);
     console.log(round.makeSeed());
-    fetch("/api/attempt2", {
+    //////////////////////////////////////////
+    /* fetch("/api/attempt2", {
       method: "PUT",
       body: JSON.stringify({
         score: score,
@@ -277,7 +278,7 @@ const GamePage2 = () => {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-    });
+    }); */
     navigate("/goodbye");
   };
   /////////////////////
