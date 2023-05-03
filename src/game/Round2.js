@@ -320,7 +320,7 @@ export class Round2 {
         //for standard form ax + by + c = 0: 
         //dist from (x0, y0) to line is: 
         //|ax0 + by0 + c|/sqrt(a^2 + b^2)
-        const d = Math.max(this.roughSize / 100, Math.abs(m * x3 - y3 + b) / Math.sqrt(m * m + 1));
+        const d = Math.sqrt(Math.max(this.roughSize / 100, Math.abs(m * x3 - y3 + b) / Math.sqrt(m * m + 1)));
 
         return d != 0 ? this.roughSize / (100 * d) : 100000000;
 
