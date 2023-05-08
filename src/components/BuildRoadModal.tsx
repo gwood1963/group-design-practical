@@ -38,15 +38,16 @@ const BuildRoadModal = ({
           value={capacity}
           onChange={(x) => {
             if (round == undefined) {console.log("round undefined"); round = new Round2} //this line should never run
-            //console.log(capacity);
+            /* console.log(capacity);
             //setCost(round.roadCost(i, j, capacity));
-            /* console.log("1: ");
+            console.log("1: ");
             console.log(cost); */
             setCapacity(parseInt(x.target.value));
             setCost(round.roadCost(i, j, capacity));
-            /* console.log("2: ");
-            console.log(cost); */
-            //console.log(capacity);
+            /* console.log(round);
+            console.log("2: ");
+            console.log(cost);
+            console.log(capacity); */
           }}
           className="slider"
         ></input>

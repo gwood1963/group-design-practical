@@ -86,6 +86,7 @@ export class Round2 {
         this.setCanvasSize((x2 - x1) * 4 / 3, (y2 - y1) * 4 / 3); */
         //this.setCanvasSize(500, 500);
         this.setCenter();
+        this.getRoughSize();
     }
 
     makeSeed() {
@@ -113,6 +114,34 @@ export class Round2 {
 
     getBankParams() {
         return this.bank.getParams();
+    }
+
+    getRoughSize() {
+        var minX = 1000000;
+        var maxX = 0;
+        var minY = 1000000;
+        var maxY = 0;
+        for (var i = 0; i < this.theCoords.length; i++) {
+            const x = this.theCoords[i][0];
+            const y = this.theCoords[i][1];
+            if (x < minX) {
+                minX = x;
+            }
+            if (x > maxX) {
+                maxX = x;
+            }
+            if (y < minY) {
+                minY = y;
+            }
+            if (y > maxY) {
+                maxY = y;
+            }
+        }
+
+        const xDiff = maxX - minX;
+        const yDiff = maxY - minY;
+        const roughSize = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+        this.roughSize = roughSize;
     }
 
     genRandom(n, w, h) {
@@ -322,6 +351,10 @@ export class Round2 {
         //|ax0 + by0 + c|/sqrt(a^2 + b^2)
         const d = Math.sqrt(Math.max(this.roughSize / 100, Math.abs(m * x3 - y3 + b) / Math.sqrt(m * m + 1)));
 
+        /* console.log(Math.abs(m * x3 - y3 + b) / Math.sqrt(m * m + 1));
+        console.log(this.roughSize / 100);
+        console.log(d); */
+
         return d != 0 ? this.roughSize / (100 * d) : 100000000;
 
     }
@@ -390,6 +423,10 @@ export class Round2 {
         const distToCenter = this.centrality(i, j);
 
         const cost = this.bank.roadCost(w, l, distToCenter);
+        /* console.log(cost);
+        console.log(i);
+        console.log(j);
+        console.log(distToCenter); */
         return cost;
     }
 

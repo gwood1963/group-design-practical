@@ -66,7 +66,15 @@ export class Bank {
         console.log(length); */
         /* console.log("centrality: ");
         console.log(centrality); */
+        /* console.log(width);
+        console.log(length);
+        console.log(centrality);
+        console.log(this.roadLengthCost);
+        console.log(this.roadLengthUnit);
+        console.log(this.roadWidthCost);
+        console.log(this.roadWidthUnit); */
         const cost = (width * this.roadWidthCost / this.roadWidthUnit) * (centrality * this.centralityCost + length * this.roadLengthCost / this.roadLengthUnit);
+        //console.log(cost);
         return Math.floor(cost);
     }
 

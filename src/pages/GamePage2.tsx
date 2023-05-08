@@ -159,7 +159,7 @@ const GamePage2 = () => {
     (async () => {
       let round2 = new Round2();
       ///////////////////////////////////////////////////////////////
-      /* const {seed, id} = await fetch("/api/getproblem/2").then(res => res.json());
+      const {seed, id} = await fetch("/api/getproblem/2").then(res => res.json());
       if (seed !== "NONE") {
         // read active problem from database
         round2.readSeed(seed);
@@ -170,7 +170,8 @@ const GamePage2 = () => {
         let added = 0;
         while (added === 0) {
           // ensures we're not duplicating an existing problem
-          round2.genRandom(5, 500, 300);
+          //round2.genRandom(5, 500, 300);
+          round2.genRandom(7, 200, 100);
           const seed = round2.makeSeed();
           console.log(seed);
           added = await fetch("/api/addproblem", {
@@ -187,8 +188,8 @@ const GamePage2 = () => {
         }
         setPID(added);
         console.log("New problem generated.");
-      } */
-      round2.genRandom(7, 200, 100);
+      }
+      //round2.genRandom(7, 200, 100);
       setRound(round2);
       let nodesTemp = [];
       const nodeCount = round2.getN();
@@ -267,7 +268,7 @@ const GamePage2 = () => {
     console.log(score);
     console.log(round.makeSeed());
     //////////////////////////////////////////
-    /* fetch("/api/attempt2", {
+    fetch("/api/attempt2", {
       method: "PUT",
       body: JSON.stringify({
         score: score,
@@ -278,7 +279,7 @@ const GamePage2 = () => {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-    }); */
+    });
     navigate("/goodbye");
   };
   /////////////////////
