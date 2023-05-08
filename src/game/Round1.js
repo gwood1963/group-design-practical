@@ -201,7 +201,7 @@ export class Round1 {
 
         const score = Math.max(0, (submittedFlow - unbalance) / maxFlow);
 
-        return score;
+        return Math.round(100 * score) / 100;
     }
 
     getMaxFlow() {

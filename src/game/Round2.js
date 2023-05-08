@@ -20,11 +20,19 @@ export class Round2 {
     generate = new Generate;
     display = new Display; //likely not needed in the end
     bank = new Bank;
+    roughSize;
     /* width = 500; //will be opdated later
     len = 300;
     widthLengthSet = false;
  */
     roads; //matrix of edges/roads (0 or 1, cost)
+    center = [0, 0];
+
+    setCenter() {
+        const s = this.theCoords[0];
+        const t = this.theCoords[this.theCoords.length - 1];
+        this.center = [(s[0] + t[0]) / 2, (s[1] + t[1]) / 2];
+    }
 
     logInfo() {
         console.log("n: ");
@@ -77,6 +85,8 @@ export class Round2 {
         }
         this.setCanvasSize((x2 - x1) * 4 / 3, (y2 - y1) * 4 / 3); */
         //this.setCanvasSize(500, 500);
+        this.setCenter();
+        this.getRoughSize();
     }
 
     makeSeed() {
@@ -106,6 +116,34 @@ export class Round2 {
         return this.bank.getParams();
     }
 
+    getRoughSize() {
+        var minX = 1000000;
+        var maxX = 0;
+        var minY = 1000000;
+        var maxY = 0;
+        for (var i = 0; i < this.theCoords.length; i++) {
+            const x = this.theCoords[i][0];
+            const y = this.theCoords[i][1];
+            if (x < minX) {
+                minX = x;
+            }
+            if (x > maxX) {
+                maxX = x;
+            }
+            if (y < minY) {
+                minY = y;
+            }
+            if (y > maxY) {
+                maxY = y;
+            }
+        }
+
+        const xDiff = maxX - minX;
+        const yDiff = maxY - minY;
+        const roughSize = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+        this.roughSize = roughSize;
+    }
+
     genRandom(n, w, h) {
         //this.setCanvasSize(w, h);
         var B = [];
@@ -116,8 +154,9 @@ export class Round2 {
         this.theCoords = this.display.genRandomEmpty(n, w, h);
         this.updateInfo();
         const roughSize = Math.sqrt(w * w + h * h);
+        this.roughSize = roughSize;
         this.bank.setTotalMoney(Math.round(roughSize / 100) * 100);
-        this.setBankParams(1, 1, 4, 4);
+        this.setBankParams(1, 2, 5, 5);
         var r = [];
         for (var i = 0; i < n; i++) {
             var temp = [];
@@ -127,6 +166,7 @@ export class Round2 {
             r.push(temp);
         }
         this.roads = r;
+        this.setCenter();
     }
 
     updateInfo() {
@@ -179,7 +219,8 @@ export class Round2 {
         this.roads = r;
     } */
 
-    loadGraph(graph) {
+    //not used
+    /* loadGraph(graph) {
         this.theGraph = graph;
         const n = graph.dim();
         var r = [];
@@ -191,7 +232,7 @@ export class Round2 {
             r.push(temp);
         }
         this.roads = r;
-    }
+    } */
 
     /**
      * We assume here that the enumeration of edges is in dictionary order
@@ -209,7 +250,7 @@ export class Round2 {
         var index = 0;
         for (var i = 0; i < this.theN; i++) {
             var temp = [];
-            for (var j = i+1; j < this.theN; j++) {
+            for (var j = i + 1; j < this.theN; j++) {
                 temp.push([j, flowArr[index]]);
                 index++;
             }
@@ -289,6 +330,35 @@ export class Round2 {
         return this.maxFlowEngine.maxFlow(this.theGraph);
     }
 
+    centrality(i, j) {
+        /* const center = this.center;
+        const iCoords = this.theCoords[i];
+        const jCoords = this.theCoords[j];
+
+        const dist = Math.abs() */
+        const x1 = this.theCoords[i][0];
+        const x2 = this.theCoords[j][0];
+        const x3 = this.center[0];
+        const y1 = this.theCoords[i][1];
+        const y2 = this.theCoords[j][1];
+        const y3 = this.center[1];
+        const m = (y2 - y1) / (x2 - x1);
+        //y = mx + b
+        const b = y2 - (m * x2);
+        //mx - y + b = 0
+        //for standard form ax + by + c = 0: 
+        //dist from (x0, y0) to line is: 
+        //|ax0 + by0 + c|/sqrt(a^2 + b^2)
+        const d = Math.sqrt(Math.max(this.roughSize / 100, Math.abs(m * x3 - y3 + b) / Math.sqrt(m * m + 1)));
+
+        /* console.log(Math.abs(m * x3 - y3 + b) / Math.sqrt(m * m + 1));
+        console.log(this.roughSize / 100);
+        console.log(d); */
+
+        return d != 0 ? this.roughSize / (100 * d) : 100000000;
+
+    }
+
     ////////////////////////////////////////////////////////////////
 
     /**
@@ -317,7 +387,8 @@ export class Round2 {
             console.log("insufficient funds");
             return false;
         }
-        const cost = this.bank.buildRoad(w, l);
+        const distToCenter = this.centrality(i, j);
+        const cost = this.bank.buildRoad(w, l, distToCenter);
         const cap = w;
         this.roads[i][j][0] = 1;
         this.roads[i][j][1] = cost;
@@ -337,6 +408,11 @@ export class Round2 {
 
         /* const canvasWidth = this.width;
         const canvasLength = this.len; */
+        //console.log(this.theCoords);
+        /* console.log("infos");
+        console.log(i);
+        console.log(j);
+        console.log(capacity); */
         const xDist = Math.abs(this.theCoords[j][0] - this.theCoords[i][0]);
         const yDist = Math.abs(this.theCoords[j][1] - this.theCoords[i][1]);
         /* const w = 1000 * xDist / canvasWidth;
@@ -344,7 +420,13 @@ export class Round2 {
         const w = capacity;
         const l = Math.sqrt(xDist * xDist + yDist * yDist);
 
-        const cost = this.bank.roadCost(w, l);
+        const distToCenter = this.centrality(i, j);
+
+        const cost = this.bank.roadCost(w, l, distToCenter);
+        /* console.log(cost);
+        console.log(i);
+        console.log(j);
+        console.log(distToCenter); */
         return cost;
     }
 

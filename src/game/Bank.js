@@ -10,6 +10,7 @@ export class Bank {
     roadWidthCost = 1; //for capacities
     roadLengthUnit = 1; //unit length and width
     roadWidthUnit = 1;
+    centralityCost = 50;
 
 
 
@@ -57,12 +58,23 @@ export class Bank {
      * 
      * @param {Number} width 
      * @param {Number} length 
+     * @param {Number} centrality - how close to the center the edge is
      * @returns the (floor) cost of the road based on our parameters
      */
-    roadCost(width, length) {
-        console.log(width);
+    roadCost(width, length, centrality) {
+        /* console.log(width);
+        console.log(length); */
+        /* console.log("centrality: ");
+        console.log(centrality); */
+        /* console.log(width);
         console.log(length);
-        const cost = (width * this.roadWidthCost / this.roadWidthUnit) * (length * this.roadLengthCost / this.roadLengthUnit);
+        console.log(centrality);
+        console.log(this.roadLengthCost);
+        console.log(this.roadLengthUnit);
+        console.log(this.roadWidthCost);
+        console.log(this.roadWidthUnit); */
+        const cost = (width * this.roadWidthCost / this.roadWidthUnit) * (centrality * this.centralityCost + length * this.roadLengthCost / this.roadLengthUnit);
+        //console.log(cost);
         return Math.floor(cost);
     }
 
@@ -71,9 +83,9 @@ export class Bank {
      * @param {Number} width - capacity of the new road
      * @param {Number} length - length of the new road 
      */
-    buildRoad(width, length) {
-        const cost = this.roadCost(width, length);
-        console.log(cost);
+    buildRoad(width, length, centrality) {
+        const cost = this.roadCost(width, length, centrality);
+        //console.log(cost);
         this.money = this.money - cost;
         //console.log(this.money);
         return cost;
